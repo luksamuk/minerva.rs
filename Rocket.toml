@@ -1,0 +1,2 @@
+[global.databases.minervadb]
+url = "postgres://SYSDBA:masterkey@localhost/minervadb" 

@@ -1,0 +1,251 @@
+#+title: Minerva.rs
+
+* Descrição
+
+Minerva  é um  projeto  de estudo  de um  sistema  gerencial feito  em
+Rust. O sistema  é uma prova de conceito, principalmente  para teste e
+implementação de  uma API  REST de backend  para um  sistema gerencial
+qualquer, especialmente  quando este  envolver valores  numéricos para
+pesos, estoque e preços.
+
+Este projeto  utiliza as bibliotecas  [[https://rocket.rs][Rocket]] e [[https://diesel.rs][Diesel]] para  criação de
+uma API REST e conexão com um banco de dados PostgreSQL.
+
+Este  projeto também  utiliza  nomenclaturas em  Português por  razões
+parcialmente didáticas  e parcialmente arbitrárias, não  sendo reflexo
+direto do gosto do  autor. Caso você seja alérgico ao  uso de nomes de
+estruturas e variáveis em Português, esteja desde já avisado(a).
+
+* Licenciamento
+
+Este projeto é redistribuido sob a licença GNU General Public License,
+versão 3. Para  maiores informações, veja o arquivo LICENSE  ou veja o
+cabeçalho dos arquivos de código.
+
+* Configuração do banco de dados
+
+O banco de dados para esse projeto pode ser configurado manualmente em
+algum  serviço  remoto  ou  local.  Para  testes  no  desenvolvimento,
+recomenda-se o uso de Docker, sobretudo em ambientes Linux.
+
+Os  passos  a seguir  designam  comandos  de  console para  criação  e
+gerenciamento do contêiner para o banco de dados.
+
+** Criação do contêiner
+
+O  comando  a  seguir  cria  o contêiner  do  banco  de  dados  usando
+PostgreSQL 11, usando Docker.
+
+#+begin_src bash
+docker run --name minervadb \
+       -e POSTGRES_USER=SYSDBA \
+       -e POSTGRES_PASSWORD=masterkey \
+       -p 5432:5432 \
+       -d postgres:11
+#+end_src
+
+O comando definirá o banco de dados da forma a seguir:
+
+- Nome do banco: ~minervabd~
+- Usuário: ~SYSDBA~
+- Senha: ~masterkey~
+- Porta: ~5432~ (padrão)
+- Link do BD: ~postgres://SYSDBA:masterkey@localhost/minervadb~
+
+** Recuperando IP do contêiner (caso necessário)
+
+Caso você  precise de um  IP concreto  para o contêiner  (por exemplo,
+para  executar  scripts  em  SQL   via  Org  Mode),  poderá  consultar
+diretamente o IP do contêiner usando o comando abaixo.
+
+#+begin_src bash
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' minervadb
+#+end_src
+
+** Gerenciamento do contêiner
+
+Os comandos abaixo  servem para iniciar, matar e verificar  os logs do
+contêiner de banco de dados.
+
+#+begin_src bash
+docker start minervadb
+docker stop minervadb
+docker logs minervadb
+#+end_src
+
+** Preparação inicial do banco de dados
+
+Execute o comando abaixo  para fazer com que o Diesel  crie o banco de
+dados  de  acordo com  a  variável  de ambiente  ~DATABASE_URL~  (essa
+variável também  pode ser definida  com um  arquivo ~.env~, como  já é
+feito nesse repositório, para testes, por padrão).
+
+Veja  também  o  arquivo  ~diesel.toml~  e  assegure  que  ele  aponta
+adequadamente para o  arquivo de schemas (este arquivo  também já está
+definido neste repositório).
+
+#+begin_src bash
+diesel setup
+#+end_src
+
+Este comando  também executará  todas as  migrations já  criadas nesse
+repositório.
+
+Para maiores  informações, veja ~diesel  --help~ ou a  documentação do
+~diesel~.
+
+* Criando migrations
+
+Os  comandos  a  seguir  mostram  como  criar  novas  migrations  para
+modificações no banco de dados.
+
+** Criando nova migration
+
+Caso seja  necessário criar  uma nova migration,  utilize o  comando a
+seguir. A  migration será criada  e você deverá editar  os respectivos
+arquivos ~up.sql~ e ~down.sql~.
+
+#+begin_src bash
+diesel migration generate nome_da_migration
+#+end_src
+
+** Executa migrations
+
+Após editar os arquivos ~up.sql~ e ~down.sql~, execute a migration com
+o comando a seguir.
+
+#+begin_src bash
+diesel migration run
+#+end_src
+
+Para verificar se ~down.sql~  está funcionando adequadamente, refaça a
+última migration com o comando:
+
+#+begin_src bash
+diesel migration redo
+#+end_src
+
+* Lista de rotas
+
+Abaixo, uma lista das rotas criadas até então.
+
+| Tipo   | Rota           | Descrição                |
+|--------+----------------+--------------------------|
+| GET    | /              | Chaleira                 |
+|--------+----------------+--------------------------|
+| GET    | /produtos      | Lista até 100 produtos   |
+| POST   | /produtos      | Cadastra um produto      |
+| GET    | /produtos/<id> | Retorna um produto       |
+| DELETE | /produtos/<id> | Deleta um produto        |
+| DELETE | /produtos/all  | Deleta todos os produtos |
+|--------+----------------+--------------------------|
+| GET    | /clientes      | Lista até 100 clientes   |
+| POST   | /clientes      | Cadastra um cliente      |
+| GET    | /clientes/<id> | Retorna um cliente       |
+| DELETE | /clientes/<id> | Deleta um cliente        |
+| DELETE | /clientes/all  | Deleta todos os clientes |
+
+** Estrutura de cadastro de cliente
+
+A requisição para  cadastro de cliente exige um corpo  em JSON com uma
+estrutura similar à seguinte:
+
+#+begin_src json
+{
+    "nome": "Nome do Cliente",
+    "pj": false,
+    "docto": "000.000.000-00",
+    "enderecos": [
+        {
+            "logradouro": "Logradouro",
+            "numero": "0",
+            "bairro": "Bairro",
+            "uf": "UF",
+            "cidade": "Cidade"
+        },
+        {
+            "logradouro": "Logradouro",
+            "numero": "0",
+            "complemento": "Casa",
+            "bairro": "Bairro",
+            "uf": "UF",
+            "cidade": "Cidade"
+        }
+    ]
+}
+#+end_src
+
+- ~nome~: Nome do cliente.
+- ~pj~: Indica se o cliente é pessoa física ou jurídica.
+- ~docto~: Documento do cliente. Pode ser CPF ou CNPJ, de acordo com o
+  parâmetro ~pj~.
+- ~enderecos~: Lista  de endereços do  cliente. Todo cliente  pode ter
+  uma quantidade  arbitrária de  endereços. Pode  ser também  um vetor
+  vazio, mas deverá ser mostrado na estrutura.
+
+*** Campos dos endereços
+
+- ~logradouro~: Logradouro.
+- ~numero~: Número  do endereço.  Informado em string.   Ex: ~"1234"~,
+  ~"456 A"~, etc.
+- ~complemento~:  Pode  ser  omitido  ou informado  como  ~null~.  Ex:
+  ~Casa~, ~Prédio~, etc.
+- ~bairro~: Bairro.
+- ~uf~: Unidade federativa.
+- ~cidade~: Cidade.
+
+** Estrutura de cadastro de produto
+
+A requisição para  cadastro de produto exige um corpo  em JSON com uma
+estrutura similar à seguinte:
+
+#+begin_src json
+{
+  "descricao": "Descrição do produto",
+  "unidsaida": "UN",
+  "qtdestoque": "0.0",
+  "precovenda": "0.0"
+}
+#+end_src
+
+- ~descricao~: Descrição do produto.
+- ~unidsaida~:  Unidade  de  saída  do produto.   Será  armazenada  em
+  uppercase. Ex: ~"UN"~, ~"KG"~, etc.
+- ~qtdestoque~: Quantidade a  ser lançada em estoque.  Admite até três
+  casas  decimais.  Deve  ser  informada como  string.  Valor  máximo:
+  ~999999999.999~.
+- ~precovenda~: Preço  de venda  do produto.  Admite até  quatro casas
+  decimais.   Deve   ser   informada  como   string.   Valor   máximo:
+  ~999999999.9999~.
+
+*ATENÇÃO:* As informações ~qtdestoque~  e ~precovenda~ são armazenadas
+no banco de  dados como /ponto fixo/, e não  como ponto flutuante. Por
+esse motivo, é importante assegurar o  limite de uso de dígitos para a
+parte integral e decimal destes valores.
+
+* Executando o projeto
+
+Após  o banco  de  dados estar  apropriadamente  definido, é  possível
+executar o projeto com o comando:
+
+#+begin_src bash
+cargo run
+#+end_src
+
+Para mais  informações, veja a  documentação da ferramenta  ~cargo~ da
+linguagem Rust.
+
+** Utilitários de linha de comando
+
+Existem  alguns  utilitários  de  linha  de  comando  configurados  no
+projeto, que não fazem parte  diretamente do binário do servidor REST,
+mas existem  para fins de  debug. Estes utilitários existem  para, por
+exemplo, testar  o cadastro  de uma entidade  antes de  criarmos rotas
+para a mesma.
+
+Os utilitários  podem ser  executados por um  comando como  ~cargo run
+--bin nome_do_utilitario~.
+
+- ~cria_cliente~: Cadastro de clientes interativo, via console.
+- ~cria_produto~: Cadastro de produtos interativo, via console.
+
