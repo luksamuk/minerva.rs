@@ -19,9 +19,9 @@
 extern crate dotenv;
 extern crate serde;
 extern crate serde_json;
+extern crate bigdecimal;
 
 pub mod db;
-pub mod util;
 pub mod model;
 pub mod controller;
 pub mod routes;

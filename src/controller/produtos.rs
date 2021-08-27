@@ -18,8 +18,8 @@ use diesel::prelude::*;
 use crate::model::schema::produto;
 use crate::model::produto::{ Produto, ProdutoRepr, ProdutoRecv };
 use crate::model::schema::produto::dsl::*;
-use crate::model::estoque::MovEstoqueRecv;
-use diesel::pg::data_types::PgNumeric;
+use crate::model::estoque::MovEstoque;
+use bigdecimal::BigDecimal;
 
 pub fn lista_produtos(conexao: &PgConnection, limite: i64) -> Vec<ProdutoRepr> {
     produto::table.limit(limite)
@@ -68,8 +68,7 @@ pub fn registra_produto(conexao: &PgConnection, dados: ProdutoRecv) -> Result<i3
     }
 }
 
-pub fn muda_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Result<PgNumeric, String> {
-    let movimen = recv.into_proper();
+pub fn muda_estoque(conexao: &PgConnection, movimen: MovEstoque) -> Result<BigDecimal, String> {
     // TODO: gravar movimentação
     // Assume que o produto já exista.
     let mut prod = get_produto_raw(conexao, movimen.produto_id).unwrap();

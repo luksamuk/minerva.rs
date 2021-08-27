@@ -14,26 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use diesel::pg::data_types::PgNumeric;
+use bigdecimal::BigDecimal;
 use serde::Deserialize;
-use crate::util::string_to_numeric;
-
-pub struct MovEstoque {
-    pub produto_id: i32,
-    pub movimentacao_estoque: PgNumeric,
-}
 
 #[derive(Deserialize, Clone)]
-pub struct MovEstoqueRecv {
+pub struct MovEstoque {
     pub produto_id: i32,
-    pub movimentacao_estoque: String,
-}
-
-impl MovEstoqueRecv {
-    pub fn into_proper(&self) -> MovEstoque {
-        MovEstoque {
-            produto_id: self.produto_id,
-            movimentacao_estoque: string_to_numeric(self.movimentacao_estoque.clone()),
-        }
-    }
+    pub movimentacao_estoque: BigDecimal,
 }

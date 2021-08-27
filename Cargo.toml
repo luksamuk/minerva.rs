@@ -17,7 +17,8 @@ name = "minerva"
 path = "src/main.rs"
 
 [dependencies]
-diesel = { version = "1.4.4", features = ["postgres", "extras", "bigdecimal"] }
+diesel = { version = "1.4.4", features = ["postgres", "extras", "numeric"] }
+bigdecimal = { version = "0.1.2", features = ["serde"] }
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
 dotenv = "0.15.0"
 serde  = "1.0"

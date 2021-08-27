@@ -17,8 +17,8 @@
 #[allow(dead_code)]
 
 use std::io::{ stdin, stdout, Write };
-use diesel::pg::data_types::PgNumeric;
-use crate::util;
+use bigdecimal::BigDecimal;
+use std::str::FromStr;
 
 pub fn get_input() -> String {
     let mut buffer = String::new();
@@ -40,8 +40,8 @@ pub fn get_bool() -> bool {
     input == "S"
 }
 
-pub fn get_numeric() -> PgNumeric {
-    util::string_to_numeric(get_input())
+pub fn get_numeric() -> BigDecimal {
+    BigDecimal::from_str(&get_input()).unwrap()
 }
 
 pub fn prompt(msg: &'static str) {

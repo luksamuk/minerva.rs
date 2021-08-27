@@ -22,7 +22,7 @@ use crate::db::ConexaoPool;
 use diesel::prelude::*;
 use crate::model::produto::ProdutoRecv;
 use super::respostas::Resposta;
-use crate::model::estoque::MovEstoqueRecv;
+use crate::model::estoque::MovEstoque;
 
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
@@ -89,18 +89,16 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<ProdutoRecv>) -> Resposta {
 fn movimenta_estoque(
     pool: &State<ConexaoPool>,
     prod_id: i32,
-    dados: Json<MovEstoqueRecv>
+    dados: Json<MovEstoque>
 ) -> Resposta {
     let conexao = pool.get().unwrap();
     if produtos::get_produto(&conexao, prod_id).is_none() {
         Resposta::NaoEncontrado(
             String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
     } else {
-        use crate::util::numeric_to_string;
         match produtos::muda_estoque(&conexao, dados.clone()) {
             Ok(estoque) => Resposta::Ok(
-                format!("{{ \"estoque\": \"{}\" }}",
-                        numeric_to_string(estoque))),
+                format!("{{ \"estoque\": \"{}\" }}", estoque)),
             Err(msg) => Resposta::ErroSemantico(
                 format!("{{ \"mensagem\": \"{}\" }}", msg)),
         }

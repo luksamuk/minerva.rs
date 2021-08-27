@@ -15,19 +15,17 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::schema::produto;
-use diesel::pg::data_types::PgNumeric;
 use serde::{ Serialize, Deserialize };
-use crate::util::*;
+use bigdecimal::BigDecimal;
+use std::str::FromStr;
 
 #[derive(Queryable, Serialize, Debug, Clone)]
 pub struct Produto {
     pub id: i32,
     pub descricao: String,
     pub unidsaida: String,
-    #[serde(with = "Numeric")]
-    pub qtdestoque: PgNumeric,
-    #[serde(with = "Numeric")]
-    pub precovenda: PgNumeric
+    pub qtdestoque: BigDecimal,
+    pub precovenda: BigDecimal,
 }
 
 #[derive(Insertable)]
@@ -35,8 +33,8 @@ pub struct Produto {
 pub struct NovoProduto {
     pub descricao: String,
     pub unidsaida: String,
-    pub qtdestoque: PgNumeric,
-    pub precovenda: PgNumeric,
+    pub qtdestoque: BigDecimal,
+    pub precovenda: BigDecimal,
 }
 
 #[derive(Serialize)]
@@ -62,8 +60,8 @@ impl Produto {
             id: self.id,
             descricao: self.descricao.clone(),
             unidsaida: self.unidsaida.clone(),
-            qtdestoque: numeric_to_string(self.qtdestoque.clone()),
-            precovenda: numeric_to_string(self.precovenda.clone()),
+            qtdestoque: format!("{}", self.qtdestoque),
+            precovenda: format!("{}", self.precovenda),
         }
     }
 }
@@ -73,8 +71,8 @@ impl NovoProduto {
         Self {
             descricao: String::new(),
             unidsaida: String::new(),
-            qtdestoque: PgNumeric::NaN,
-            precovenda: PgNumeric::NaN,
+            qtdestoque: BigDecimal::from_str("0.0").unwrap(),
+            precovenda: BigDecimal::from_str("0.0").unwrap(),
         }
     }
 }
@@ -84,8 +82,8 @@ impl ProdutoRecv {
         NovoProduto {
             descricao: self.descricao.clone(),
             unidsaida: self.unidsaida.clone(),
-            qtdestoque: string_to_numeric(self.qtdestoque.clone()),
-            precovenda: string_to_numeric(self.precovenda.clone()),
+            qtdestoque: BigDecimal::from_str(&self.qtdestoque).unwrap(),
+            precovenda: BigDecimal::from_str(&self.precovenda).unwrap(),
         }
     }
 }
