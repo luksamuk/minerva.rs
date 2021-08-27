@@ -22,7 +22,6 @@ use crate::db::ConexaoPool;
 use diesel::prelude::*;
 use crate::model::produto::NovoProduto;
 use super::respostas::Resposta;
-use crate::model::estoque::MovEstoque;
 
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
@@ -30,8 +29,7 @@ pub fn constroi_rotas() -> Vec<Route> {
         retorna_produto,
         deleta_todos,
         deleta,
-        cadastra,
-        movimenta_estoque
+        cadastra
     ]
 }
 
@@ -86,17 +84,3 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>) -> Resposta {
     }
 }
 
-#[post("/<prod_id>/estoque", data = "<dados>")]
-fn movimenta_estoque(
-    pool: &State<ConexaoPool>,
-    prod_id: i32,
-    dados: Json<MovEstoque>
-) -> Resposta {
-    let conexao = pool.get().unwrap();
-    match produtos::get_produto(&conexao, prod_id) {
-        None => Resposta::NaoEncontrado(
-            String::from("{ \"mensagem\": \"Produto não encontrado\" }")),
-        Some(p) =>
-            produtos::muda_estoque(&conexao, &p, dados.quantidade.clone()),
-    }
-}

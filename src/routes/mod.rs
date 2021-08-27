@@ -17,6 +17,7 @@
 pub mod respostas;
 pub mod clientes;
 pub mod produtos;
+pub mod estoque;
 
 use respostas::Resposta;
 
@@ -32,7 +33,8 @@ pub fn index() -> Resposta {
          GET    /produtos/<id>         \n\
          DELETE /produtos/<id>         \n\
          DELETE /produtos/all          \n\
-         POST   /produtos/<id>/estoque \n\
+         ------------------------------\n\
+         POST   /estoque               \n\
          ------------------------------\n\
          GET    /clientes              \n\
          POST   /clientes              \n\
