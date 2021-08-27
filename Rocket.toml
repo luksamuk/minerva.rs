@@ -3,5 +3,4 @@ address = "localhost"
 port    = 8000
 
 [release]
-address = "localhost"
-
+address = "0.0.0.0"
