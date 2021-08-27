@@ -28,42 +28,13 @@ pub struct Produto {
     pub precovenda: BigDecimal,
 }
 
-#[derive(Insertable)]
+#[derive(Debug, Insertable, Deserialize, Clone)]
 #[table_name="produto"]
 pub struct NovoProduto {
     pub descricao: String,
     pub unidsaida: String,
     pub qtdestoque: BigDecimal,
     pub precovenda: BigDecimal,
-}
-
-#[derive(Serialize)]
-pub struct ProdutoRepr {
-    pub id: i32,
-    pub descricao: String,
-    pub unidsaida: String,
-    pub qtdestoque: String,
-    pub precovenda: String,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct ProdutoRecv {
-    pub descricao: String,
-    pub unidsaida: String,
-    pub qtdestoque: String,
-    pub precovenda: String,
-}
-
-impl Produto {
-    pub fn into_repr(&self) -> ProdutoRepr {
-        ProdutoRepr {
-            id: self.id,
-            descricao: self.descricao.clone(),
-            unidsaida: self.unidsaida.clone(),
-            qtdestoque: format!("{}", self.qtdestoque),
-            precovenda: format!("{}", self.precovenda),
-        }
-    }
 }
 
 impl NovoProduto {
@@ -73,17 +44,6 @@ impl NovoProduto {
             unidsaida: String::new(),
             qtdestoque: BigDecimal::from_str("0.0").unwrap(),
             precovenda: BigDecimal::from_str("0.0").unwrap(),
-        }
-    }
-}
-
-impl ProdutoRecv {
-    pub fn into_new(&self) -> NovoProduto {
-        NovoProduto {
-            descricao: self.descricao.clone(),
-            unidsaida: self.unidsaida.clone(),
-            qtdestoque: BigDecimal::from_str(&self.qtdestoque).unwrap(),
-            precovenda: BigDecimal::from_str(&self.precovenda).unwrap(),
         }
     }
 }

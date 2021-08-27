@@ -20,7 +20,7 @@ use crate::controller::produtos;
 use rocket::State;
 use crate::db::ConexaoPool;
 use diesel::prelude::*;
-use crate::model::produto::ProdutoRecv;
+use crate::model::produto::NovoProduto;
 use super::respostas::Resposta;
 use crate::model::estoque::MovEstoque;
 
@@ -75,7 +75,7 @@ fn deleta_todos(pool: &State<ConexaoPool>) -> Resposta {
 }
 
 #[post("/", data = "<dados>")]
-fn cadastra(pool: &State<ConexaoPool>, dados: Json<ProdutoRecv>) -> Resposta {
+fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>) -> Resposta {
     let conexao = pool.get().unwrap();
     let result = produtos::registra_produto(&conexao, dados.clone());
     match result {
