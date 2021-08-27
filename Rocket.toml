@@ -1,2 +1,5 @@
-[global.databases.minervadb]
-url = "postgres://SYSDBA:masterkey@localhost/minervadb" 
+[staging]
+
+[production]
+base_url = "https://my-minerva-test.herokuapp.com/"
+
