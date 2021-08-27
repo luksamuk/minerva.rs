@@ -43,7 +43,8 @@ pub fn deleta_produto(conexao: &PgConnection, prodid: i32) {
         .expect("Erro ao deletar produto");
 }
 
-pub fn registra_produto(conexao: &PgConnection, dados: NovoProduto) -> Result<i32, String> {
+pub fn registra_produto(conexao: &PgConnection, mut dados: NovoProduto) -> Result<i32, String> {
+    dados.unidsaida = dados.unidsaida.to_uppercase();
     match diesel::insert_into(produto::table)
         .values(&dados)
         .get_result::<Produto>(conexao)
