@@ -26,4 +26,6 @@ pub enum Resposta {
     Chaleira(&'static str),
     #[response(status = 422, content_type = "json")]
     ErroSemantico(String),
+    #[response(status = 500, content_type = "json")]
+    ErroInterno(String),
 }

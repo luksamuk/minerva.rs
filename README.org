@@ -129,21 +129,22 @@ diesel migration redo
 
 Abaixo, uma lista das rotas criadas até então.
 
-| Tipo   | Rota           | Descrição                |
-|--------+----------------+--------------------------|
-| GET    | /              | Chaleira                 |
-|--------+----------------+--------------------------|
-| GET    | /produtos      | Lista até 100 produtos   |
-| POST   | /produtos      | Cadastra um produto      |
-| GET    | /produtos/<id> | Retorna um produto       |
-| DELETE | /produtos/<id> | Deleta um produto        |
-| DELETE | /produtos/all  | Deleta todos os produtos |
-|--------+----------------+--------------------------|
-| GET    | /clientes      | Lista até 100 clientes   |
-| POST   | /clientes      | Cadastra um cliente      |
-| GET    | /clientes/<id> | Retorna um cliente       |
-| DELETE | /clientes/<id> | Deleta um cliente        |
-| DELETE | /clientes/all  | Deleta todos os clientes |
+| Tipo   | Rota                   | Descrição                       |
+|--------+------------------------+---------------------------------|
+| GET    | /                      | Chaleira                        |
+|--------+------------------------+---------------------------------|
+| GET    | /produtos              | Lista até 100 produtos          |
+| POST   | /produtos              | Cadastra um produto             |
+| GET    | /produtos/<id>         | Retorna um produto              |
+| DELETE | /produtos/<id>         | Deleta um produto               |
+| DELETE | /produtos/all          | Deleta todos os produtos        |
+| POST   | /produtos/<id>/estoque | Realiza movimentação de estoque |
+|--------+------------------------+---------------------------------|
+| GET    | /clientes              | Lista até 100 clientes          |
+| POST   | /clientes              | Cadastra um cliente             |
+| GET    | /clientes/<id>         | Retorna um cliente              |
+| DELETE | /clientes/<id>         | Deleta um cliente               |
+| DELETE | /clientes/all          | Deleta todos os clientes        |
 
 ** Estrutura de cadastro de cliente
 
@@ -221,6 +222,22 @@ no banco de  dados como /ponto fixo/, e não  como ponto flutuante. Por
 esse motivo, é importante assegurar o  limite de uso de dígitos para a
 parte integral  e decimal  destes valores. Caso  os dígitos  excedam o
 padrão, o número poderá ser truncado.
+
+** Estrutura de movimentação de estoque
+
+#+begin_src json
+{
+    "quantidade": 500.0
+}
+#+end_src
+
+O ID do produto relacionado à  entrada ou saída será informado através
+da rota.
+
+- ~qtd~: Valor de entrada (positivo) ou saída (negativo) do estoque.
+
+*ATENÇÃO:*  A  movimentação  de  estoque  não  pode  resultar  em  uma
+quantidade negativa de estoque.
 
 * Executando o projeto
 

@@ -18,8 +18,8 @@ use diesel::prelude::*;
 use crate::model::schema::produto;
 use crate::model::produto::{ Produto, NovoProduto };
 use crate::model::schema::produto::dsl::*;
-use crate::model::estoque::MovEstoque;
 use bigdecimal::BigDecimal;
+use crate::routes::respostas::Resposta;
 
 pub fn lista_produtos(conexao: &PgConnection, limite: i64) -> Vec<Produto> {
     produto::table.limit(limite)
@@ -54,22 +54,38 @@ pub fn registra_produto(conexao: &PgConnection, mut dados: NovoProduto) -> Resul
             if let diesel::result::Error::DatabaseError(_, _) = &e {
                 Err(format!("{}", e))
             } else {
-                Err(String::from("Erro ao cadastrar produto"))
+                Err(String::from("Erro interno ao cadastrar produto. \
+                                  Contate o suporte para mais informações."))
             }
         },
     }
 }
 
-pub fn muda_estoque(conexao: &PgConnection, movimen: MovEstoque) -> Result<BigDecimal, String> {
+pub fn muda_estoque(conexao: &PgConnection, prod: &Produto, qtd: BigDecimal) -> Resposta {
+    use bigdecimal::Signed;
     // TODO: gravar movimentação
-    // Assume que o produto já exista.
-    let mut prod = get_produto(conexao, movimen.produto_id).unwrap();
-    // let novo_estoque = prod.qtdestoque + movimen.movimentacao_estoque;
-    // if novo_estoque {
-    //     Err(String::from("{ \"mensagem\": \"Estoque não pode ficar negativo\" }"))
-    // } else {
-    //     prod.qtdestoque = novo_estoque;
-        
-    // }
-    todo!();
+    let novo_estoque = prod.qtdestoque.clone() + qtd;
+    if novo_estoque.is_negative() {
+        Resposta::ErroSemantico(
+            String::from("{ \"mensagem\": \"Não é possível efetuar um \
+                          movimento que resulte em estoque negativo.\" }"))
+    } else {
+        let result = diesel::update(prod)
+            .set(produto::qtdestoque.eq(novo_estoque.clone()))
+            .get_results::<Produto>(conexao);
+        match result {
+            Err(e) => {
+                if let diesel::result::Error::DatabaseError(_, _) = &e {
+                    Resposta::ErroSemantico(
+                        format!("{{ \"mensagem\": \"{}\" }}", e))
+                } else {
+                    Resposta::ErroInterno(String::from(
+                        "{ \"mensagem\": \"Erro interno ao movimentar estoque. \
+                         Contate o suporte para mais informações.\" }"))
+                }
+            }
+            Ok(p) =>
+                Resposta::Ok(serde_json::to_string(&p).unwrap()),
+        }
+    }
 }

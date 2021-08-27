@@ -31,6 +31,7 @@ pub fn constroi_rotas() -> Vec<Route> {
         deleta_todos,
         deleta,
         cadastra,
+        movimenta_estoque
     ]
 }
 
@@ -85,22 +86,17 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>) -> Resposta {
     }
 }
 
-#[post("/<prod_id>/mov_estoque", data = "<dados>")]
+#[post("/<prod_id>/estoque", data = "<dados>")]
 fn movimenta_estoque(
     pool: &State<ConexaoPool>,
     prod_id: i32,
     dados: Json<MovEstoque>
 ) -> Resposta {
     let conexao = pool.get().unwrap();
-    if produtos::get_produto(&conexao, prod_id).is_none() {
-        Resposta::NaoEncontrado(
-            String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
-    } else {
-        match produtos::muda_estoque(&conexao, dados.clone()) {
-            Ok(estoque) => Resposta::Ok(
-                format!("{{ \"estoque\": \"{}\" }}", estoque)),
-            Err(msg) => Resposta::ErroSemantico(
-                format!("{{ \"mensagem\": \"{}\" }}", msg)),
-        }
+    match produtos::get_produto(&conexao, prod_id) {
+        None => Resposta::NaoEncontrado(
+            String::from("{ \"mensagem\": \"Produto não encontrado\" }")),
+        Some(p) =>
+            produtos::muda_estoque(&conexao, &p, dados.quantidade.clone()),
     }
 }

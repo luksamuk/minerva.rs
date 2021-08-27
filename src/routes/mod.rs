@@ -23,20 +23,21 @@ use respostas::Resposta;
 #[get("/")]
 pub fn index() -> Resposta {
     Resposta::Chaleira(
-        "Lista de rotas         \n\
-         =======================\n\
-         GET    /               \n\
-         -----------------------\n\
-         GET    /produtos       \n\
-         POST   /produtos       \n\
-         GET    /produtos/<id>  \n\
-         DELETE /produtos/<id>  \n\
-         DELETE /produtos/all   \n\
-         -----------------------\n\
-         GET    /clientes       \n\
-         POST   /clientes       \n\
-         GET    /clientes/<id>  \n\
-         DELETE /clientes/<id>  \n\
-         DELETE /clientes/all   \n\
+        "Lista de rotas                \n\
+         ==============================\n\
+         GET    /                      \n\
+         ------------------------------\n\
+         GET    /produtos              \n\
+         POST   /produtos              \n\
+         GET    /produtos/<id>         \n\
+         DELETE /produtos/<id>         \n\
+         DELETE /produtos/all          \n\
+         POST   /produtos/<id>/estoque \n\
+         ------------------------------\n\
+         GET    /clientes              \n\
+         POST   /clientes              \n\
+         GET    /clientes/<id>         \n\
+         DELETE /clientes/<id>         \n\
+         DELETE /clientes/all          \n\
          ")
 }

@@ -19,7 +19,8 @@ use serde::{ Serialize, Deserialize };
 use bigdecimal::BigDecimal;
 use std::str::FromStr;
 
-#[derive(Queryable, Serialize, Debug, Clone)]
+#[derive(Identifiable, Queryable, Serialize, Debug, Clone)]
+#[table_name="produto"]
 pub struct Produto {
     pub id: i32,
     pub descricao: String,

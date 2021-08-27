@@ -19,6 +19,5 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Clone)]
 pub struct MovEstoque {
-    pub produto_id: i32,
-    pub movimentacao_estoque: BigDecimal,
+    pub quantidade: BigDecimal,
 }
