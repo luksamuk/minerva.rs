@@ -1,4 +1,4 @@
-// routes/respostas.rs -- Uma parte de Minerva.rs
+// model/estoque.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,16 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use rocket::response::Responder;
+use diesel::pg::data_types::PgNumeric;
+use serde::Deserialize;
+use crate::util::string_to_numeric;
 
-#[derive(Responder)]
-pub enum Resposta {
-    #[response(status = 200, content_type = "json")]
-    Ok(String),
-    #[response(status = 404, content_type = "json")]
-    NaoEncontrado(String),
-    #[response(status = 418, content_type = "text")]
-    Chaleira(&'static str),
-    #[response(status = 422, content_type = "json")]
-    ErroSemantico(String),
+pub struct MovEstoque {
+    pub produto_id: i32,
+    pub movimentacao_estoque: PgNumeric,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct MovEstoqueRecv {
+    pub produto_id: i32,
+    pub movimentacao_estoque: String,
+}
+
+impl MovEstoqueRecv {
+    pub fn into_proper(&self) -> MovEstoque {
+        MovEstoque {
+            produto_id: self.produto_id,
+            movimentacao_estoque: string_to_numeric(self.movimentacao_estoque.clone()),
+        }
+    }
 }

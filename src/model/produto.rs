@@ -19,7 +19,7 @@ use diesel::pg::data_types::PgNumeric;
 use serde::{ Serialize, Deserialize };
 use crate::util::*;
 
-#[derive(Queryable, Serialize, Debug)]
+#[derive(Queryable, Serialize, Debug, Clone)]
 pub struct Produto {
     pub id: i32,
     pub descricao: String,

@@ -22,6 +22,7 @@ use crate::db::ConexaoPool;
 use diesel::prelude::*;
 use crate::model::produto::ProdutoRecv;
 use super::respostas::Resposta;
+use crate::model::estoque::MovEstoqueRecv;
 
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
@@ -76,6 +77,32 @@ fn deleta_todos(pool: &State<ConexaoPool>) -> Resposta {
 #[post("/", data = "<dados>")]
 fn cadastra(pool: &State<ConexaoPool>, dados: Json<ProdutoRecv>) -> Resposta {
     let conexao = pool.get().unwrap();
-    let id = produtos::registra_produto(&conexao, dados.clone());
-    Resposta::Ok(format!("{{ \"id\": {} }}", id))
+    let result = produtos::registra_produto(&conexao, dados.clone());
+    match result {
+        Ok(id) => Resposta::Ok(format!("{{ \"id\": {} }}", id)),
+        Err(msg) =>
+            Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", msg)),
+    }
+}
+
+#[post("/<prod_id>/mov_estoque", data = "<dados>")]
+fn movimenta_estoque(
+    pool: &State<ConexaoPool>,
+    prod_id: i32,
+    dados: Json<MovEstoqueRecv>
+) -> Resposta {
+    let conexao = pool.get().unwrap();
+    if produtos::get_produto(&conexao, prod_id).is_none() {
+        Resposta::NaoEncontrado(
+            String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
+    } else {
+        use crate::util::numeric_to_string;
+        match produtos::muda_estoque(&conexao, dados.clone()) {
+            Ok(estoque) => Resposta::Ok(
+                format!("{{ \"estoque\": \"{}\" }}",
+                        numeric_to_string(estoque))),
+            Err(msg) => Resposta::ErroSemantico(
+                format!("{{ \"mensagem\": \"{}\" }}", msg)),
+        }
+    }
 }

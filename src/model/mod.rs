@@ -18,4 +18,4 @@ pub mod schema;
 pub mod cliente;
 pub mod endereco;
 pub mod produto;
-
+pub mod estoque;
