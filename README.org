@@ -203,8 +203,8 @@ estrutura similar à seguinte:
 {
   "descricao": "Descrição do produto",
   "unidsaida": "UN",
-  "qtdestoque": "0.0",
-  "precovenda": "0.0"
+  "qtdestoque": 0.0,
+  "precovenda": 0.0
 }
 #+end_src
 
@@ -212,16 +212,15 @@ estrutura similar à seguinte:
 - ~unidsaida~:  Unidade  de  saída  do produto.   Será  armazenada  em
   uppercase. Ex: ~"UN"~, ~"KG"~, etc.
 - ~qtdestoque~: Quantidade a  ser lançada em estoque.  Admite até três
-  casas  decimais.  Deve  ser  informada como  string.  Valor  máximo:
-  ~999999999.999~.
+  casas  decimais. Valor  máximo: ~999999999.999~.
 - ~precovenda~: Preço  de venda  do produto.  Admite até  quatro casas
-  decimais.   Deve   ser   informada  como   string.   Valor   máximo:
-  ~999999999.9999~.
+  decimais. Valor   máximo: ~999999999.9999~.
 
 *ATENÇÃO:* As informações ~qtdestoque~  e ~precovenda~ são armazenadas
 no banco de  dados como /ponto fixo/, e não  como ponto flutuante. Por
 esse motivo, é importante assegurar o  limite de uso de dígitos para a
-parte integral e decimal destes valores.
+parte integral  e decimal  destes valores. Caso  os dígitos  excedam o
+padrão, o número poderá ser truncado.
 
 * Executando o projeto
 
