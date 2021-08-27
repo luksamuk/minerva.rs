@@ -1,1 +1,1 @@
-web: ./heroku_run.sh
+web: ROCKET_PORT=$PORT ./heroku_run.sh
