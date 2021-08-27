@@ -1,5 +1,7 @@
-[staging]
+[development]
+address = "localhost"
+port    = 8000
 
 [release]
-base_url = "https://my-minerva-test.herokuapp.com/"
+address = "localhost"
 
