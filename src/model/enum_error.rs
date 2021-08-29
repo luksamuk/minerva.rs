@@ -1,4 +1,4 @@
-// controller/mod.rs -- Uma parte de Minerva.rs
+// model/enum_error.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod clientes;
-pub mod produtos;
-pub mod log;
+#[derive(Debug)]
+pub struct EnumError {
+    mensagem: String,
+    status: u16,
+}
+
+impl EnumError {
+    pub fn nao_encontrado(mensagem: String) -> Self {
+        Self { mensagem, status: 404 }
+    }
+}

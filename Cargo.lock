@@ -8,7 +8,10 @@ version = "0.5.0"
 dependencies = [
  "bigdecimal",
  "diesel",
+ "diesel-enum",
  "dotenv",
+ "num-derive",
+ "num-traits",
  "rocket",
  "rocket_sync_db_pools",
  "serde",
@@ -224,6 +227,17 @@ dependencies = [
  "serde_json",
  "time 0.1.43",
  "uuid",
+]
+
+[[package]]
+name = "diesel-enum"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74fa37aeb5d79025525d981aefa190fe50209b4545c1415046e276dc5bc9f3ab"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -656,6 +670,17 @@ dependencies = [
  "autocfg",
  "num-integer",
  "num-traits",
+]
+
+[[package]]
+name = "num-derive"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "876a53fff98e03a936a674b29568b0e605f06b29372c2489ff4de23f1949743d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

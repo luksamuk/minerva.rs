@@ -20,6 +20,9 @@ extern crate dotenv;
 extern crate serde;
 extern crate serde_json;
 extern crate bigdecimal;
+#[macro_use] extern crate num_derive;
+extern crate num_traits;
+extern crate diesel_enum;
 
 pub mod db;
 pub mod model;

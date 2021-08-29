@@ -19,3 +19,5 @@ pub mod cliente;
 pub mod endereco;
 pub mod produto;
 pub mod estoque;
+pub mod logdb;
+pub mod enum_error;

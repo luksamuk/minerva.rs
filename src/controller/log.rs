@@ -1,4 +1,4 @@
-// controller/mod.rs -- Uma parte de Minerva.rs
+// controller/log.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,6 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod clientes;
-pub mod produtos;
-pub mod log;
+use diesel::prelude::*;
+use crate::model::logdb::{ LogDB, NovoLogDB, DBOperacao };
+use crate::model::schema::logdb;
+use std::time::SystemTime;
+
+pub fn registra_log(
+    conexao: &PgConnection,
+    tabela: String,
+    usuario: String,
+    operacao: DBOperacao,
+    descricao: Option<String>
+) -> i32 {
+    let log = NovoLogDB {
+        tabela,
+        usuario,
+        operacao,
+        datahora: SystemTime::now(),
+        descricao
+    };
+    diesel::insert_into(logdb::table)
+        .values(&log)
+        .get_result::<LogDB>(conexao)
+        .unwrap()
+        .id
+}

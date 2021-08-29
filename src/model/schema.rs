@@ -25,6 +25,17 @@ table! {
 }
 
 table! {
+    logdb (id) {
+        id -> Int4,
+        tabela -> Varchar,
+        usuario -> Varchar,
+        operacao -> Int2,
+        datahora -> Timestamp,
+        descricao -> Nullable<Varchar>,
+    }
+}
+
+table! {
     produto (id) {
         id -> Int4,
         descricao -> Varchar,
@@ -39,5 +50,6 @@ joinable!(endereco -> cliente (cliente_id));
 allow_tables_to_appear_in_same_query!(
     cliente,
     endereco,
+    logdb,
     produto,
 );
