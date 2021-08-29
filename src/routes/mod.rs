@@ -19,6 +19,7 @@ pub mod clientes;
 pub mod produtos;
 pub mod estoque;
 pub mod log;
+pub mod usuarios;
 
 use respostas::Resposta;
 
@@ -29,23 +30,30 @@ pub fn index() -> Resposta {
     table.load_preset(ASCII_BORDERS_ONLY_CONDENSED)
         .set_header(vec!["Requisição", "Rota", "Descrição"]);
     
-    table.add_row(vec!["GET",    "/",              "Lista de rotas",              ]);
+    table.add_row(vec!["GET",    "/",                 "Lista de rotas",              ]);
 
-    table.add_row(vec!["GET",    "/produtos",      "Lista de produtos",           ]);
-    table.add_row(vec!["POST",   "/produtos",      "Cadastra um produto",         ]);
-    table.add_row(vec!["GET",    "/produtos/<id>", "Mostra um produto",           ]);
-    table.add_row(vec!["DELETE", "/produtos/<id>", "Remove um produto",           ]);
-    table.add_row(vec!["DELETE", "/produtos/all",  "Remove todos os produtos",    ]);
+    table.add_row(vec!["GET",    "/produtos",         "Lista de produtos",           ]);
+    table.add_row(vec!["POST",   "/produtos",         "Cadastra um produto",         ]);
+    table.add_row(vec!["GET",    "/produtos/<id>",    "Mostra um produto",           ]);
+    table.add_row(vec!["DELETE", "/produtos/<id>",    "Remove um produto",           ]);
+    table.add_row(vec!["DELETE", "/produtos/all",     "Remove todos os produtos",    ]);
 
-    table.add_row(vec!["POST",   "/estoque",       "Faz movimentação de estoque", ]);
+    table.add_row(vec!["POST",   "/estoque",          "Faz movimentação de estoque", ]);
 
-    table.add_row(vec!["GET",    "/clientes",      "Lista de clientes",           ]);
-    table.add_row(vec!["POST",   "/clientes",      "Cadastra um cliente",         ]);
-    table.add_row(vec!["GET",    "/clientes/<id>", "Mostra um cliente",           ]);
-    table.add_row(vec!["DELETE", "/clientes/<id>", "Deleta um cliente",           ]);
-    table.add_row(vec!["DELETE", "/clientes/all",  "Deleta todos os clientes",    ]);
+    table.add_row(vec!["GET",    "/clientes",         "Lista de clientes",           ]);
+    table.add_row(vec!["POST",   "/clientes",         "Cadastra um cliente",         ]);
+    table.add_row(vec!["GET",    "/clientes/<id>",    "Mostra um cliente",           ]);
+    table.add_row(vec!["DELETE", "/clientes/<id>",    "Deleta um cliente",           ]);
+    table.add_row(vec!["DELETE", "/clientes/all",     "Deleta todos os clientes",    ]);
 
-    table.add_row(vec!["GET",    "/log/txt",       "Tabela de log (texto plano)", ]);
+    table.add_row(vec!["GET",    "/usuarios",         "Lista de usuários",           ]);
+    table.add_row(vec!["POST",   "/usuarios",         "Cadastra um usuário",         ]);
+    table.add_row(vec!["GET",    "/usuarios/<id>",    "Mostra um usuário",           ]);
+    table.add_row(vec!["GET",    "/usuarios/<login>", "Mostra um usuário",           ]);
+    table.add_row(vec!["DELETE", "/usuarios/<id>",    "Deleta um usuário",           ]);
+    table.add_row(vec!["DELETE", "/usuarios/<login>", "Deleta um usuário",           ]);
+
+    table.add_row(vec!["GET",    "/log/txt",          "Tabela de log (texto plano)", ]);
 
     Resposta::Chaleira(format!("Lista de rotas\n{}\n", table))
 }

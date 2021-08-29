@@ -50,8 +50,8 @@ table! {
         id -> Int4,
         login -> Varchar,
         nome -> Varchar,
-        senha_h -> Bpchar,
-        senha_s -> Bytea,
+        email -> Nullable<Varchar>,
+        senha_hash -> Bytea,
     }
 }
 

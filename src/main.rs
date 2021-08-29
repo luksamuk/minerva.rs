@@ -41,4 +41,5 @@ fn launch() -> _ {
         .mount("/produtos", routes::produtos::constroi_rotas())
         .mount("/estoque",  routes::estoque::constroi_rotas())
         .mount("/log", routes::log::constroi_rotas())
+        .mount("/usuarios", routes::usuarios::constroi_rotas())
 }

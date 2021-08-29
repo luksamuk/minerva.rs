@@ -129,22 +129,32 @@ diesel migration redo
 
 Abaixo, uma lista das rotas criadas até então.
 
-| Tipo   | Rota           | Descrição                       |
-|--------+----------------+---------------------------------|
-| GET    | /              | Chaleira                        |
-|--------+----------------+---------------------------------|
-| GET    | /produtos      | Lista até 100 produtos          |
-| POST   | /produtos      | Cadastra um produto             |
-| GET    | /produtos/<id> | Retorna um produto              |
-| DELETE | /produtos/<id> | Deleta um produto               |
-| DELETE | /produtos/all  | Deleta todos os produtos        |
-| POST   | /estoque       | Realiza movimentação de estoque |
-|--------+----------------+---------------------------------|
-| GET    | /clientes      | Lista até 100 clientes          |
-| POST   | /clientes      | Cadastra um cliente             |
-| GET    | /clientes/<id> | Retorna um cliente              |
-| DELETE | /clientes/<id> | Deleta um cliente               |
-| DELETE | /clientes/all  | Deleta todos os clientes        |
+| Requisição | Rota              | Descrição                   |
+|------------+-------------------+-----------------------------|
+| GET        | /                 | Lista de rotas              |
+|------------+-------------------+-----------------------------|
+| GET        | /produtos         | Lista de produtos           |
+| POST       | /produtos         | Cadastra um produto         |
+| GET        | /produtos/<id>    | Mostra um produto           |
+| DELETE     | /produtos/<id>    | Remove um produto           |
+| DELETE     | /produtos/all     | Remove todos os produtos    |
+|------------+-------------------+-----------------------------|
+| POST       | /estoque          | Faz movimentação de estoque |
+|------------+-------------------+-----------------------------|
+| GET        | /clientes         | Lista de clientes           |
+| POST       | /clientes         | Cadastra um cliente         |
+| GET        | /clientes/<id>    | Mostra um cliente           |
+| DELETE     | /clientes/<id>    | Deleta um cliente           |
+| DELETE     | /clientes/all     | Deleta todos os clientes    |
+|------------+-------------------+-----------------------------|
+| GET        | /usuarios         | Lista de usuários           |
+| POST       | /usuarios         | Cadastra um usuário         |
+| GET        | /usuarios/<id>    | Mostra um usuário           |
+| GET        | /usuarios/<login> | Mostra um usuário           |
+| DELETE     | /usuarios/<id>    | Deleta um usuário           |
+| DELETE     | /usuarios/<login> | Deleta um usuário           |
+|------------+-------------------+-----------------------------|
+| GET        | /log/txt          | Tabela de log (texto plano) |
 
 ** Estrutura de cadastro de cliente
 
@@ -237,6 +247,24 @@ padrão, o número poderá ser truncado.
 
 *ATENÇÃO:*  A  movimentação  de  estoque  não  pode  resultar  em  uma
 quantidade negativa de estoque.
+
+** Estrutura de cadastro de usuário
+
+#+begin_src json
+{
+    "login": "fulanodetal",
+    "nome": "Fulano de Tal",
+    "email": "fulanodetal@exemplo.com",
+    "senha": "senha_teste_2021"
+}
+#+end_src
+
+- ~login~: Login do usuário. Deve ser único por usuário.
+- ~nome~: Nome do usuário.
+- ~email~: Email do usuário. Opcional.
+- ~senha~: Senha em texto plano.  Será armazenada como hash salgado no
+  banco de dados. Certifique-se de  só trafegar essa informação para o
+  servidor por meio de conexão encriptada.
 
 * Executando o projeto
 

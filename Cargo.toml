@@ -29,6 +29,7 @@ num-derive = "0.3"
 diesel-enum = "0.0.4"
 chrono = "0.4.19"
 comfy-table = "4.1.1"
+sodiumoxide = ">= 0.2.7"
 
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.1"
