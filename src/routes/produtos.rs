@@ -65,12 +65,9 @@ fn deleta(pool: &State<ConexaoPool>, prod_id: i32) -> Resposta {
 
 #[delete("/all")]
 fn deleta_todos(pool: &State<ConexaoPool>) -> Resposta {
-    use crate::model::schema::produto;
     let conexao = pool.get().unwrap();
-    let num_deletados = diesel::delete(produto::table)
-        .execute(&conexao)
-        .expect("Erro ao deletar endereços");
-    Resposta::Ok(format!("{{ \"produtos\": {} }}", num_deletados))
+    let num_del = produtos::deleta_todos(&conexao);
+    Resposta::Ok(format!("{{ \"produtos\": {} }}", num_del))
 }
 
 #[post("/", data = "<dados>")]

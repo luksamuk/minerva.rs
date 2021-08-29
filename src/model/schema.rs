@@ -30,7 +30,7 @@ table! {
         tabela -> Varchar,
         usuario -> Varchar,
         operacao -> Int2,
-        datahora -> Timestamp,
+        datahora -> Timestamptz,
         descricao -> Nullable<Varchar>,
     }
 }

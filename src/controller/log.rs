@@ -15,9 +15,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use diesel::prelude::*;
-use crate::model::logdb::{ LogDB, NovoLogDB, DBOperacao };
+use crate::model::logdb::{ LogDB, NovoLogDB };
+pub use crate::model::logdb::DBOperacao;
 use crate::model::schema::logdb;
-use std::time::SystemTime;
 
 pub fn registra_log(
     conexao: &PgConnection,
@@ -30,7 +30,7 @@ pub fn registra_log(
         tabela,
         usuario,
         operacao,
-        datahora: SystemTime::now(),
+        datahora: chrono::offset::Utc::now(),
         descricao
     };
     diesel::insert_into(logdb::table)

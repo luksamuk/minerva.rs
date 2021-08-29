@@ -20,6 +20,7 @@ use crate::model::produto::{ Produto, NovoProduto };
 use crate::model::schema::produto::dsl::*;
 use bigdecimal::BigDecimal;
 use crate::routes::respostas::Resposta;
+use super::log::*;
 
 pub fn lista_produtos(conexao: &PgConnection, limite: i64) -> Vec<Produto> {
     produto::table.limit(limite)
@@ -41,6 +42,25 @@ pub fn deleta_produto(conexao: &PgConnection, prodid: i32) {
     diesel::delete(produto.filter(id.eq(&prodid)))
         .execute(conexao)
         .expect("Erro ao deletar produto");
+    let _ = registra_log(
+        conexao,
+        String::from("PRODUTO"),
+        String::from("TO-DO"),
+        DBOperacao::Remocao,
+        Some(format!("Removendo produto {}", prodid)));
+}
+
+pub fn deleta_todos(conexao: &PgConnection) -> usize {
+    let num_deletados = diesel::delete(produto::table)
+        .execute(conexao)
+        .expect("Erro ao deletar produtos");
+    let _ = registra_log(
+        conexao,
+        String::from("PRODUTO"),
+        String::from("TO-DO"),
+        DBOperacao::Remocao,
+        Some(String::from("Removendo todos os produtos")));
+    num_deletados
 }
 
 pub fn registra_produto(conexao: &PgConnection, mut dados: NovoProduto) -> Result<i32, String> {
@@ -49,7 +69,15 @@ pub fn registra_produto(conexao: &PgConnection, mut dados: NovoProduto) -> Resul
         .values(&dados)
         .get_result::<Produto>(conexao)
     {
-        Ok(prod) => Ok(prod.id),
+        Ok(prod) => {
+            let _ = registra_log(
+                conexao,
+                String::from("PRODUTO"),
+                String::from("TO-DO"),
+                DBOperacao::Insercao,
+                Some(format!("Adicionando produto {}", prod.id)));
+            Ok(prod.id)
+        },
         Err(e) => {
             if let diesel::result::Error::DatabaseError(_, _) = &e {
                 Err(format!("{}", e))
@@ -84,8 +112,20 @@ pub fn muda_estoque(conexao: &PgConnection, prod: &Produto, qtd: BigDecimal) -> 
                          Contate o suporte para mais informações.\" }"))
                 }
             }
-            Ok(p) =>
-                Resposta::Ok(serde_json::to_string(&p).unwrap()),
+            Ok(p) => {
+                let p = p.first().unwrap();
+                let _ = registra_log(
+                    conexao,
+                    String::from("PRODUTO"),
+                    String::from("TO-DO"),
+                    DBOperacao::Alteracao,
+                    Some(format!(
+                        "Mudando estoque do produto {}: {} -> {}",
+                        prod.id,
+                        prod.qtdestoque,
+                        p.qtdestoque)));
+                Resposta::Ok(serde_json::to_string(&p).unwrap())
+            },
         }
     }
 }

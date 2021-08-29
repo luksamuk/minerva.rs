@@ -18,6 +18,7 @@ use diesel::prelude::*;
 use crate::model::schema::{ cliente, endereco };
 use crate::model::cliente::{ Cliente, ClienteRepr, ClienteRecv };
 use crate::model::endereco::{ Endereco, EnderecoRecv };
+use super::log::*;
 
 pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
     let cli_req = cliente::table.limit(limite)
@@ -53,6 +54,12 @@ pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
         .values(&cl_recv)
         .get_result(conexao)
         .expect("Erro ao inserir novo cliente");
+    let _ = registra_log(
+        conexao,
+        String::from("CLIENTE"),
+        String::from("TO-DO"),
+        DBOperacao::Insercao,
+        Some(format!("Inserindo cliente {}", c.id)));
     registra_enderecos_cliente(conexao, c.id, end_recv);
     c.id
 }
@@ -65,6 +72,28 @@ pub fn deleta_cliente(conexao: &PgConnection, cl: ClienteRepr) {
         .expect("Erro ao deletar cliente");
 }
 
+pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
+    let num_end = diesel::delete(endereco::table)
+        .execute(conexao)
+        .expect("Erro ao deletar endereços");
+    let _ = registra_log(
+        conexao,
+        String::from("ENDERECO"),
+        String::from("TO-DO"),
+        DBOperacao::Remocao,
+        Some(String::from("Removendo todos os endereços")));
+    let num_cl = diesel::delete(cliente::table)
+        .execute(conexao)
+        .expect("Erro ao deletar clientes");
+    let _ = registra_log(
+        conexao,
+        String::from("CLIENTE"),
+        String::from("TO-DO"),
+        DBOperacao::Remocao,
+        Some(String::from("Removendo todos os clientes")));
+    (num_end, num_cl)
+}
+
 fn registra_enderecos_cliente(
     conexao: &PgConnection,
     cliente_id: i32,
@@ -73,11 +102,17 @@ fn registra_enderecos_cliente(
     for e_recv in enderecos {
         let mut e = e_recv.into_new();
         e.cliente_id = cliente_id;
-        let _: Endereco =
+        let e_ins: Endereco =
             diesel::insert_into(endereco::table)
             .values(&e)
             .get_result(conexao)
             .expect("Erro ao salvar endereco");
+        let _ = registra_log(
+            conexao,
+            String::from("ENDERECO"),
+            String::from("TO-DO"),
+            DBOperacao::Insercao,
+            Some(format!("Inserindo endereco {}", e_ins.id)));
     }
 }
 
@@ -94,5 +129,11 @@ fn deleta_enderecos(conexao: &PgConnection, enderecos: Vec<Endereco>) {
         diesel::delete(endereco.filter(id.eq(&end.id)))
             .execute(conexao)
             .expect("Erro ao deletar endereço");
+        let _ = registra_log(
+            conexao,
+            String::from("ENDERECO"),
+            String::from("TO-DO"),
+            DBOperacao::Remocao,
+            Some(format!("Removendo endereco {}", end.id)));
     }
 }

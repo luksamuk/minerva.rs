@@ -23,6 +23,7 @@ extern crate bigdecimal;
 #[macro_use] extern crate num_derive;
 extern crate num_traits;
 extern crate diesel_enum;
+extern crate chrono;
 
 pub mod db;
 pub mod model;

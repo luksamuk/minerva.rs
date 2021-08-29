@@ -73,15 +73,9 @@ fn deleta(pool: &State<ConexaoPool>, ident: i32) -> Resposta {
 
 #[delete("/all")]
 fn deleta_todos(pool: &State<ConexaoPool>) -> Resposta {
-    use crate::model::schema::{ cliente, endereco };
     let conexao = pool.get().unwrap();
-    let num_end_deletados = diesel::delete(endereco::table)
-        .execute(&conexao)
-        .expect("Erro ao deletar endereços");    
-    let num_deletados = diesel::delete(cliente::table)
-        .execute(&conexao)
-        .expect("Erro ao deletar clientes");
+    let (num_end, num_cl) = clientes::deleta_todos(&conexao);
     Resposta::Ok(format!("{{ \"clientes\": {}, \"enderecos\": {} }}",
-                         num_deletados, num_end_deletados))
+                         num_cl, num_end))
 }
 

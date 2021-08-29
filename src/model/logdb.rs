@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::time::SystemTime;
 use super::schema::logdb;
 use num_derive::FromPrimitive;
 use diesel_enum::DbEnum;
 use diesel::sql_types::SmallInt;
 use super::enum_error::EnumError;
+use chrono::DateTime;
 
 #[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, AsExpression, FromSqlRow, DbEnum)]
 #[sql_type = "SmallInt"]
@@ -37,7 +37,7 @@ pub struct LogDB {
     pub tabela: String,
     pub usuario: String,
     pub operacao: DBOperacao,
-    pub datahora: SystemTime,
+    pub datahora: DateTime<chrono::Utc>,
     pub descricao: Option<String>,
 }
 
@@ -47,7 +47,7 @@ pub struct NovoLogDB {
     pub tabela: String,
     pub usuario: String,
     pub operacao: DBOperacao,
-    pub datahora: SystemTime,
+    pub datahora: DateTime<chrono::Utc>,
     pub descricao: Option<String>,
 }
 
