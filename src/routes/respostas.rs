@@ -25,7 +25,7 @@ pub enum Resposta {
     #[response(status = 404, content_type = "json")]
     NaoEncontrado(String),
     #[response(status = 418, content_type = "text")]
-    Chaleira(&'static str),
+    Chaleira(String),
     #[response(status = 422, content_type = "json")]
     ErroSemantico(String),
     #[response(status = 500, content_type = "json")]
