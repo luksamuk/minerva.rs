@@ -45,6 +45,16 @@ table! {
     }
 }
 
+table! {
+    usuario (id) {
+        id -> Int4,
+        login -> Varchar,
+        nome -> Varchar,
+        senha_h -> Bpchar,
+        senha_s -> Bytea,
+    }
+}
+
 joinable!(endereco -> cliente (cliente_id));
 
 allow_tables_to_appear_in_same_query!(
@@ -52,4 +62,5 @@ allow_tables_to_appear_in_same_query!(
     endereco,
     logdb,
     produto,
+    usuario,
 );
