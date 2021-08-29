@@ -19,7 +19,6 @@ use rocket::serde::json::Json;
 use crate::controller::clientes;
 use rocket::State;
 use crate::db::ConexaoPool;
-use diesel::prelude::*;
 use crate::model::cliente::ClienteRecv;
 use super::respostas::Resposta;
 

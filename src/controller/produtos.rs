@@ -47,7 +47,7 @@ pub fn deleta_produto(conexao: &PgConnection, prodid: i32) {
         String::from("PRODUTO"),
         String::from("TO-DO"),
         DBOperacao::Remocao,
-        Some(format!("Removendo produto {}", prodid)));
+        Some(format!("Produto {}", prodid)));
 }
 
 pub fn deleta_todos(conexao: &PgConnection) -> usize {
@@ -75,7 +75,7 @@ pub fn registra_produto(conexao: &PgConnection, mut dados: NovoProduto) -> Resul
                 String::from("PRODUTO"),
                 String::from("TO-DO"),
                 DBOperacao::Insercao,
-                Some(format!("Adicionando produto {}", prod.id)));
+                Some(format!("Produto {}", prod.id)));
             Ok(prod.id)
         },
         Err(e) => {
@@ -120,7 +120,7 @@ pub fn muda_estoque(conexao: &PgConnection, prod: &Produto, qtd: BigDecimal) -> 
                     String::from("TO-DO"),
                     DBOperacao::Alteracao,
                     Some(format!(
-                        "Mudando estoque do produto {}: {} -> {}",
+                        "Estoque do produto {}: {} -> {}",
                         prod.id,
                         prod.qtdestoque,
                         p.qtdestoque)));

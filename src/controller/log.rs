@@ -26,16 +26,47 @@ pub fn registra_log(
     operacao: DBOperacao,
     descricao: Option<String>
 ) -> i32 {
-    let log = NovoLogDB {
-        tabela,
-        usuario,
-        operacao,
-        datahora: chrono::offset::Utc::now(),
-        descricao
-    };
     diesel::insert_into(logdb::table)
-        .values(&log)
+        .values(&NovoLogDB {
+            tabela,
+            usuario,
+            operacao,
+            datahora: chrono::offset::Utc::now(),
+            descricao
+        })
         .get_result::<LogDB>(conexao)
         .unwrap()
         .id
+}
+
+pub fn lista_log_texto(conexao: &PgConnection) -> String {
+    use comfy_table::Table;
+    use comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED;
+    let logs = recupera_log(conexao, 100);
+    let mut table = Table::new();
+    table.load_preset(ASCII_BORDERS_ONLY_CONDENSED)
+        .set_header(vec![
+            "Tabela", "Usuário", "Operação", "Data/Hora", "Descrição"]);
+    for log in logs {
+        table.add_row(vec![
+            log.tabela.clone(),
+            log.usuario.clone(),
+            String::from(match log.operacao {
+                DBOperacao::Insercao  => "Inserção",
+                DBOperacao::Alteracao => "Alteração",
+                DBOperacao::Remocao   => "Remoção",
+            }),
+            format!("{}", log.datahora),
+            log.descricao.unwrap_or(String::new()),
+        ]);
+    }
+    format!("{}\n", table)
+}
+
+fn recupera_log(conexao: &PgConnection, limite: i64) -> Vec<LogDB> {
+    use crate::model::schema::logdb::dsl::*;
+    logdb.order(datahora.desc())
+        .limit(limite)
+        .load::<LogDB>(conexao)
+        .expect("Erro ao recuperar logs")
 }

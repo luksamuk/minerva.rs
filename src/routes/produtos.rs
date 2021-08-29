@@ -19,7 +19,6 @@ use rocket::serde::json::Json;
 use crate::controller::produtos;
 use rocket::State;
 use crate::db::ConexaoPool;
-use diesel::prelude::*;
 use crate::model::produto::NovoProduto;
 use super::respostas::Resposta;
 

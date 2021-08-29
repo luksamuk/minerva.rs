@@ -59,7 +59,7 @@ pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
         String::from("CLIENTE"),
         String::from("TO-DO"),
         DBOperacao::Insercao,
-        Some(format!("Inserindo cliente {}", c.id)));
+        Some(format!("Cliente {}", c.id)));
     registra_enderecos_cliente(conexao, c.id, end_recv);
     c.id
 }
@@ -112,7 +112,7 @@ fn registra_enderecos_cliente(
             String::from("ENDERECO"),
             String::from("TO-DO"),
             DBOperacao::Insercao,
-            Some(format!("Inserindo endereco {}", e_ins.id)));
+            Some(format!("Endereço {}", e_ins.id)));
     }
 }
 
@@ -134,6 +134,6 @@ fn deleta_enderecos(conexao: &PgConnection, enderecos: Vec<Endereco>) {
             String::from("ENDERECO"),
             String::from("TO-DO"),
             DBOperacao::Remocao,
-            Some(format!("Removendo endereco {}", end.id)));
+            Some(format!("Endereço {}", end.id)));
     }
 }

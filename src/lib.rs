@@ -24,6 +24,7 @@ extern crate bigdecimal;
 extern crate num_traits;
 extern crate diesel_enum;
 extern crate chrono;
+extern crate comfy_table;
 
 pub mod db;
 pub mod model;

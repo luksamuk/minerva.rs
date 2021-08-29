@@ -20,6 +20,8 @@ use rocket::response::Responder;
 pub enum Resposta {
     #[response(status = 200, content_type = "json")]
     Ok(String),
+    #[response(status = 200, content_type = "text")]
+    OkTexto(String),
     #[response(status = 404, content_type = "json")]
     NaoEncontrado(String),
     #[response(status = 418, content_type = "text")]

@@ -18,6 +18,7 @@ pub mod respostas;
 pub mod clientes;
 pub mod produtos;
 pub mod estoque;
+pub mod log;
 
 use respostas::Resposta;
 
