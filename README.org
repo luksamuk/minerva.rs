@@ -156,6 +156,31 @@ Abaixo, uma lista das rotas criadas até então.
 |------------+-------------------+-----------------------------|
 | GET        | /log/txt          | Tabela de log (texto plano) |
 
+** Estrutura de cadastro de usuário
+
+Quanto o  servidor se  inicia, verifica  se há  pelo menos  um usuário
+cadastrado no sistema.  Se não houver, o servidor  cadastra um usuário
+com login ~"admin"~ e senha ~"admin"~, automaticamente.
+
+A requisição para  cadastro de usuário exige um corpo  em JSON com uma
+estrutura similar à seguinte:
+
+#+begin_src json
+{
+    "login": "fulanodetal",
+    "nome": "Fulano de Tal",
+    "email": "fulanodetal@exemplo.com",
+    "senha": "senha_teste_2021"
+}
+#+end_src
+
+- ~login~: Login do usuário. Deve ser único por usuário.
+- ~nome~: Nome do usuário.
+- ~email~: Email do usuário. Opcional.
+- ~senha~: Senha em texto plano.  Será armazenada como hash salgado no
+  banco de dados. Certifique-se de  só trafegar essa informação para o
+  servidor por meio de conexão encriptada.
+
 ** Estrutura de cadastro de cliente
 
 A requisição para  cadastro de cliente exige um corpo  em JSON com uma
@@ -235,6 +260,9 @@ padrão, o número poderá ser truncado.
 
 ** Estrutura de movimentação de estoque
 
+A requisição de movimentação de estoque exige um corpo em JSON com uma
+estrutura similar à seguinte:
+
 #+begin_src json
 {
     "produto_id": 10,
@@ -247,24 +275,6 @@ padrão, o número poderá ser truncado.
 
 *ATENÇÃO:*  A  movimentação  de  estoque  não  pode  resultar  em  uma
 quantidade negativa de estoque.
-
-** Estrutura de cadastro de usuário
-
-#+begin_src json
-{
-    "login": "fulanodetal",
-    "nome": "Fulano de Tal",
-    "email": "fulanodetal@exemplo.com",
-    "senha": "senha_teste_2021"
-}
-#+end_src
-
-- ~login~: Login do usuário. Deve ser único por usuário.
-- ~nome~: Nome do usuário.
-- ~email~: Email do usuário. Opcional.
-- ~senha~: Senha em texto plano.  Será armazenada como hash salgado no
-  banco de dados. Certifique-se de  só trafegar essa informação para o
-  servidor por meio de conexão encriptada.
 
 * Executando o projeto
 
