@@ -21,7 +21,7 @@ use std::env;
 
 pub type ConexaoPool = Pool<ConnectionManager<PgConnection>>;
 
-pub fn create_connection_pool() -> ConexaoPool {
+pub fn cria_pool_conexoes() -> ConexaoPool {
     dotenv().ok();
     
     let database_url = env::var("DATABASE_URL")
@@ -30,4 +30,25 @@ pub fn create_connection_pool() -> ConexaoPool {
     Pool::builder()
         .build(manager)
         .expect("Falha ao criar pool de conexões.")
+}
+
+pub fn garante_usuario_inicial(pool: &ConexaoPool) {
+    use crate::controller::usuarios;
+    use crate::model::usuario::{ UsuarioRecv, NovoUsuario };
+    use diesel::prelude::*;
+    use crate::model::schema::usuario;
+    
+    let conexao = pool.get().unwrap();
+    if usuarios::lista_usuarios(&conexao, 1).is_empty() {
+        let novo_admin = NovoUsuario::from(&UsuarioRecv {
+            login: String::from("admin"),
+            nome:  String::from("Admin"),
+            email: None,
+            senha: String::from("admin"),
+        });
+        let _ = diesel::insert_into(usuario::table)
+            .values(&novo_admin)
+            .execute(&conexao)
+            .expect("Erro ao cadastrar usuário \"admin\"");
+    }
 }

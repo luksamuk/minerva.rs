@@ -33,7 +33,9 @@ pub mod routes;
 
 #[launch]
 fn launch() -> _ {
-    let pool = db::create_connection_pool();
+    let pool = db::cria_pool_conexoes();
+    db::garante_usuario_inicial(&pool);
+    
     rocket::build()
         .manage(pool)
         .mount("/", routes![ routes::index ])

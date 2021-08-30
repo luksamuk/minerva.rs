@@ -25,7 +25,7 @@ use diesel::prelude::*;
 use minerva::inpututils::*;
 
 fn main() {
-    let pool = minerva::db::create_connection_pool();
+    let pool = minerva::db::cria_pool_conexoes();
     let conn = pool.get().unwrap();
     let mut novocliente = NovoCliente::new();
     let mut enderecos = Vec::new();
