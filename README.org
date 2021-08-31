@@ -84,6 +84,8 @@ docker run --name minerva-redis \
        -d redis:6
 #+end_src
 
+** Gerenciamento do contêiner
+
 Assim como  no caso  do contêiner  do banco de  dados, convém  usar os
 comandos do Docker para gerenciamento.
 
@@ -92,6 +94,16 @@ docker start minerva-redis # Iniciar
 docker stop minerva-redis  # Matar
 docker logs minerva-redis  # Logs
 #+end_src
+
+** Conectando-se via CLI
+
+Caso você tenha o ~redis~ instalado em sua máquina, use o comando...
+
+#+begin_src bash
+redis
+#+end_src
+
+...para acessar o Redis no contêiner local.
 
 * Criando migrations
 
