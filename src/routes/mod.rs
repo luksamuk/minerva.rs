@@ -22,10 +22,16 @@ pub mod log;
 pub mod usuarios;
 
 use respostas::Resposta;
+use rocket::State;
+use r2d2_redis::redis::Commands;
+use crate::db::RedisPool;
 
 #[get("/")]
-pub fn index() -> Resposta {
+pub fn index(redis_pool: &State<RedisPool>) -> Resposta {
     use comfy_table::{ Table, presets::ASCII_BORDERS_ONLY_CONDENSED };
+
+    let mut redis = redis_pool.get().unwrap();
+    
     let mut table = Table::new();
     table.load_preset(ASCII_BORDERS_ONLY_CONDENSED)
         .set_header(vec!["Requisição", "Rota", "Descrição"]);
@@ -55,5 +61,9 @@ pub fn index() -> Resposta {
 
     table.add_row(vec!["GET",    "/log/txt",          "Tabela de log (texto plano)", ]);
 
-    Resposta::Chaleira(format!("Lista de rotas\n{}\n", table))
+    let n_acessos: u64 = redis.incr("chaleira", 1).unwrap();
+    
+    Resposta::Chaleira(format!("Lista de rotas\n{}\nNúmero de acessos: {}",
+                               table,
+                               n_acessos))
 }

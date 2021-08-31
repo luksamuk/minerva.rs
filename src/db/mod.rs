@@ -16,6 +16,8 @@
 
 pub mod redis;
 
+pub use crate::db::redis::{ RedisPool, cria_pool_redis };
+
 use diesel::r2d2::{ ConnectionManager, Pool };
 use diesel::PgConnection;
 use dotenv::dotenv;

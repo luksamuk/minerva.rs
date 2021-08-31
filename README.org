@@ -73,6 +73,31 @@ docker stop minervadb
 docker logs minervadb
 #+end_src
 
+* Configuração do Redis
+
+O comando  a seguir  cria um  contêiner de uma  instância do  Redis 6,
+usando Docker.
+
+#+begin_src bash
+docker run --name minerva-redis \
+       -p 6379:6379 \
+       -d redis:6
+#+end_src
+
+Assim como  no caso  do contêiner  do banco de  dados, convém  usar os
+comandos do Docker para gerenciamento.
+
+#+begin_src bash
+docker start minerva-redis # Iniciar
+docker stop minerva-redis  # Matar
+docker logs minerva-redis  # Logs
+#+end_src
+
+* Criando migrations
+
+Os  comandos  a  seguir  mostram  como  criar  novas  migrations  para
+modificações no banco de dados.
+
 ** Preparação inicial do banco de dados
 
 Execute o comando abaixo  para fazer com que o Diesel  crie o banco de
@@ -93,11 +118,6 @@ repositório.
 
 Para maiores  informações, veja ~diesel  --help~ ou a  documentação do
 ~diesel~.
-
-* Criando migrations
-
-Os  comandos  a  seguir  mostram  como  criar  novas  migrations  para
-modificações no banco de dados.
 
 ** Criando nova migration
 
