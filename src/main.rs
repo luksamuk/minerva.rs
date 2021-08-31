@@ -25,6 +25,7 @@ extern crate num_traits;
 extern crate diesel_enum;
 extern crate chrono;
 extern crate comfy_table;
+extern crate r2d2_redis;
 
 pub mod db;
 pub mod model;
@@ -35,9 +36,12 @@ pub mod routes;
 fn launch() -> _ {
     let pool = db::cria_pool_conexoes();
     db::garante_usuario_inicial(&pool);
-    
+   
+    let redis_pool = db::redis::cria_pool_redis();
+
     rocket::build()
         .manage(pool)
+        .manage(redis_pool)
         .mount("/", routes![ routes::index ])
         .mount("/clientes", routes::clientes::constroi_rotas())
         .mount("/produtos", routes::produtos::constroi_rotas())

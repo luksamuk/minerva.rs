@@ -1,4 +1,4 @@
-// lib.rs -- Uma parte de Minerva.rs
+// db/redis.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,22 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use] extern crate rocket;
-#[macro_use] extern crate diesel;
-extern crate dotenv;
-extern crate serde;
-extern crate serde_json;
-extern crate bigdecimal;
-#[macro_use] extern crate num_derive;
-extern crate num_traits;
-extern crate diesel_enum;
-extern crate chrono;
-extern crate comfy_table;
-extern crate r2d2_redis;
+use r2d2_redis::{ r2d2, RedisConnectionManager };
+use std::env;
+use dotenv::dotenv;
 
-pub mod db;
-pub mod model;
-pub mod controller;
-pub mod routes;
+pub type RedisPool = r2d2::Pool<RedisConnectionManager>;
 
-pub mod inpututils;
+pub fn cria_pool_redis() -> RedisPool {
+    dotenv().ok();
+
+    let redis_url = env::var("REDIS_URL")
+        .expect("Necessário definir o URL do Redis em REDIS_URL");
+
+    let manager = RedisConnectionManager::new(redis_url)
+        .expect("Falha ao criar gerente de conexões do Redis.");
+
+    r2d2::Pool::builder()
+        .build(manager)
+        .expect("Falha ao criar pool do Redis.")
+}
