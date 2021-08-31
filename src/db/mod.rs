@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+pub mod redis;
+
 use diesel::r2d2::{ ConnectionManager, Pool };
 use diesel::PgConnection;
 use dotenv::dotenv;
