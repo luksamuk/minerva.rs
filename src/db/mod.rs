@@ -15,44 +15,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 pub mod redis;
+pub mod postgres;
 
-pub use crate::db::redis::{ RedisPool, cria_pool_redis };
+pub use self::redis::{
+    RedisPool,
+    cria_pool_redis
+};
 
-use diesel::r2d2::{ ConnectionManager, Pool };
-use diesel::PgConnection;
-use dotenv::dotenv;
-use std::env;
-
-pub type ConexaoPool = Pool<ConnectionManager<PgConnection>>;
-
-pub fn cria_pool_conexoes() -> ConexaoPool {
-    dotenv().ok();
+pub use self::postgres::{
+    ConexaoPool,
+    cria_pool_conexoes,
+    garante_usuario_inicial
+};
     
-    let database_url = env::var("DATABASE_URL")
-        .expect("Necessário definir o URL do BD em DATABASE_URL");
-    let manager = ConnectionManager::<PgConnection>::new(&database_url);
-    Pool::builder()
-        .build(manager)
-        .expect("Falha ao criar pool de conexões.")
-}
-
-pub fn garante_usuario_inicial(pool: &ConexaoPool) {
-    use crate::controller::usuarios;
-    use crate::model::usuario::{ UsuarioRecv, NovoUsuario };
-    use diesel::prelude::*;
-    use crate::model::schema::usuario;
-    
-    let conexao = pool.get().unwrap();
-    if usuarios::lista_usuarios(&conexao, 1).is_empty() {
-        let novo_admin = NovoUsuario::from(&UsuarioRecv {
-            login: String::from("admin"),
-            nome:  String::from("Admin"),
-            email: None,
-            senha: String::from("admin"),
-        });
-        let _ = diesel::insert_into(usuario::table)
-            .values(&novo_admin)
-            .execute(&conexao)
-            .expect("Erro ao cadastrar usuário \"admin\"");
-    }
-}
