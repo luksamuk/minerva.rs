@@ -61,8 +61,8 @@ pub fn index(redis_pool: &State<RedisPool>) -> Resposta {
 
     table.add_row(vec!["GET",    "/log/txt",          "Tabela de log (texto plano)", ]);
 
-    let _ = redis.expire::<&'static str, u64>("chaleira", 20 * 60);
     let n_acessos: u64 = redis.incr("chaleira", 1).unwrap();
+    let _ = redis.expire::<&'static str, u64>("chaleira", 20 * 60);
     
     Resposta::Chaleira(
         format!("Lista de rotas\n{}\
