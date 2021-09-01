@@ -1,5 +1,7 @@
 #+title: Minerva.rs
 
+#+html: <a href="https://insomnia.rest/run/?label=Minerva&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fluksamuk%2Fminerva.rs%2Fmaster%2Ftest%2Finsomnia.json" target="_blank"><img src="https://insomnia.rest/images/run.svg" alt="Run in Insomnia"></a>
+
 * Descrição
 
 Minerva  é um  projeto  de estudo  de um  sistema  gerencial feito  em
