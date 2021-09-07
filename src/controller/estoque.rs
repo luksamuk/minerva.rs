@@ -255,7 +255,7 @@ pub fn lista_movimentos_texto(conexao: &PgConnection, limite: i64) -> String {
     format!("{}\n", table)
 }
 
-fn prepara_tabela(mut table: &mut Table) {
+fn prepara_tabela(table: &mut Table) {
     use comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED;
     table.load_preset(ASCII_BORDERS_ONLY_CONDENSED)
         .set_header(vec![
@@ -263,7 +263,7 @@ fn prepara_tabela(mut table: &mut Table) {
             "Preço Unit.", "Frete", "Data/Hora"]);
 }
 
-fn processa_tabela(conexao: &PgConnection, movimentos: &Vec<MovEstoque>, mut table: &mut Table) {
+fn processa_tabela(conexao: &PgConnection, movimentos: &Vec<MovEstoque>, table: &mut Table) {
     use bigdecimal::Signed;
     use super::produtos;
     for mov in movimentos {

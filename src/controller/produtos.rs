@@ -18,8 +18,6 @@ use diesel::prelude::*;
 use crate::model::schema::produto;
 use crate::model::produto::{ Produto, NovoProduto };
 use crate::model::schema::produto::dsl::*;
-use bigdecimal::BigDecimal;
-use crate::routes::respostas::Resposta;
 use super::log::*;
 
 pub fn lista_produtos(conexao: &PgConnection, limite: i64) -> Vec<Produto> {
