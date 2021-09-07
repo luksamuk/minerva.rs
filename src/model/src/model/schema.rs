@@ -49,7 +49,7 @@ table! {
         produto_id -> Int4,
         docto -> Varchar,
         quantidade -> Numeric,
-        preco_frete -> Numeric,
+        preco_frete -> Nullable<Numeric>,
         datahora -> Timestamptz,
         preco_unitario -> Numeric,
     }

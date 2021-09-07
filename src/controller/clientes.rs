@@ -16,8 +16,8 @@
 
 use diesel::prelude::*;
 use crate::model::schema::{ cliente, endereco };
-use crate::model::cliente::{ Cliente, ClienteRepr, ClienteRecv };
-use crate::model::endereco::{ Endereco, EnderecoRecv };
+use crate::model::cliente::*;
+use crate::model::endereco::*;
 use super::log::*;
 
 pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {

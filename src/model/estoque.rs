@@ -15,10 +15,68 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use bigdecimal::BigDecimal;
+use num_derive::FromPrimitive;
+use bigdecimal::Zero;
 use serde::Deserialize;
+use chrono::DateTime;
+use std::str::FromStr;
+use serde::Serialize;
 
-#[derive(Deserialize, Clone)]
-pub struct MovEstoque {
+use super::schema::{ estoque, mov_estoque };
+
+#[derive(Queryable, Insertable, Clone, Identifiable, Serialize, Deserialize)]
+#[table_name="estoque"]
+#[primary_key(produto_id)]
+pub struct Estoque {
     pub produto_id: i32,
     pub quantidade: BigDecimal,
+    pub precounitario: BigDecimal,
+}
+
+#[derive(Queryable, Clone, Identifiable, Serialize)]
+#[table_name="mov_estoque"]
+pub struct MovEstoque {
+    pub id: i32,
+    pub produto_id: i32,
+    pub docto: String,
+    pub quantidade: BigDecimal,
+    pub preco_frete: BigDecimal,
+    pub datahora: DateTime<chrono::Utc>,
+    pub preco_unitario: BigDecimal,
+}
+
+#[derive(Insertable, Clone)]
+#[table_name="mov_estoque"]
+pub struct NovoMovEstoque {
+    pub produto_id: i32,
+    pub docto: String,
+    pub quantidade: BigDecimal,
+    pub preco_unitario: BigDecimal,
+    pub preco_frete: BigDecimal,
+    pub datahora: DateTime<chrono::Utc>,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct MovEstoqueRecv {
+    pub produto_id: i32,
+    pub docto: String,
+    pub quantidade: BigDecimal,
+    pub preco_unitario: BigDecimal,
+    pub preco_frete: Option<BigDecimal>,
+}
+
+impl NovoMovEstoque {
+    pub fn from(recv: MovEstoqueRecv) -> Self {
+        Self {
+            produto_id: recv.produto_id,
+            docto: recv.docto.clone(),
+            quantidade: recv.quantidade.clone(),
+            preco_unitario: recv.preco_unitario.clone(),
+            preco_frete: match recv.preco_frete {
+                Some(frete) => frete.clone(),
+                None => BigDecimal::from_str("0.0000").unwrap(),
+            },
+            datahora: chrono::offset::Utc::now(),
+        }
+    }
 }

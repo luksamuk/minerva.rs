@@ -18,3 +18,4 @@ pub mod clientes;
 pub mod produtos;
 pub mod log;
 pub mod usuarios;
+pub mod estoque;

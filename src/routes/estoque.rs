@@ -17,25 +17,48 @@
 use rocket::Route;
 use rocket::serde::json::Json;
 use crate::controller::produtos;
+use crate::controller::estoque;
 use rocket::State;
 use crate::db::ConexaoPool;
-use crate::model::estoque::MovEstoque;
+use crate::model::estoque::{ Estoque, MovEstoqueRecv };
 use super::respostas::Resposta;
 
+// Rotas planejadas:
+// GET    /estoque => Lista o estoque de todos os produtos -- talvez?
+// [OK] POST   /estoque => Realiza início de estoque para um produto em específico
+
+// GET    /estoque/id => Lista o estoque de um produto em específico
+// DELETE /estoque/id => Deleta estoque de um produto
+
+// GET    /estoque/mov => Mostra movimentações de estoque mais reentes
+// [OK] POST   /estoque/mov => Realiza uma movimentação de estoque (entrada ou saída).
+//                        Não aceitar movimentações com quantidade ou preço
+//                        zerados!
+
+// GET    /estoque/mov/entradas => Entradas mais recentes
+// GET    /estoque/mov/saidas => Saídas mais recentes
+
+// GET    /estoque/mov/entradas/txt => Entradas mais recentes (texto)
+// GET    /estoque/mov/saidas/txt => Saídas mais recentes (texto)
+
+// Necessário também garantir que essas movimentações de MOV_ESTOQUE
+// alterem ESTOQUE de acordo.
+
 pub fn constroi_rotas() -> Vec<Route> {
-    routes![movimenta_estoque]
+    routes![inicia_estoque, movimenta_estoque]
 }
 
 #[post("/", data = "<dados>")]
+fn inicia_estoque(pool: &State<ConexaoPool>, dados: Json<Estoque>) -> Resposta {
+    let conexao = pool.get().unwrap();
+    estoque::inicia_estoque(&conexao, dados.clone())
+}
+
+#[post("/mov", data = "<dados>")]
 fn movimenta_estoque(
     pool: &State<ConexaoPool>,
-    dados: Json<MovEstoque>
+    dados: Json<MovEstoqueRecv>
 ) -> Resposta {
     let conexao = pool.get().unwrap();
-    match produtos::get_produto(&conexao, dados.produto_id) {
-        None => Resposta::NaoEncontrado(
-            String::from("{ \"mensagem\": \"Produto não encontrado\" }")),
-        Some(p) =>
-            produtos::muda_estoque(&conexao, &p, dados.quantidade.clone()),
-    }
+    estoque::movimenta_estoque(&conexao, dados.clone())
 }

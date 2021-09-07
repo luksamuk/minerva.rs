@@ -173,7 +173,8 @@ Abaixo, uma lista das rotas criadas até então.
 | DELETE     | /produtos/<id>    | Remove um produto           |
 | DELETE     | /produtos/all     | Remove todos os produtos    |
 |------------+-------------------+-----------------------------|
-| POST       | /estoque          | Faz movimentação de estoque |
+| POST       | /estoque          | Realiza início de estoque   |
+| POST       | /estoque/mov      | Faz movimentação de estoque |
 |------------+-------------------+-----------------------------|
 | GET        | /clientes         | Lista de clientes           |
 | POST       | /clientes         | Cadastra um cliente         |
@@ -272,25 +273,40 @@ estrutura similar à seguinte:
 #+begin_src json
 {
   "descricao": "Descrição do produto",
-  "unidsaida": "UN",
-  "qtdestoque": 0.0,
-  "precovenda": 0.0
+  "unidsaida": "UN"
 }
 #+end_src
 
 - ~descricao~: Descrição do produto.
 - ~unidsaida~:  Unidade  de  saída  do produto.   Será  armazenada  em
   uppercase. Ex: ~"UN"~, ~"KG"~, etc.
-- ~qtdestoque~: Quantidade a  ser lançada em estoque.  Admite até três
-  casas  decimais. Valor  máximo: ~999999999.999~.
-- ~precovenda~: Preço  de venda  do produto.  Admite até  quatro casas
-  decimais. Valor   máximo: ~999999999.9999~.
 
-*ATENÇÃO:* As informações ~qtdestoque~  e ~precovenda~ são armazenadas
-no banco de  dados como /ponto fixo/, e não  como ponto flutuante. Por
-esse motivo, é importante assegurar o  limite de uso de dígitos para a
-parte integral  e decimal  destes valores. Caso  os dígitos  excedam o
-padrão, o número poderá ser truncado.
+** Estrutura de início de estoque
+
+A  requisição de  início de  estoque exige  um corpo  em JSON  com uma
+estrutura similar à seguinte:
+
+#+begin_src json
+{
+    "produto_id": 31,
+    "quantidade": 500.0,
+    "precounitario": 1.50
+}
+#+end_src
+
+- ~quantidade~: Quantidade inicial em  estoque.  Admite até três casas
+  decimais. Valor máximo: ~999999999.999~.
+- ~precounitario~:  Preço de  venda unitário  do produto.   Admite até
+  quatro casas decimais. Valor máximo: ~999999999.9999~.
+
+*ATENÇÃO:*   As  informações   ~quantidade~   e  ~precounitario~   são
+armazenadas no  banco de  dados como  /ponto fixo/,  e não  como ponto
+flutuante. Por esse motivo, é importante  assegurar o limite de uso de
+dígitos  para a  parte  integral  e decimal  destes  valores. Caso  os
+dígitos excedam o padrão, o número poderá ser truncado.
+
+*ATENÇÃO*: A quantidade e o preço unitário não podem ser negativos. De
+forma similar, o preço unitário deverá ser maior que zero.
 
 ** Estrutura de movimentação de estoque
 
@@ -299,13 +315,31 @@ estrutura similar à seguinte:
 
 #+begin_src json
 {
-    "produto_id": 10,
-    "quantidade": 500.0
+    "produto_id": 31,
+    "docto": "00000000",
+    "quantidade": 1500.0,
+    "preco_frete": 0.00,
+    "preco_unitario": 1.50
 }
 #+end_src
 
 - ~produto_id~: ID do produto a ser movimentado.
-- ~qtd~: Valor de entrada (positivo) ou saída (negativo) do estoque.
+- ~docto~:  Identificação   do  documento  que  está   movimentando  o
+  estoque.
+- ~quantidade~: Quantidade  a ser movimentada no  estoque.  Admite até
+  três casas decimais. Valor máximo: ~999999999.999~. Para uma redução
+  no estoque, informar valores negativos.
+- ~preco_frete~: Opcional.  Valor do frete  do produto. Caso  não seja
+  informado,  será  armazenado  como  zero. Admite  até  quatro  casas
+  decimais. Valor máximo: ~999999999.9999~.
+- ~preco_unitario~: Preço  de venda  unitário do produto.   Admite até
+  quatro casas decimais. Valor máximo: ~999999999.9999~.
+
+*ATENÇÃO:*   As  informações   ~quantidade~   e  ~precounitario~   são
+armazenadas no  banco de  dados como  /ponto fixo/,  e não  como ponto
+flutuante. Por esse motivo, é importante  assegurar o limite de uso de
+dígitos  para a  parte  integral  e decimal  destes  valores. Caso  os
+dígitos excedam o padrão, o número poderá ser truncado.
 
 *ATENÇÃO:*  A  movimentação  de  estoque  não  pode  resultar  em  uma
 quantidade negativa de estoque.

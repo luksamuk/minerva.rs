@@ -16,8 +16,6 @@
 
 use super::schema::produto;
 use serde::{ Serialize, Deserialize };
-use bigdecimal::BigDecimal;
-use std::str::FromStr;
 
 #[derive(Identifiable, Queryable, Serialize, Debug, Clone)]
 #[table_name="produto"]
@@ -25,8 +23,6 @@ pub struct Produto {
     pub id: i32,
     pub descricao: String,
     pub unidsaida: String,
-    pub qtdestoque: BigDecimal,
-    pub precovenda: BigDecimal,
 }
 
 #[derive(Debug, Insertable, Deserialize, Clone)]
@@ -34,8 +30,6 @@ pub struct Produto {
 pub struct NovoProduto {
     pub descricao: String,
     pub unidsaida: String,
-    pub qtdestoque: BigDecimal,
-    pub precovenda: BigDecimal,
 }
 
 impl NovoProduto {
@@ -43,8 +37,6 @@ impl NovoProduto {
         Self {
             descricao: String::new(),
             unidsaida: String::new(),
-            qtdestoque: BigDecimal::from_str("0.0").unwrap(),
-            precovenda: BigDecimal::from_str("0.0").unwrap(),
         }
     }
 }

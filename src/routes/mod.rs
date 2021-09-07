@@ -44,7 +44,8 @@ pub fn index(redis_pool: &State<RedisPool>) -> Resposta {
     table.add_row(vec!["DELETE", "/produtos/<id>",    "Remove um produto",           ]);
     table.add_row(vec!["DELETE", "/produtos/all",     "Remove todos os produtos",    ]);
 
-    table.add_row(vec!["POST",   "/estoque",          "Faz movimentação de estoque", ]);
+    table.add_row(vec!["POST",   "/estoque",          "Realiza início de estoque",   ]);
+    table.add_row(vec!["POST",   "/estoque/mov",      "Faz movimentação de estoque", ]);
 
     table.add_row(vec!["GET",    "/clientes",         "Lista de clientes",           ]);
     table.add_row(vec!["POST",   "/clientes",         "Cadastra um cliente",         ]);
