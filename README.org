@@ -197,6 +197,7 @@ Abaixo, uma lista das rotas criadas até então.
 | DELETE     | /usuarios/<id>            | Deleta um usuário                   |
 | DELETE     | /usuarios/<login>         | Deleta um usuário                   |
 |------------+---------------------------+-------------------------------------|
+| GET        | /log                      | Tabela de log                       |
 | GET        | /log/txt                  | Tabela de log (texto plano)         |
 
 ** Estrutura de cadastro de usuário

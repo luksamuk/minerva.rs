@@ -20,7 +20,17 @@ use crate::controller::log;
 use super::respostas::Resposta;
 
 pub fn constroi_rotas() -> Vec<Route> {
-    routes![mostra_log_texto]
+    routes![
+        mostra_log,
+        mostra_log_texto,
+    ]
+}
+
+#[get("/")]
+fn mostra_log(pool: &State<ConexaoPool>) -> Resposta {
+    let conexao = pool.get().unwrap();
+    Resposta::Ok(serde_json::to_string(
+        &log::recupera_log(&conexao, 100)).unwrap())
 }
 
 #[get("/txt")]

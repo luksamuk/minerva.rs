@@ -20,18 +20,21 @@ use diesel_enum::DbEnum;
 use diesel::sql_types::SmallInt;
 use super::enum_error::EnumError;
 use chrono::DateTime;
+use serde::Serialize;
+use serde_repr::Serialize_repr;
 
-#[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, AsExpression, FromSqlRow, DbEnum)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, AsExpression, FromSqlRow, DbEnum, Serialize_repr)]
 #[sql_type = "SmallInt"]
 #[error_fn = "EnumError::nao_encontrado"]
 #[error_type = "EnumError"]
+#[repr(i16)]
 pub enum DBOperacao {
     Insercao  = 0,
     Alteracao = 1,
     Remocao   = 2,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize, Clone)]
 pub struct LogDB {
     pub id: i32,
     pub tabela: String,

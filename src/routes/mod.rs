@@ -67,7 +67,8 @@ pub fn index(redis_pool: &State<RedisPool>) -> Resposta {
     table.add_row(vec!["GET",    "/usuarios/<login>",         "Mostra um usuário",                    ]);
     table.add_row(vec!["DELETE", "/usuarios/<id>",            "Deleta um usuário",                    ]);
     table.add_row(vec!["DELETE", "/usuarios/<login>",         "Deleta um usuário",                    ]);
-                                                                                                         
+
+    table.add_row(vec!["GET",    "/log",                      "Tabela de log",                        ]);
     table.add_row(vec!["GET",    "/log/txt",                  "Tabela de log (texto plano)",          ]);
 
     let n_acessos: u64 = redis.incr("chaleira", 1).unwrap();

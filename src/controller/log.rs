@@ -63,7 +63,7 @@ pub fn lista_log_texto(conexao: &PgConnection) -> String {
     format!("{}\n", table)
 }
 
-fn recupera_log(conexao: &PgConnection, limite: i64) -> Vec<LogDB> {
+pub fn recupera_log(conexao: &PgConnection, limite: i64) -> Vec<LogDB> {
     use crate::model::schema::logdb::dsl::*;
     logdb.order(datahora.desc())
         .limit(limite)
