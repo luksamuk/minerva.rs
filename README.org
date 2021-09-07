@@ -163,33 +163,41 @@ diesel migration redo
 
 Abaixo, uma lista das rotas criadas até então.
 
-| Requisição | Rota              | Descrição                   |
-|------------+-------------------+-----------------------------|
-| GET        | /                 | Lista de rotas              |
-|------------+-------------------+-----------------------------|
-| GET        | /produtos         | Lista de produtos           |
-| POST       | /produtos         | Cadastra um produto         |
-| GET        | /produtos/<id>    | Mostra um produto           |
-| DELETE     | /produtos/<id>    | Remove um produto           |
-| DELETE     | /produtos/all     | Remove todos os produtos    |
-|------------+-------------------+-----------------------------|
-| POST       | /estoque          | Realiza início de estoque   |
-| POST       | /estoque/mov      | Faz movimentação de estoque |
-|------------+-------------------+-----------------------------|
-| GET        | /clientes         | Lista de clientes           |
-| POST       | /clientes         | Cadastra um cliente         |
-| GET        | /clientes/<id>    | Mostra um cliente           |
-| DELETE     | /clientes/<id>    | Deleta um cliente           |
-| DELETE     | /clientes/all     | Deleta todos os clientes    |
-|------------+-------------------+-----------------------------|
-| GET        | /usuarios         | Lista de usuários           |
-| POST       | /usuarios         | Cadastra um usuário         |
-| GET        | /usuarios/<id>    | Mostra um usuário           |
-| GET        | /usuarios/<login> | Mostra um usuário           |
-| DELETE     | /usuarios/<id>    | Deleta um usuário           |
-| DELETE     | /usuarios/<login> | Deleta um usuário           |
-|------------+-------------------+-----------------------------|
-| GET        | /log/txt          | Tabela de log (texto plano) |
+| Requisição | Rota                      | Descrição                           |
+|------------+---------------------------+-------------------------------------|
+| GET        | /                         | Lista de rotas                      |
+|------------+---------------------------+-------------------------------------|
+| GET        | /produtos                 | Lista de produtos                   |
+| POST       | /produtos                 | Cadastra um produto                 |
+| GET        | /produtos/<id>            | Mostra um produto                   |
+| DELETE     | /produtos/<id>            | Remove um produto                   |
+| DELETE     | /produtos/all             | Remove todos os produtos            |
+|------------+---------------------------+-------------------------------------|
+| GET        | /estoque                  | Lista de estoques                   |
+| POST       | /estoque                  | Realiza início de estoque           |
+| GET        | /estoque/<id>             | Mostra um estoque                   |
+| GET        | /estoque/mov              | Movimentos de estoque               |
+| POST       | /estoque/mov              | Faz movimentação de estoque         |
+| GET        | /estoque/mov/txt          | Movimentos de estoque (texto plano) |
+| GET        | /estoque/mov/entradas     | Movimentos de entrada               |
+| GET        | /estoque/mov/saidas       | Movimentos de saída                 |
+| GET        | /estoque/mov/entradas/txt | Movimentos de entrada (texto plano) |
+| GET        | /estoque/mov/saidas/txt   | Movimentos de saida (texto plano)   |
+|------------+---------------------------+-------------------------------------|
+| GET        | /clientes                 | Lista de clientes                   |
+| POST       | /clientes                 | Cadastra um cliente                 |
+| GET        | /clientes/<id>            | Mostra um cliente                   |
+| DELETE     | /clientes/<id>            | Deleta um cliente                   |
+| DELETE     | /clientes/all             | Deleta todos os clientes            |
+|------------+---------------------------+-------------------------------------|
+| GET        | /usuarios                 | Lista de usuários                   |
+| POST       | /usuarios                 | Cadastra um usuário                 |
+| GET        | /usuarios/<id>            | Mostra um usuário                   |
+| GET        | /usuarios/<login>         | Mostra um usuário                   |
+| DELETE     | /usuarios/<id>            | Deleta um usuário                   |
+| DELETE     | /usuarios/<login>         | Deleta um usuário                   |
+|------------+---------------------------+-------------------------------------|
+| GET        | /log/txt                  | Tabela de log (texto plano)         |
 
 ** Estrutura de cadastro de usuário
 

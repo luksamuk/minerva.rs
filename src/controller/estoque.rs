@@ -18,6 +18,7 @@ use diesel::prelude::*;
 use crate::model::estoque::*;
 use super::log::*;
 use crate::routes::respostas::Resposta;
+use comfy_table::Table;
 
 pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
     use super::produtos;
@@ -126,7 +127,6 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
     // 4.1. Cadastra o movimento.
     let novo_movimento = NovoMovEstoque::from(recv);
     let movimento = {
-        use crate::model::schema::mov_estoque::dsl::*;
         use crate::model::schema::mov_estoque;
         match diesel::insert_into(mov_estoque::table)
             .values(&novo_movimento)
@@ -219,3 +219,110 @@ pub fn get_estoque(conexao: &PgConnection, prod_id: i32) -> Option<Estoque> {
     }
 }
 
+fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUnion {
+    use super::produtos;
+    let p = produtos::get_produto(conexao, e.produto_id).unwrap();
+    EstoqueUnion {
+        id: p.id,
+        descricao: p.descricao.clone(),
+        unidsaida: p.unidsaida.clone(),
+        quantidade: e.quantidade.clone(),
+        preco_unitario: e.precounitario.clone(),
+    }
+}
+
+pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueUnion> {
+    use crate::model::schema::estoque;
+    estoque::table.limit(limite)
+        .load::<Estoque>(conexao)
+        .expect("Erro ao carregar estoque")
+        .iter()
+        .map(|e| transforma_estoque_retorno(conexao, e))
+        .collect()
+}
+
+pub fn mostra_estoque(conexao: &PgConnection, prod_id: i32) -> Option<EstoqueUnion> {
+    get_estoque(conexao, prod_id)
+        .as_ref()
+        .map(|e| transforma_estoque_retorno(conexao, e))
+}
+
+pub fn lista_movimentos_texto(conexao: &PgConnection, limite: i64) -> String {
+    let movimentos = recupera_movimentos(conexao, limite);
+    let mut table = Table::new();
+    prepara_tabela(&mut table);
+    processa_tabela(conexao, &movimentos, &mut table);
+    format!("{}\n", table)
+}
+
+fn prepara_tabela(mut table: &mut Table) {
+    use comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED;
+    table.load_preset(ASCII_BORDERS_ONLY_CONDENSED)
+        .set_header(vec![
+            "Produto", "Documento", "Tipo", "Quantidade",
+            "Preço Unit.", "Frete", "Data/Hora"]);
+}
+
+fn processa_tabela(conexao: &PgConnection, movimentos: &Vec<MovEstoque>, mut table: &mut Table) {
+    use bigdecimal::Signed;
+    use super::produtos;
+    for mov in movimentos {
+        let nome_produto =
+            match produtos::get_produto(conexao, mov.produto_id) {
+                Some(p) => format!("{} - {:.20}", p.id, p.descricao),
+                None => format!("Produto {}", mov.produto_id),
+            };
+
+        let tipo_movimento = String::from(
+            if mov.quantidade.is_positive() {
+                "Entrada"
+            } else {
+                "Saída"
+            });
+
+        table.add_row(vec![
+            nome_produto,
+            mov.docto.clone(),
+            tipo_movimento,
+            mov.quantidade.abs().to_string(),
+            mov.preco_unitario.to_string(),
+            mov.preco_frete.to_string(),
+            mov.datahora.to_string(),
+        ]);
+    }
+}
+
+pub fn recupera_movimentos(conexao: &PgConnection, limite: i64) -> Vec<MovEstoque> {
+    use crate::model::schema::mov_estoque::dsl::*;
+    mov_estoque.order(datahora.desc())
+        .limit(limite)
+        .load::<MovEstoque>(conexao)
+        .expect("Erro ao recuperar movimentações de estoque")
+}
+
+pub fn lista_movimentos_texto_filtrado(conexao: &PgConnection, limite: i64, is_entrada: bool) -> String {
+    let movimentos = recupera_movimentos_filtrado(conexao, limite, is_entrada);
+    let mut table = Table::new();
+    prepara_tabela(&mut table);
+    processa_tabela(conexao, &movimentos, &mut table);
+    format!("{}\n", table)
+}
+
+pub fn recupera_movimentos_filtrado(conexao: &PgConnection, limite: i64, is_entrada: bool) -> Vec<MovEstoque> {
+    use bigdecimal::{ BigDecimal, Zero };
+    use crate::model::schema::mov_estoque::dsl::*;
+    let z: BigDecimal = Zero::zero();
+
+    let query = mov_estoque.order(datahora.desc())
+        .limit(limite);
+
+    if is_entrada {
+        query.filter(quantidade.ge(z))
+            .load::<MovEstoque>(conexao)
+            .expect("Erro ao recuperar movimentações de estoque")
+    } else {
+        query.filter(quantidade.lt(z))
+            .load::<MovEstoque>(conexao)
+            .expect("Erro ao recuperar movimentações de estoque")
+    }
+}

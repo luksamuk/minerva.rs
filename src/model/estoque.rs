@@ -65,6 +65,15 @@ pub struct MovEstoqueRecv {
     pub preco_frete: Option<BigDecimal>,
 }
 
+#[derive(Serialize, Clone)]
+pub struct EstoqueUnion {
+    pub id: i32,
+    pub descricao: String,
+    pub unidsaida: String,
+    pub quantidade: BigDecimal,
+    pub preco_unitario: BigDecimal,
+}
+
 impl NovoMovEstoque {
     pub fn from(recv: MovEstoqueRecv) -> Self {
         Self {
