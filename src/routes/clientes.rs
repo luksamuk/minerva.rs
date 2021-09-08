@@ -21,6 +21,7 @@ use rocket::State;
 use crate::db::ConexaoPool;
 use crate::model::cliente::ClienteRecv;
 use super::respostas::Resposta;
+use crate::auth::AuthKey;
 
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
@@ -33,14 +34,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[get("/")]
-fn index(pool: &State<ConexaoPool>) -> Resposta {
+fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let vec_clientes = clientes::lista_clientes(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_clientes).unwrap())
 }
 
 #[get("/<ident>")]
-fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32) -> Resposta {
+fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
         None => Resposta::NaoEncontrado(
@@ -50,14 +51,14 @@ fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32) -> Resposta {
 }
 
 #[post("/", data = "<dados>")]
-fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>) -> Resposta {
+fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let id = clientes::registra_cliente(&conexao, dados.clone());
     Resposta::Ok(format!("{{ \"id\": {} }}", id))
 }
 
 #[delete("/<ident>")]
-fn deleta(pool: &State<ConexaoPool>, ident: i32) -> Resposta {
+fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
         None => Resposta::NaoEncontrado(
@@ -71,7 +72,7 @@ fn deleta(pool: &State<ConexaoPool>, ident: i32) -> Resposta {
 }
 
 #[delete("/all")]
-fn deleta_todos(pool: &State<ConexaoPool>) -> Resposta {
+fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let (num_end, num_cl) = clientes::deleta_todos(&conexao);
     Resposta::Ok(format!("{{ \"clientes\": {}, \"enderecos\": {} }}",

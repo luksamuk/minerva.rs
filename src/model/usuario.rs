@@ -63,3 +63,13 @@ impl NovoUsuario {
         }
     }
 }
+
+impl Usuario {
+    pub fn verifica_senha(&self, senha: &str) -> bool {
+        sodiumoxide::init().unwrap();
+        match argon2id13::HashedPassword::from_slice(&self.senha_hash) {
+            Some(hp) => argon2id13::pwhash_verify(&hp, senha.as_bytes()),
+            None => false,
+        }
+    }
+}

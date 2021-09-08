@@ -19,6 +19,7 @@ use std::env;
 use dotenv::dotenv;
 
 pub type RedisPool = r2d2::Pool<RedisConnectionManager>;
+pub type RedisConnection = diesel::r2d2::PooledConnection<r2d2_redis::RedisConnectionManager>;
 
 pub fn cria_pool_redis() -> RedisPool {
     dotenv().ok();

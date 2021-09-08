@@ -28,6 +28,7 @@ extern crate comfy_table;
 extern crate r2d2_redis;
 
 pub mod db;
+pub mod auth;
 pub mod model;
 pub mod controller;
 pub mod routes;

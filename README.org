@@ -18,6 +18,18 @@ parcialmente didáticas  e parcialmente arbitrárias, não  sendo reflexo
 direto do gosto do  autor. Caso você seja alérgico ao  uso de nomes de
 estruturas e variáveis em Português, esteja desde já avisado(a).
 
+* Dependências
+
+- Rust  (versão  2018,  canal stable,  preferencialmente  com  ~rustc~
+  1.54.0);
+- Cargo (ferramenta do Rust para compilação);
+- PostgreSQL 11 (utilizável via Docker);
+- Redis 6 (utilizável via Docker).
+
+As   dependências  de   bibliotecas  propriamente   ditas  podem   ser
+verificadas no arquivo ~Cargo.toml~. Essas dependências serão baixadas
+durante a compilação do projeto.
+
 * Licenciamento
 
 Este projeto é redistribuido sob a licença GNU General Public License,
@@ -166,6 +178,7 @@ Abaixo, uma lista das rotas criadas até então.
 | Requisição | Rota                      | Descrição                           |
 |------------+---------------------------+-------------------------------------|
 | GET        | /                         | Lista de rotas                      |
+| POST       | /login                    | Login do usuário                    |
 |------------+---------------------------+-------------------------------------|
 | GET        | /produtos                 | Lista de produtos                   |
 | POST       | /produtos                 | Cadastra um produto                 |
@@ -224,6 +237,49 @@ estrutura similar à seguinte:
 - ~senha~: Senha em texto plano.  Será armazenada como hash salgado no
   banco de dados. Certifique-se de  só trafegar essa informação para o
   servidor por meio de conexão encriptada.
+
+** Estrutura de login de usuário
+
+A requisição  para login  de usuário  exige um corpo  em JSON  com uma
+estrutura similar à seguinte:
+
+#+begin_src json
+{
+    "login": "fulanodetal",
+    "senha": "senha_teste_2021"
+}
+#+end_src
+
+- ~login~: Login do usuário.
+- ~senha~: Senha em texto plano.
+
+Uma requisição  correta de  login devolverá uma  resposta em  JSON com
+estrutura similar à seguinte:
+
+#+begin_src json
+{
+    "id": 1,
+    "login": "fulanodetal",
+    "token": "<token JWT>"
+}
+#+end_src
+
+Os atributos ~id~ e ~login~ são próprios do usuário logado. O atributo
+~token~ é um JSON Web Token, que *deverá ser informado no cabeçalho da
+maioria das requisições* para que elas possam ser executadas.
+
+No Minerva, os  tokens JWT são verificados em três  sentidos: pela sua
+validade de  expiração inerente,  pela sua  associação com  um usuário
+específico e pela sua validade de armazenamento do lado do servidor.
+
+A associação a  um usuário e sua validade de  armazenamento do lado do
+servidor são gerenciados através do Redis, que guarda o token JWT como
+chave e  o nome do usuário  como valor associado. Assim,  mesmo que um
+token JWT seja adulterado, caso o  mesmo não conste como registrado no
+Redis para  o mesmo usuário ao  qual se refere, a  requisição não será
+autorizada.
+
+Todos os tokens JWT emitidos têm um tempo de vida de sete dias.
 
 ** Estrutura de cadastro de cliente
 

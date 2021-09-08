@@ -22,3 +22,4 @@ pub mod estoque;
 pub mod logdb;
 pub mod enum_error;
 pub mod usuario;
+pub mod login;

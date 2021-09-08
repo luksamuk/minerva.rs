@@ -28,6 +28,7 @@ extern crate comfy_table;
 extern crate r2d2_redis;
 
 pub mod db;
+pub mod auth;
 pub mod model;
 pub mod controller;
 pub mod routes;
@@ -43,6 +44,7 @@ fn launch() -> _ {
         .manage(pool)
         .manage(redis_pool)
         .mount("/", routes![ routes::index ])
+        .mount("/login", routes::login::constroi_rotas())
         .mount("/clientes", routes::clientes::constroi_rotas())
         .mount("/produtos", routes::produtos::constroi_rotas())
         .mount("/estoque",  routes::estoque::constroi_rotas())

@@ -1,4 +1,4 @@
-// controller/mod.rs -- Uma parte de Minerva.rs
+// model/login.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,9 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod clientes;
-pub mod produtos;
-pub mod log;
-pub mod usuarios;
-pub mod estoque;
-pub mod login;
+use serde::{ Serialize, Deserialize };
+
+#[derive(Deserialize)]
+pub struct LoginData<'r> {
+    pub login: &'r str,
+    pub senha: &'r str,
+}
+
+#[derive(Serialize)]
+pub struct LoginResponse {
+    pub id: i32,
+    pub login: String,
+    pub token: String,
+}

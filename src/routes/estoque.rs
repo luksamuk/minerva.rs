@@ -21,6 +21,7 @@ use rocket::State;
 use crate::db::ConexaoPool;
 use crate::model::estoque::{ Estoque, MovEstoqueRecv };
 use super::respostas::Resposta;
+use crate::auth::AuthKey;
 
 // Rotas planejadas:
 // DELETE /estoque/id => Deleta estoque de um produto
@@ -41,7 +42,7 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[get("/<prod_id>")]
-fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32) -> Resposta {
+fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match estoque::mostra_estoque(&conexao, prod_id) {
         None => Resposta::NaoEncontrado(
@@ -51,14 +52,14 @@ fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32) -> Resposta {
 }
     
 #[get("/")]
-fn lista_estoque(pool: &State<ConexaoPool>) -> Resposta {
+fn lista_estoque(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let lista = estoque::lista_estoque(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&lista).unwrap())
 }
 
 #[post("/", data = "<dados>")]
-fn inicia_estoque(pool: &State<ConexaoPool>, dados: Json<Estoque>) -> Resposta {
+fn inicia_estoque(pool: &State<ConexaoPool>, dados: Json<Estoque>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     estoque::inicia_estoque(&conexao, dados.clone())
 }
@@ -66,42 +67,43 @@ fn inicia_estoque(pool: &State<ConexaoPool>, dados: Json<Estoque>) -> Resposta {
 #[post("/mov", data = "<dados>")]
 fn movimenta_estoque(
     pool: &State<ConexaoPool>,
-    dados: Json<MovEstoqueRecv>
+    dados: Json<MovEstoqueRecv>,
+    _auth: AuthKey<'_>
 ) -> Resposta {
     let conexao = pool.get().unwrap();
     estoque::movimenta_estoque(&conexao, dados.clone())
 }
 
 #[get("/mov")]
-fn mostra_movimentos(pool: &State<ConexaoPool>) -> Resposta {
+fn mostra_movimentos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     Resposta::Ok(serde_json::to_string(
         &estoque::recupera_movimentos(&conexao, 100)).unwrap())
 }
 
 #[get("/mov/entradas")]
-fn mostra_entradas(pool: &State<ConexaoPool>) -> Resposta {
+fn mostra_entradas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     Resposta::Ok(serde_json::to_string(
         &estoque::recupera_movimentos_filtrado(&conexao, 100, true)).unwrap())
 }
 
 #[get("/mov/saidas")]
-fn mostra_saidas(pool: &State<ConexaoPool>) -> Resposta {
+fn mostra_saidas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     Resposta::Ok(serde_json::to_string(
         &estoque::recupera_movimentos_filtrado(&conexao, 100, false)).unwrap())
 }
 
 #[get("/mov/entradas/txt")]
-fn mostra_entradas_txt(pool: &State<ConexaoPool>) -> Resposta {
+fn mostra_entradas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     Resposta::OkTexto(
         estoque::lista_movimentos_texto_filtrado(&conexao, 100, true))
 }
 
 #[get("/mov/saidas/txt")]
-fn mostra_saidas_txt(pool: &State<ConexaoPool>) -> Resposta {
+fn mostra_saidas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     Resposta::OkTexto(
         estoque::lista_movimentos_texto_filtrado(&conexao, 100, false))
@@ -109,7 +111,7 @@ fn mostra_saidas_txt(pool: &State<ConexaoPool>) -> Resposta {
 
     
 #[get("/mov/txt")]
-fn mostra_movimentos_txt(pool: &State<ConexaoPool>) -> Resposta {
+fn mostra_movimentos_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     Resposta::OkTexto(estoque::lista_movimentos_texto(&conexao, 100))
 }

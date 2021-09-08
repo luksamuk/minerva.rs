@@ -20,6 +20,7 @@ pub mod produtos;
 pub mod estoque;
 pub mod log;
 pub mod usuarios;
+pub mod login;
 
 use respostas::Resposta;
 use rocket::State;
@@ -37,6 +38,7 @@ pub fn index(redis_pool: &State<RedisPool>) -> Resposta {
         .set_header(vec!["Requisição", "Rota", "Descrição"]);
     
     table.add_row(vec!["GET",    "/",                         "Lista de rotas",                       ]);
+    table.add_row(vec!["POST",   "/login",                    "Login do usuário",                     ]);
                                                                                                          
     table.add_row(vec!["GET",    "/produtos",                 "Lista de produtos",                    ]);
     table.add_row(vec!["POST",   "/produtos",                 "Cadastra um produto",                  ]);

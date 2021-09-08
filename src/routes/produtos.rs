@@ -21,6 +21,7 @@ use rocket::State;
 use crate::db::ConexaoPool;
 use crate::model::produto::NovoProduto;
 use super::respostas::Resposta;
+use crate::auth::AuthKey;
 
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
@@ -33,14 +34,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[get("/")]
-fn index(pool: &State<ConexaoPool>) -> Resposta {
+fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let vec_produtos = produtos::lista_produtos(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_produtos).unwrap())
 }
 
 #[get("/<prod_id>")]
-fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32) -> Resposta {
+fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
         None => Resposta::NaoEncontrado(
@@ -50,7 +51,7 @@ fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32) -> Resposta {
 }
 
 #[delete("/<prod_id>")]
-fn deleta(pool: &State<ConexaoPool>, prod_id: i32) -> Resposta {
+fn deleta(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
         None => Resposta::NaoEncontrado(
@@ -63,14 +64,14 @@ fn deleta(pool: &State<ConexaoPool>, prod_id: i32) -> Resposta {
 }
 
 #[delete("/all")]
-fn deleta_todos(pool: &State<ConexaoPool>) -> Resposta {
+fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let num_del = produtos::deleta_todos(&conexao);
     Resposta::Ok(format!("{{ \"produtos\": {} }}", num_del))
 }
 
 #[post("/", data = "<dados>")]
-fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>) -> Resposta {
+fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let result = produtos::registra_produto(&conexao, dados.clone());
     match result {

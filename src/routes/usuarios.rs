@@ -20,6 +20,7 @@ use super::respostas::Resposta;
 use crate::controller::usuarios;
 use crate::model::usuario::UsuarioRecv;
 use rocket::serde::json::Json;
+use crate::auth::AuthKey;
 
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
@@ -33,14 +34,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[get("/")]
-fn index(pool: &State<ConexaoPool>) -> Resposta {
+fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let vec_usuarios = usuarios::lista_usuarios(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_usuarios).unwrap())
 }
 
 #[get("/<usr_id>")]
-fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32) -> Resposta {
+fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
         None => Resposta::NaoEncontrado(
@@ -50,7 +51,7 @@ fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32) -> Resposta {
 }
 
 #[get("/<usr_login>", rank = 2)]
-fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: String) -> Resposta {
+fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: String, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => Resposta::NaoEncontrado(
@@ -60,7 +61,7 @@ fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: String) -> Resposta {
 }
 
 #[post("/", data = "<dados>")]
-fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>) -> Resposta {
+fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
 
     if usuarios::encontra_usuario(&conexao, dados.login.clone()).is_some() {
@@ -80,7 +81,7 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>) -> Resposta {
 }
 
 #[delete("/<usr_id>")]
-fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32) -> Resposta {
+fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
         None => Resposta::NaoEncontrado(
@@ -95,7 +96,7 @@ fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32) -> Resposta {
 }
 
 #[delete("/<usr_login>", rank = 2)]
-fn deleta_por_login(pool: &State<ConexaoPool>, usr_login: String) -> Resposta {
+fn deleta_por_login(pool: &State<ConexaoPool>, usr_login: String, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => Resposta::NaoEncontrado(

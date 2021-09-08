@@ -22,6 +22,8 @@ pub enum Resposta {
     Ok(String),
     #[response(status = 200, content_type = "text")]
     OkTexto(String),
+    #[response(status = 401, content_type = "json")]
+    NaoAutorizado(String),
     #[response(status = 404, content_type = "json")]
     NaoEncontrado(String),
     #[response(status = 418, content_type = "text")]
