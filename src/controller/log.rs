@@ -63,7 +63,7 @@ pub fn lista_log_texto(conexao: &PgConnection) -> String {
                 DBOperacao::Remocao => "Remoção",
             }),
             format!("{}", log.datahora),
-            log.descricao.unwrap_or(String::new()),
+            log.descricao.unwrap_or_default(),
         ]);
     }
     format!("{}\n", table)

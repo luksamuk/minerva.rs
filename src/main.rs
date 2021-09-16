@@ -14,40 +14,47 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use] extern crate rocket;
-#[macro_use] extern crate diesel;
+#![warn(clippy::all)]
+#![allow(clippy::from_over_into)]
+#![warn(missing_docs)]
+
+#[macro_use]
+extern crate rocket;
+#[macro_use]
+extern crate diesel;
+extern crate bigdecimal;
 extern crate dotenv;
 extern crate serde;
 extern crate serde_json;
-extern crate bigdecimal;
-#[macro_use] extern crate num_derive;
-extern crate num_traits;
-extern crate diesel_enum;
+#[macro_use]
+extern crate num_derive;
 extern crate chrono;
 extern crate comfy_table;
+extern crate diesel_enum;
+extern crate num_traits;
 extern crate r2d2_redis;
 
-pub mod db;
 pub mod auth;
-pub mod model;
 pub mod controller;
+pub mod db;
+pub mod model;
 pub mod routes;
 
 #[launch]
 fn launch() -> _ {
     let pool = db::cria_pool_conexoes();
     db::garante_usuario_inicial(&pool);
-   
+
     let redis_pool = db::cria_pool_redis();
 
     rocket::build()
         .manage(pool)
         .manage(redis_pool)
-        .mount("/", routes![ routes::index ])
+        .mount("/", routes![routes::index])
         .mount("/login", routes::login::constroi_rotas())
         .mount("/clientes", routes::clientes::constroi_rotas())
         .mount("/produtos", routes::produtos::constroi_rotas())
-        .mount("/estoque",  routes::estoque::constroi_rotas())
+        .mount("/estoque", routes::estoque::constroi_rotas())
         .mount("/log", routes::log::constroi_rotas())
         .mount("/usuarios", routes::usuarios::constroi_rotas())
 }

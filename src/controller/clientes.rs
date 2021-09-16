@@ -44,7 +44,7 @@ pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
         None => None,
         Some(cl) => {
             let enderecos = carrega_enderecos_cliente(conexao, cl.id);
-            Some(ClienteRepr::from(&cl, enderecos))
+            Some(ClienteRepr::from(cl, enderecos))
         }
     }
 }

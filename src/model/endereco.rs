@@ -33,7 +33,7 @@ pub struct Endereco {
     pub cidade: String,
 }
 
-#[derive(Insertable, Deserialize, Clone)]
+#[derive(Insertable, Deserialize, Clone, Default)]
 #[table_name = "endereco"]
 pub struct NovoEndereco {
     pub cliente_id: i32,

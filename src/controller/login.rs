@@ -43,7 +43,7 @@ pub fn loga_usuario(
     }
 
     // 3. Gera token JWT.
-    let token = match jwt::cria_jwt(&dados.login) {
+    let token = match jwt::cria_jwt(dados.login) {
         Err(erro) => {
             return Resposta::ErroInterno(format!(
                 "{{ \"mensagem\": \"Erro ao gerar token JWT: {}\" }}",
@@ -54,13 +54,13 @@ pub fn loga_usuario(
     };
 
     // 4. Salva token no Redis com expiração de 5m30s
-    match redis.set_ex::<&str, &str, String>(&token, dados.login, jwt::JWT_MAX_SECONDS) {
-        Err(_) => {
-            return Resposta::ErroInterno(String::from(
-                "{ \"mensagem\": \"Erro ao registrar token JWT\" }",
-            ))
-        }
-        _ => {}
+    if redis
+        .set_ex::<&str, &str, String>(&token, dados.login, jwt::JWT_MAX_SECONDS)
+        .is_err()
+    {
+        return Resposta::ErroInterno(String::from(
+            "{ \"mensagem\": \"Erro ao registrar token JWT\" }",
+        ));
     }
 
     // 5. Retorna o token.
@@ -68,7 +68,7 @@ pub fn loga_usuario(
         serde_json::to_string(&LoginResponse {
             id: usuario.id,
             login: dados.login.to_owned(),
-            token: token,
+            token,
         })
         .unwrap(),
     )

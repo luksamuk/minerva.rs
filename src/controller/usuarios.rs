@@ -32,10 +32,7 @@ pub fn get_usuario(conexao: &PgConnection, usr_id: i32) -> Option<Usuario> {
         .filter(id.eq(&usr_id))
         .load::<Usuario>(conexao)
         .expect("Erro ao carregar usuário");
-    match usr_req.first() {
-        None => None,
-        Some(uref) => Some(uref.clone()),
-    }
+    usr_req.first().cloned()
 }
 
 pub fn encontra_usuario(conexao: &PgConnection, usr_login: String) -> Option<Usuario> {
@@ -43,10 +40,7 @@ pub fn encontra_usuario(conexao: &PgConnection, usr_login: String) -> Option<Usu
         .filter(login.eq(&usr_login))
         .load::<Usuario>(conexao)
         .expect("Erro ao carregar usuário");
-    match usr_req.first() {
-        None => None,
-        Some(uref) => Some(uref.clone()),
-    }
+    usr_req.first().cloned()
 }
 
 pub fn registra_usuario(

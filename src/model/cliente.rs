@@ -29,7 +29,7 @@ pub struct Cliente {
     pub bloqueado: bool,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Default)]
 #[table_name = "cliente"]
 pub struct NovoCliente {
     pub tipo: i16,

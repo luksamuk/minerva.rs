@@ -71,12 +71,12 @@ pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
         }
         Err(e) => {
             if let diesel::result::Error::DatabaseError(_, _) = &e {
-                return Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e));
+                Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e))
             } else {
-                return Resposta::ErroSemantico(String::from(
+                Resposta::ErroSemantico(String::from(
                     "Erro interno ao realizar início de estoque. \
                      Contate o suporte para mais informações.",
-                ));
+                ))
             }
         }
     }
@@ -205,12 +205,12 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
             }
 
             if let diesel::result::Error::DatabaseError(_, _) = &e {
-                return Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e));
+                Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e))
             } else {
-                return Resposta::ErroSemantico(String::from(
+                Resposta::ErroSemantico(String::from(
                     "Erro interno ao atualizar estoque. \
                      Contate o suporte para mais informações.",
-                ));
+                ))
             }
         }
     }
@@ -222,10 +222,7 @@ pub fn get_estoque(conexao: &PgConnection, prod_id: i32) -> Option<Estoque> {
         .filter(produto_id.eq(&prod_id))
         .load::<Estoque>(conexao)
         .expect("Erro ao carregar estoque");
-    match estoque_req.first() {
-        None => None,
-        Some(e_ref) => Some(e_ref.clone()),
-    }
+    estoque_req.first().cloned()
 }
 
 fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUnion {
@@ -280,7 +277,7 @@ fn prepara_tabela(table: &mut Table) {
         ]);
 }
 
-fn processa_tabela(conexao: &PgConnection, movimentos: &Vec<MovEstoque>, table: &mut Table) {
+fn processa_tabela(conexao: &PgConnection, movimentos: &[MovEstoque], table: &mut Table) {
     use super::produtos;
     use bigdecimal::Signed;
     for mov in movimentos {

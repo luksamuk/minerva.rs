@@ -32,10 +32,7 @@ pub fn get_produto(conexao: &PgConnection, prod_id: i32) -> Option<Produto> {
         .filter(id.eq(&prod_id))
         .load::<Produto>(conexao)
         .expect("Erro ao carregar produto");
-    match prod_req.first() {
-        None => None,
-        Some(p_ref) => Some(p_ref.clone()),
-    }
+    prod_req.first().cloned()
 }
 
 pub fn deleta_produto(conexao: &PgConnection, prodid: i32) {

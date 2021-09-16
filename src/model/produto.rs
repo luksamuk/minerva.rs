@@ -25,7 +25,7 @@ pub struct Produto {
     pub unidsaida: String,
 }
 
-#[derive(Debug, Insertable, Deserialize, Clone)]
+#[derive(Debug, Insertable, Deserialize, Clone, Default)]
 #[table_name = "produto"]
 pub struct NovoProduto {
     pub descricao: String,
