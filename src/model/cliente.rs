@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{ Serialize, Deserialize };
-use crate::model::schema::cliente;
 use super::endereco::{Endereco, EnderecoRecv};
+use crate::model::schema::cliente;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Serialize)]
 pub struct Cliente {
@@ -30,14 +30,14 @@ pub struct Cliente {
 }
 
 #[derive(Insertable)]
-#[table_name="cliente"]
+#[table_name = "cliente"]
 pub struct NovoCliente {
     pub tipo: i16,
     pub nome: String,
     pub pj: bool,
     pub docto: String,
     pub ativo: bool,
-    pub bloqueado: bool
+    pub bloqueado: bool,
 }
 
 #[derive(Serialize)]
@@ -69,7 +69,7 @@ impl NovoCliente {
             pj: false,
             docto: String::new(),
             ativo: true,
-            bloqueado: false
+            bloqueado: false,
         }
     }
 }
@@ -91,13 +91,16 @@ impl ClienteRepr {
 
 impl ClienteRecv {
     pub fn into_parts(&self) -> (NovoCliente, Vec<EnderecoRecv>) {
-        (NovoCliente {
-            tipo: 0,
-            nome: self.nome.clone(),
-            pj: self.pj,
-            docto: self.docto.clone(),
-            ativo: true,
-            bloqueado: false,
-        }, self.enderecos.clone())
+        (
+            NovoCliente {
+                tipo: 0,
+                nome: self.nome.clone(),
+                pj: self.pj,
+                docto: self.docto.clone(),
+                ativo: true,
+                bloqueado: false,
+            },
+            self.enderecos.clone(),
+        )
     }
 }

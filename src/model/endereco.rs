@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::schema::endereco;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Serialize)]
 pub struct Endereco {
@@ -34,7 +34,7 @@ pub struct Endereco {
 }
 
 #[derive(Insertable, Deserialize, Clone)]
-#[table_name="endereco"]
+#[table_name = "endereco"]
 pub struct NovoEndereco {
     pub cliente_id: i32,
     pub tipo: i16,

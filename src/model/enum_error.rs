@@ -22,6 +22,9 @@ pub struct EnumError {
 
 impl EnumError {
     pub fn nao_encontrado(mensagem: String) -> Self {
-        Self { mensagem, status: 404 }
+        Self {
+            mensagem,
+            status: 404,
+        }
     }
 }

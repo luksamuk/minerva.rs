@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use diesel::prelude::*;
-use crate::model::schema::{ cliente, endereco };
+use super::log::*;
 use crate::model::cliente::*;
 use crate::model::endereco::*;
-use super::log::*;
+use crate::model::schema::{cliente, endereco};
+use diesel::prelude::*;
 
 pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
-    let cli_req = cliente::table.limit(limite)
+    let cli_req = cliente::table
+        .limit(limite)
         .load::<Cliente>(conexao)
         .expect("Erro ao carregar clientes");
     let mut clientes = Vec::new();
@@ -35,7 +36,8 @@ pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
 
 pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
     use crate::model::schema::cliente::dsl::*;
-    let cli_req = cliente.filter(id.eq(&userid))
+    let cli_req = cliente
+        .filter(id.eq(&userid))
         .load::<Cliente>(conexao)
         .expect("Erro ao carregar cliente");
     match cli_req.first() {
@@ -49,8 +51,7 @@ pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
 
 pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
     let (cl_recv, end_recv) = dados.into_parts();
-    let c: Cliente =
-        diesel::insert_into(cliente::table)
+    let c: Cliente = diesel::insert_into(cliente::table)
         .values(&cl_recv)
         .get_result(conexao)
         .expect("Erro ao inserir novo cliente");
@@ -59,7 +60,8 @@ pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
         String::from("CLIENTE"),
         String::from("TO-DO"),
         DBOperacao::Insercao,
-        Some(format!("Cliente {}", c.id)));
+        Some(format!("Cliente {}", c.id)),
+    );
     registra_enderecos_cliente(conexao, c.id, end_recv);
     c.id
 }
@@ -81,7 +83,8 @@ pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
         String::from("ENDERECO"),
         String::from("TO-DO"),
         DBOperacao::Remocao,
-        Some(String::from("Removendo todos os endereços")));
+        Some(String::from("Removendo todos os endereços")),
+    );
     let num_cl = diesel::delete(cliente::table)
         .execute(conexao)
         .expect("Erro ao deletar clientes");
@@ -90,20 +93,20 @@ pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
         String::from("CLIENTE"),
         String::from("TO-DO"),
         DBOperacao::Remocao,
-        Some(String::from("Removendo todos os clientes")));
+        Some(String::from("Removendo todos os clientes")),
+    );
     (num_end, num_cl)
 }
 
 fn registra_enderecos_cliente(
     conexao: &PgConnection,
     cliente_id: i32,
-    enderecos: Vec<EnderecoRecv>
+    enderecos: Vec<EnderecoRecv>,
 ) {
     for e_recv in enderecos {
         let mut e = e_recv.into_new();
         e.cliente_id = cliente_id;
-        let e_ins: Endereco =
-            diesel::insert_into(endereco::table)
+        let e_ins: Endereco = diesel::insert_into(endereco::table)
             .values(&e)
             .get_result(conexao)
             .expect("Erro ao salvar endereco");
@@ -112,13 +115,15 @@ fn registra_enderecos_cliente(
             String::from("ENDERECO"),
             String::from("TO-DO"),
             DBOperacao::Insercao,
-            Some(format!("Endereço {}", e_ins.id)));
+            Some(format!("Endereço {}", e_ins.id)),
+        );
     }
 }
 
 fn carrega_enderecos_cliente(conexao: &PgConnection, userid: i32) -> Vec<Endereco> {
     use crate::model::schema::endereco::dsl::*;
-    endereco.filter(cliente_id.eq(&userid))
+    endereco
+        .filter(cliente_id.eq(&userid))
         .load::<Endereco>(conexao)
         .expect("Erro ao carregar endereços")
 }
@@ -134,6 +139,7 @@ fn deleta_enderecos(conexao: &PgConnection, enderecos: Vec<Endereco>) {
             String::from("ENDERECO"),
             String::from("TO-DO"),
             DBOperacao::Remocao,
-            Some(format!("Endereço {}", end.id)));
+            Some(format!("Endereço {}", end.id)),
+        );
     }
 }

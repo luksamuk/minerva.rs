@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! # Lista rápida de afazeres
+//! - [ ] Documentar crate
+//! - [ ] Implementar _logout_
+
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate diesel;
 extern crate dotenv;

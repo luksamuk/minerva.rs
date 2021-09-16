@@ -14,40 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use diesel::prelude::*;
-use crate::model::estoque::*;
 use super::log::*;
+use crate::model::estoque::*;
 use crate::routes::respostas::Resposta;
 use comfy_table::Table;
+use diesel::prelude::*;
 
 pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
     use super::produtos;
     use crate::model::schema::estoque;
-    use bigdecimal::{ Zero, Signed };
-    
+    use bigdecimal::{Signed, Zero};
+
     // 1. Verifica se o produto existe.
     if produtos::get_produto(conexao, recv.produto_id).is_none() {
         return Resposta::NaoEncontrado(String::from(
-            "{ \"mensagem\": \"Produto não encontrado\" }"));
+            "{ \"mensagem\": \"Produto não encontrado\" }",
+        ));
     }
-    
+
     // 2. Verifica se já não houve início de estoque.
     if get_estoque(conexao, recv.produto_id).is_some() {
         return Resposta::ErroSemantico(format!(
             "{{ \"mensagem\": \
              \"Já foi realizado início de estoque para o produto {}\" }}",
-            recv.produto_id));
+            recv.produto_id
+        ));
     }
 
     // 3. Verifica se quantidade e preço unitário são válidos.
     if recv.precounitario.is_zero() || recv.precounitario.is_negative() {
         return Resposta::ErroSemantico(String::from(
-            "{ \"mensagem\": \"O preço unitário deve ser maior que zero.\" }"));
+            "{ \"mensagem\": \"O preço unitário deve ser maior que zero.\" }",
+        ));
     }
 
     if recv.quantidade.is_negative() {
         return Resposta::ErroSemantico(String::from(
-            "{ \"mensagem\": \"A quantidade não pode ser negativa.\" }"));
+            "{ \"mensagem\": \"A quantidade não pode ser negativa.\" }",
+        ));
     }
 
     // 4. Realiza início de estoque.
@@ -61,32 +65,32 @@ pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
                 String::from("ESTOQUE"),
                 String::from("TO-DO"),
                 DBOperacao::Insercao,
-                Some(format!("Início de estoque do produto {}",
-                             est.produto_id)));
+                Some(format!("Início de estoque do produto {}", est.produto_id)),
+            );
             Resposta::Ok(serde_json::to_string(&est).unwrap())
-        },
+        }
         Err(e) => {
             if let diesel::result::Error::DatabaseError(_, _) = &e {
-                return Resposta::ErroSemantico(format!(
-                    "{{ \"mensagem\": \"{}\" }}", e));
+                return Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e));
             } else {
                 return Resposta::ErroSemantico(String::from(
                     "Erro interno ao realizar início de estoque. \
-                     Contate o suporte para mais informações."));
+                     Contate o suporte para mais informações.",
+                ));
             }
-        },
+        }
     }
-    
 }
 
 pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Resposta {
     use super::produtos;
-    use bigdecimal::{ Zero, Signed };
+    use bigdecimal::{Signed, Zero};
 
     // 1. Verifica se o produto existe.
     if produtos::get_produto(conexao, recv.produto_id).is_none() {
         return Resposta::NaoEncontrado(String::from(
-            "{ \"mensagem\": \"Produto não encontrado\" }"));
+            "{ \"mensagem\": \"Produto não encontrado\" }",
+        ));
     }
 
     // 2. Verifica se foi feito início de estoque.
@@ -95,13 +99,16 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
         return Resposta::ErroSemantico(format!(
             "{{ \"mensagem\": \
              \"Necessário efetuar início de estoque para o produto {}\" \
-             }}", recv.produto_id));
+             }}",
+            recv.produto_id
+        ));
     }
-    
+
     // 3.1. Verifica se o preço unitário é negativo ou se foi zerado.
     if recv.preco_unitario.is_negative() || recv.preco_unitario.is_zero() {
         return Resposta::ErroSemantico(String::from(
-            "{ \"mensagem\": \"Preço unitário deve ser maior que zero\" }"));
+            "{ \"mensagem\": \"Preço unitário deve ser maior que zero\" }",
+        ));
     }
 
     // 3.2. Verifica se o preço do frete, quando informado, é negativo.
@@ -109,21 +116,23 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
         let frete = recv.preco_frete.clone().unwrap();
         if frete.is_negative() {
             return Resposta::ErroSemantico(String::from(
-                "{ \"mensagem\": \"Preço de frete não pode ser negativo\" }"));
+                "{ \"mensagem\": \"Preço de frete não pode ser negativo\" }",
+            ));
         }
     }
 
     // 3.3. Verifica se a movimentação vai colocar o estoque como negativo
     //      ou zerar o preço.
     let estoque_atual = estoque_atual.unwrap();
-    let nova_qtd_estoque =
-        estoque_atual.quantidade.clone() + recv.quantidade.clone();
+    let nova_qtd_estoque = estoque_atual.quantidade.clone() + recv.quantidade.clone();
     if nova_qtd_estoque.is_negative() {
         return Resposta::ErroSemantico(format!(
             "{{ \"mensagem\": \"Movimentações de estoque não podem torná-lo \
-             negativo! Estoque atual: {}\" }}", estoque_atual.quantidade));
+             negativo! Estoque atual: {}\" }}",
+            estoque_atual.quantidade
+        ));
     }
-    
+
     // 4.1. Cadastra o movimento.
     let novo_movimento = NovoMovEstoque::from(recv);
     let movimento = {
@@ -138,35 +147,34 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
                     String::from("MOV_ESTOQUE"),
                     String::from("TO-DO"),
                     DBOperacao::Insercao,
-                    Some(format!("Movimento de estoque {}",
-                                 movimen.id)));
+                    Some(format!("Movimento de estoque {}", movimen.id)),
+                );
                 movimen.clone()
-            },
+            }
             Err(e) => {
                 if let diesel::result::Error::DatabaseError(_, _) = &e {
-                    return Resposta::ErroSemantico(format!(
-                        "{{ \"mensagem\": \"{}\" }}", e));
+                    return Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e));
                 } else {
                     return Resposta::ErroSemantico(String::from(
                         "Erro interno ao realizar movimentação de estoque. \
-                         Contate o suporte para mais informações."));
+                         Contate o suporte para mais informações.",
+                    ));
                 }
-            },
+            }
         }
     };
 
     // 4.2. Modifica o estoque.
     let mod_estoque = {
         use crate::model::schema::estoque::dsl::*;
-        diesel::update(estoque.filter(
-            produto_id.eq(&novo_movimento.produto_id)))
+        diesel::update(estoque.filter(produto_id.eq(&novo_movimento.produto_id)))
             .set((
                 quantidade.eq(&nova_qtd_estoque),
-                precounitario.eq(&novo_movimento.preco_unitario)
+                precounitario.eq(&novo_movimento.preco_unitario),
             ))
             .get_result::<Estoque>(conexao)
     };
-    
+
     match mod_estoque {
         Ok(est) => {
             let _ = registra_log(
@@ -174,12 +182,12 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
                 String::from("ESTOQUE"),
                 String::from("TO-DO"),
                 DBOperacao::Alteracao,
-                Some(format!("Altera estoque do produto {}",
-                             est.produto_id)));
-            
+                Some(format!("Altera estoque do produto {}", est.produto_id)),
+            );
+
             // 5.1. Retorna o movimento
             Resposta::Ok(serde_json::to_string(&movimento).unwrap())
-        },
+        }
         Err(e) => {
             // 5.2. Em caso de erro, realiza rollback da movimentação
             {
@@ -192,17 +200,17 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
                     String::from("MOV_ESTOQUE"),
                     String::from("TO-DO"),
                     DBOperacao::Remocao,
-                    Some(format!("Rollback de movimento de estoque {}",
-                                 movimento.id)));
+                    Some(format!("Rollback de movimento de estoque {}", movimento.id)),
+                );
             }
-            
+
             if let diesel::result::Error::DatabaseError(_, _) = &e {
-                return Resposta::ErroSemantico(format!(
-                    "{{ \"mensagem\": \"{}\" }}", e));
+                return Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e));
             } else {
                 return Resposta::ErroSemantico(String::from(
                     "Erro interno ao atualizar estoque. \
-                     Contate o suporte para mais informações."));
+                     Contate o suporte para mais informações.",
+                ));
             }
         }
     }
@@ -210,7 +218,8 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
 
 pub fn get_estoque(conexao: &PgConnection, prod_id: i32) -> Option<Estoque> {
     use crate::model::schema::estoque::dsl::*;
-    let estoque_req = estoque.filter(produto_id.eq(&prod_id))
+    let estoque_req = estoque
+        .filter(produto_id.eq(&prod_id))
         .load::<Estoque>(conexao)
         .expect("Erro ao carregar estoque");
     match estoque_req.first() {
@@ -233,7 +242,8 @@ fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUni
 
 pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueUnion> {
     use crate::model::schema::estoque;
-    estoque::table.limit(limite)
+    estoque::table
+        .limit(limite)
         .load::<Estoque>(conexao)
         .expect("Erro ao carregar estoque")
         .iter()
@@ -257,28 +267,33 @@ pub fn lista_movimentos_texto(conexao: &PgConnection, limite: i64) -> String {
 
 fn prepara_tabela(table: &mut Table) {
     use comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED;
-    table.load_preset(ASCII_BORDERS_ONLY_CONDENSED)
+    table
+        .load_preset(ASCII_BORDERS_ONLY_CONDENSED)
         .set_header(vec![
-            "Produto", "Documento", "Tipo", "Quantidade",
-            "Preço Unit.", "Frete", "Data/Hora"]);
+            "Produto",
+            "Documento",
+            "Tipo",
+            "Quantidade",
+            "Preço Unit.",
+            "Frete",
+            "Data/Hora",
+        ]);
 }
 
 fn processa_tabela(conexao: &PgConnection, movimentos: &Vec<MovEstoque>, table: &mut Table) {
-    use bigdecimal::Signed;
     use super::produtos;
+    use bigdecimal::Signed;
     for mov in movimentos {
-        let nome_produto =
-            match produtos::get_produto(conexao, mov.produto_id) {
-                Some(p) => format!("{} - {:.20}", p.id, p.descricao),
-                None => format!("Produto {}", mov.produto_id),
-            };
+        let nome_produto = match produtos::get_produto(conexao, mov.produto_id) {
+            Some(p) => format!("{} - {:.20}", p.id, p.descricao),
+            None => format!("Produto {}", mov.produto_id),
+        };
 
-        let tipo_movimento = String::from(
-            if mov.quantidade.is_positive() {
-                "Entrada"
-            } else {
-                "Saída"
-            });
+        let tipo_movimento = String::from(if mov.quantidade.is_positive() {
+            "Entrada"
+        } else {
+            "Saída"
+        });
 
         table.add_row(vec![
             nome_produto,
@@ -294,13 +309,18 @@ fn processa_tabela(conexao: &PgConnection, movimentos: &Vec<MovEstoque>, table: 
 
 pub fn recupera_movimentos(conexao: &PgConnection, limite: i64) -> Vec<MovEstoque> {
     use crate::model::schema::mov_estoque::dsl::*;
-    mov_estoque.order(datahora.desc())
+    mov_estoque
+        .order(datahora.desc())
         .limit(limite)
         .load::<MovEstoque>(conexao)
         .expect("Erro ao recuperar movimentações de estoque")
 }
 
-pub fn lista_movimentos_texto_filtrado(conexao: &PgConnection, limite: i64, is_entrada: bool) -> String {
+pub fn lista_movimentos_texto_filtrado(
+    conexao: &PgConnection,
+    limite: i64,
+    is_entrada: bool,
+) -> String {
     let movimentos = recupera_movimentos_filtrado(conexao, limite, is_entrada);
     let mut table = Table::new();
     prepara_tabela(&mut table);
@@ -308,20 +328,25 @@ pub fn lista_movimentos_texto_filtrado(conexao: &PgConnection, limite: i64, is_e
     format!("{}\n", table)
 }
 
-pub fn recupera_movimentos_filtrado(conexao: &PgConnection, limite: i64, is_entrada: bool) -> Vec<MovEstoque> {
-    use bigdecimal::{ BigDecimal, Zero };
+pub fn recupera_movimentos_filtrado(
+    conexao: &PgConnection,
+    limite: i64,
+    is_entrada: bool,
+) -> Vec<MovEstoque> {
     use crate::model::schema::mov_estoque::dsl::*;
+    use bigdecimal::{BigDecimal, Zero};
     let z: BigDecimal = Zero::zero();
 
-    let query = mov_estoque.order(datahora.desc())
-        .limit(limite);
+    let query = mov_estoque.order(datahora.desc()).limit(limite);
 
     if is_entrada {
-        query.filter(quantidade.ge(z))
+        query
+            .filter(quantidade.ge(z))
             .load::<MovEstoque>(conexao)
             .expect("Erro ao recuperar movimentações de estoque")
     } else {
-        query.filter(quantidade.lt(z))
+        query
+            .filter(quantidade.lt(z))
             .load::<MovEstoque>(conexao)
             .expect("Erro ao recuperar movimentações de estoque")
     }

@@ -14,23 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use rocket::Route;
-use rocket::serde::json::Json;
-use crate::controller::produtos;
-use rocket::State;
-use crate::db::ConexaoPool;
-use crate::model::produto::NovoProduto;
 use super::respostas::Resposta;
 use crate::auth::AuthKey;
+use crate::controller::produtos;
+use crate::db::ConexaoPool;
+use crate::model::produto::NovoProduto;
+use rocket::serde::json::Json;
+use rocket::Route;
+use rocket::State;
 
 pub fn constroi_rotas() -> Vec<Route> {
-    routes![
-        index,
-        retorna_produto,
-        deleta_todos,
-        deleta,
-        cadastra
-    ]
+    routes![index, retorna_produto, deleta_todos, deleta, cadastra]
 }
 
 #[get("/")]
@@ -44,8 +38,9 @@ fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
 fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
-        None => Resposta::NaoEncontrado(
-            String::from("{ \"mensagem\": \"Produto não encontrado\" }")),
+        None => {
+            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
+        }
         Some(p) => Resposta::Ok(serde_json::to_string(&p).unwrap()),
     }
 }
@@ -54,8 +49,9 @@ fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) 
 fn deleta(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
-        None => Resposta::NaoEncontrado(
-            String::from("{ \"mensagem\": \"Produto não encontrado\" }")),
+        None => {
+            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
+        }
         Some(_) => {
             produtos::deleta_produto(&conexao, prod_id);
             Resposta::Ok(format!("{{ \"id\": {} }}", prod_id))
@@ -76,8 +72,6 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>, _auth: AuthKey<
     let result = produtos::registra_produto(&conexao, dados.clone());
     match result {
         Ok(id) => Resposta::Ok(format!("{{ \"id\": {} }}", id)),
-        Err(msg) =>
-            Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", msg)),
+        Err(msg) => Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", msg)),
     }
 }
-

@@ -14,17 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod redis;
+//! Estruturas relacionadas a banco de dados e serviços similares.
+//!
+//! Este módulo contém estruturas para uso de serviços de banco de dados
+//! (via PostgreSQL) e Redis.
+
 pub mod postgres;
+pub mod redis;
 
-pub use self::redis::{
-    RedisPool,
-    cria_pool_redis
-};
+pub use self::redis::{cria_pool_redis, RedisPool};
 
-pub use self::postgres::{
-    ConexaoPool,
-    cria_pool_conexoes,
-    garante_usuario_inicial
-};
-    
+pub use self::postgres::{cria_pool_conexoes, garante_usuario_inicial, ConexaoPool};

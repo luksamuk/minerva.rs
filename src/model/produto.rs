@@ -15,10 +15,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::schema::produto;
-use serde::{ Serialize, Deserialize };
+use serde::{Deserialize, Serialize};
 
 #[derive(Identifiable, Queryable, Serialize, Debug, Clone)]
-#[table_name="produto"]
+#[table_name = "produto"]
 pub struct Produto {
     pub id: i32,
     pub descricao: String,
@@ -26,7 +26,7 @@ pub struct Produto {
 }
 
 #[derive(Debug, Insertable, Deserialize, Clone)]
-#[table_name="produto"]
+#[table_name = "produto"]
 pub struct NovoProduto {
     pub descricao: String,
     pub unidsaida: String,

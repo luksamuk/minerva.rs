@@ -14,24 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use super::schema::logdb;
-use num_derive::FromPrimitive;
-use diesel_enum::DbEnum;
-use diesel::sql_types::SmallInt;
 use super::enum_error::EnumError;
+use super::schema::logdb;
 use chrono::DateTime;
+use diesel::sql_types::SmallInt;
+use diesel_enum::DbEnum;
+use num_derive::FromPrimitive;
 use serde::Serialize;
 use serde_repr::Serialize_repr;
 
-#[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, AsExpression, FromSqlRow, DbEnum, Serialize_repr)]
+#[derive(
+    FromPrimitive,
+    ToPrimitive,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    AsExpression,
+    FromSqlRow,
+    DbEnum,
+    Serialize_repr,
+)]
 #[sql_type = "SmallInt"]
 #[error_fn = "EnumError::nao_encontrado"]
 #[error_type = "EnumError"]
 #[repr(i16)]
 pub enum DBOperacao {
-    Insercao  = 0,
+    Insercao = 0,
     Alteracao = 1,
-    Remocao   = 2,
+    Remocao = 2,
 }
 
 #[derive(Queryable, Serialize, Clone)]
@@ -45,7 +57,7 @@ pub struct LogDB {
 }
 
 #[derive(Insertable)]
-#[table_name="logdb"]
+#[table_name = "logdb"]
 pub struct NovoLogDB {
     pub tabela: String,
     pub usuario: String,
@@ -53,4 +65,3 @@ pub struct NovoLogDB {
     pub datahora: DateTime<chrono::Utc>,
     pub descricao: Option<String>,
 }
-

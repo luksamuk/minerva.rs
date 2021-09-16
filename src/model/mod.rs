@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod schema;
 pub mod cliente;
 pub mod endereco;
-pub mod produto;
+pub mod enum_error;
 pub mod estoque;
 pub mod logdb;
-pub mod enum_error;
-pub mod usuario;
 pub mod login;
+pub mod produto;
+pub mod schema;
+pub mod usuario;

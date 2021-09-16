@@ -14,12 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use jsonwebtoken::{ Algorithm, Header, EncodingKey, DecodingKey, Validation };
-use serde::{ Serialize, Deserialize };
+//! Emissão e validação de JSON Web Tokens
+//!
+//! Este módulo possui estruturas e rotinas para gerenciar a emissão e a
+//! validação de JSON Web Tokens (JWTs).
 
-// 5m30s por padrão
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use serde::{Deserialize, Serialize};
+
+/// Número padrão de segundos de validade de um JSON Web Token emitido.
+///
+/// JSON Web Tokens possuem, por padrão, um tempo de vida de 330 segundos (cinco
+/// minutos e trinta segundos).
 pub const JWT_MAX_SECONDS: usize = 330;
 
+/// Representa os claims do payload de um JSON Web Token.
+///
+/// JWTs possuem informações inerentes a si, que podem ser opcionalmente
+/// informadas em seu payload. Por padrão, os claims desta API carregam
+/// as seguintes informações:
+///
+/// - `sub`: _Sujeito_ da informação (login do usuário emissor);
+/// - `exp`: Data exata de expiração do JWT (em timestamp Unix);
+/// - `iat`: Data exata de emissão do JWT (em timestamp Unix).
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct JwtClaims {
     pub sub: String,
@@ -27,21 +44,49 @@ pub struct JwtClaims {
     pub iat: usize,
 }
 
-// TODO: Token gerado via hash md5. Ex: "echo -n 'minhachave' | md5sum"
-// Seria mais interessante se gerássemos isso aleatoriamente para cada
-// usuário e salvássemos seus respectivos hashes no banco de dados de
-// tempos em tempos, mas fica pra outra situação, pois dessa forma
-// precisaríamos acessar o BD, e portanto precisaríamos tornar o
-// Request Guard baseado em Request-Local State (ver documentação
-// do trait FromRequest do Rocket). Por enquanto, vamos deixar esse
-// hash fixo mesmo, pois essa implementação é para aprendizado.
-// Se isso aparecer algum dia em produção, TÁ ERRADO, MUDE AGORA!
+/// Token secreto para emissão de JWT, gerado via hash MD5. Pode ser gerado a
+/// partir de uma chave com o seguinte comando:
+///
+/// ```bash
+/// echo -n 'minhachave' | md5sum
+/// ```
+///
+/// Seria mais interessante se gerássemos isso aleatoriamente para cada usuário
+/// e salvássemos seus respectivos hashes no banco de dados de tempos em tempos,
+/// mas fica para outra situação, pois dessa forma precisaríamos acessar o banco
+/// de dados, e portanto precisáriamos tornar o request guard
+/// [`super::AuthKey`] um guard baseado em request-local state[^ver-docs].
+///
+/// Por enquanto, vamos deixar esse hash fixo mesmo, pois essa implementação foi
+/// criada para fins didáticos.
+///
+/// Mas se isso aparecer em produção e você esbarrar nela, *NÃO FUJA. TÁ ERRADO.
+/// MUDE ELA AGORA MESMO.*
+///
+/// [^ver-docs]: Ver documentação do trait [`rocket::request::FromRequest`].
 const JWT_SECRET: &[u8] = b"89d302d91e93b2b13f8284eb389ef15d";
 
-
-// ATENÇÃO: A invalidação de JWT deve ser realizada em conjunto com
-// armazenamento no Redis. Não vamos confiar inteiramente no JWT,
-// pois ele poderia ser adulterado.
+/// Cria um JSON Web Token para um login de usuário em específico.
+///
+/// Gera um JWT válido para um usuário com o login informado. O JWT gerado terá
+/// em seu payload as informações de [`JwtClaims`], podendo ser posteriormente
+/// decodificado para essa estrutura.
+///
+/// É importante notar que, por mais que um JWT possua um tempo de expiração e
+/// um método de verificação, estas ferramentas não serão tratadas como
+/// confiáveis no âmbito da API, algo mitigado através do uso do serviço
+/// Redis[^ver-super].
+///
+/// [^ver-super]: Para mais informações, ver a documentação exposta em
+/// [`crate::auth`].
+///
+/// # Resultado
+/// A função retornará o JWT em formato de texto, caso a operação seja
+/// bem-sucedida, ou uma mensagem de erro caso não seja possível criar o JWT.
+///
+/// # Panics
+/// A função entrará em pânico caso ocorra um erro ao gerar o timestamp correto
+/// de expiração do token.
 pub fn cria_jwt(login: &str) -> Result<String, String> {
     let expiration = chrono::Utc::now()
         .checked_add_signed(chrono::Duration::seconds(JWT_MAX_SECONDS as i64))
@@ -56,15 +101,36 @@ pub fn cria_jwt(login: &str) -> Result<String, String> {
 
     let cabecalho = Header::new(Algorithm::HS512);
     jsonwebtoken::encode(&cabecalho, &claims, &EncodingKey::from_secret(JWT_SECRET))
-        .map_err(|_| "Erro ao criar token JWT".to_string())
+        .map_err(|_| "Erro ao criar token".to_string())
 }
 
+/// Decodifica um JSON Web Token, caso seja válido.
+///
+/// Decodifica o payload de um JWT válido, retornando uma estrutura
+/// [`JwtClaims`] populada com suas informações inerentes. O token será
+/// considerado válido se sua assinatura for válida, de acordo com a
+/// [decodificação padrão][`jsonwebtoken::decode`] prevista pela biblioteca
+/// utilizada.
+///
+/// É importante notar que, por mais que um JWT possua um tempo de expiração e
+/// um método de verificação, estas ferramentas não serão tratadas como
+/// confiáveis no âmbito da API, algo mitigado através do uso do serviço
+/// Redis[^ver-super].
+///
+/// [^ver-super]: Para mais informações, ver a documentação exposta em
+/// [`crate::auth`].
+///
+/// # Resultado
+/// A função retornará a estrutura de claims devidamente populada, caso o JWT
+/// seja válido, ou uma mensagem de erro caso o mesmo seja inválido ou não puder
+/// ser decodificado.
 pub fn decodifica_jwt(jwt: &str) -> Result<JwtClaims, String> {
     let decodificado = jsonwebtoken::decode::<JwtClaims>(
         jwt,
         &DecodingKey::from_secret(JWT_SECRET),
-        &Validation::new(Algorithm::HS512)
-    ).map_err(|_| "Erro ao decodificar JWT".to_owned())?;
+        &Validation::new(Algorithm::HS512),
+    )
+    .map_err(|_| "Erro ao decodificar JWT".to_owned())?;
 
     Ok(decodificado.claims)
 }

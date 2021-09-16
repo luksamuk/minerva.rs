@@ -14,23 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use rocket::Route;
-use rocket::serde::json::Json;
-use crate::controller::clientes;
-use rocket::State;
-use crate::db::ConexaoPool;
-use crate::model::cliente::ClienteRecv;
 use super::respostas::Resposta;
 use crate::auth::AuthKey;
+use crate::controller::clientes;
+use crate::db::ConexaoPool;
+use crate::model::cliente::ClienteRecv;
+use rocket::serde::json::Json;
+use rocket::Route;
+use rocket::State;
 
 pub fn constroi_rotas() -> Vec<Route> {
-    routes![
-        index,
-        deleta_todos,
-        retorna_usuario,
-        cadastra,
-        deleta
-    ]
+    routes![index, deleta_todos, retorna_usuario, cadastra, deleta]
 }
 
 #[get("/")]
@@ -44,9 +38,8 @@ fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
 fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
-        None => Resposta::NaoEncontrado(
-            "{ \"mensagem\": \"Cliente não encontrado\" }".to_string()),
-        Some(c) => Resposta::Ok(serde_json::to_string(&c).unwrap())
+        None => Resposta::NaoEncontrado("{ \"mensagem\": \"Cliente não encontrado\" }".to_string()),
+        Some(c) => Resposta::Ok(serde_json::to_string(&c).unwrap()),
     }
 }
 
@@ -61,8 +54,7 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>, _auth: AuthKey<
 fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
-        None => Resposta::NaoEncontrado(
-            "{ \"mensagem\": \"Cliente não encontrado\" }".to_string()),
+        None => Resposta::NaoEncontrado("{ \"mensagem\": \"Cliente não encontrado\" }".to_string()),
         Some(c) => {
             let id = c.id;
             clientes::deleta_cliente(&conexao, c);
@@ -75,7 +67,8 @@ fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta
 fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let (num_end, num_cl) = clientes::deleta_todos(&conexao);
-    Resposta::Ok(format!("{{ \"clientes\": {}, \"enderecos\": {} }}",
-                         num_cl, num_end))
+    Resposta::Ok(format!(
+        "{{ \"clientes\": {}, \"enderecos\": {} }}",
+        num_cl, num_end
+    ))
 }
-

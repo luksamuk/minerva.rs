@@ -14,20 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use diesel::prelude::*;
-use crate::model::schema::produto;
-use crate::model::produto::{ Produto, NovoProduto };
-use crate::model::schema::produto::dsl::*;
 use super::log::*;
+use crate::model::produto::{NovoProduto, Produto};
+use crate::model::schema::produto;
+use crate::model::schema::produto::dsl::*;
+use diesel::prelude::*;
 
 pub fn lista_produtos(conexao: &PgConnection, limite: i64) -> Vec<Produto> {
-    produto::table.limit(limite)
+    produto::table
+        .limit(limite)
         .load::<Produto>(conexao)
         .expect("Erro ao carregar produtos")
 }
 
 pub fn get_produto(conexao: &PgConnection, prod_id: i32) -> Option<Produto> {
-    let prod_req = produto.filter(id.eq(&prod_id))
+    let prod_req = produto
+        .filter(id.eq(&prod_id))
         .load::<Produto>(conexao)
         .expect("Erro ao carregar produto");
     match prod_req.first() {
@@ -45,7 +47,8 @@ pub fn deleta_produto(conexao: &PgConnection, prodid: i32) {
         String::from("PRODUTO"),
         String::from("TO-DO"),
         DBOperacao::Remocao,
-        Some(format!("Produto {}", prodid)));
+        Some(format!("Produto {}", prodid)),
+    );
 }
 
 pub fn deleta_todos(conexao: &PgConnection) -> usize {
@@ -57,7 +60,8 @@ pub fn deleta_todos(conexao: &PgConnection) -> usize {
         String::from("PRODUTO"),
         String::from("TO-DO"),
         DBOperacao::Remocao,
-        Some(String::from("Removendo todos os produtos")));
+        Some(String::from("Removendo todos os produtos")),
+    );
     num_deletados
 }
 
@@ -73,17 +77,19 @@ pub fn registra_produto(conexao: &PgConnection, mut dados: NovoProduto) -> Resul
                 String::from("PRODUTO"),
                 String::from("TO-DO"),
                 DBOperacao::Insercao,
-                Some(format!("Produto {}", prod.id)));
+                Some(format!("Produto {}", prod.id)),
+            );
             Ok(prod.id)
-        },
+        }
         Err(e) => {
             if let diesel::result::Error::DatabaseError(_, _) = &e {
                 Err(format!("{}", e))
             } else {
-                Err(String::from("Erro interno ao cadastrar produto. \
-                                  Contate o suporte para mais informações."))
+                Err(String::from(
+                    "Erro interno ao cadastrar produto. \
+                                  Contate o suporte para mais informações.",
+                ))
             }
-        },
+        }
     }
 }
-

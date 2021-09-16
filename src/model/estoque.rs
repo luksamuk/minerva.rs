@@ -15,15 +15,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use bigdecimal::BigDecimal;
-use serde::Deserialize;
 use chrono::DateTime;
-use std::str::FromStr;
+use serde::Deserialize;
 use serde::Serialize;
+use std::str::FromStr;
 
-use super::schema::{ estoque, mov_estoque };
+use super::schema::{estoque, mov_estoque};
 
 #[derive(Queryable, Insertable, Clone, Identifiable, Serialize, Deserialize)]
-#[table_name="estoque"]
+#[table_name = "estoque"]
 #[primary_key(produto_id)]
 pub struct Estoque {
     pub produto_id: i32,
@@ -32,7 +32,7 @@ pub struct Estoque {
 }
 
 #[derive(Queryable, Clone, Identifiable, Serialize)]
-#[table_name="mov_estoque"]
+#[table_name = "mov_estoque"]
 pub struct MovEstoque {
     pub id: i32,
     pub produto_id: i32,
@@ -44,7 +44,7 @@ pub struct MovEstoque {
 }
 
 #[derive(Insertable, Clone)]
-#[table_name="mov_estoque"]
+#[table_name = "mov_estoque"]
 pub struct NovoMovEstoque {
     pub produto_id: i32,
     pub docto: String,

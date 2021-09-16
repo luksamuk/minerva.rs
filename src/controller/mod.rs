@@ -15,8 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 pub mod clientes;
-pub mod produtos;
-pub mod log;
-pub mod usuarios;
 pub mod estoque;
+pub mod log;
 pub mod login;
+pub mod produtos;
+pub mod usuarios;
