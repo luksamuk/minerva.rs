@@ -60,7 +60,7 @@ pub fn registra_usuario(
                 DBOperacao::Insercao,
                 Some(format!("Usuário {} (\"{}\")", usr.id, usr.login)),
             );
-            Ok((usr.id, usr.login.clone()))
+            Ok((usr.id, usr.login))
         }
         Err(e) => {
             if let diesel::result::Error::DatabaseError(_, _) = &e {

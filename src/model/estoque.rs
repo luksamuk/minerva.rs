@@ -80,7 +80,7 @@ impl NovoMovEstoque {
             quantidade: recv.quantidade.clone(),
             preco_unitario: recv.preco_unitario.clone(),
             preco_frete: match recv.preco_frete {
-                Some(frete) => frete.clone(),
+                Some(frete) => frete,
                 None => BigDecimal::from_str("0.0000").unwrap(),
             },
             datahora: chrono::offset::Utc::now(),

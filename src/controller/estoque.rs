@@ -149,7 +149,7 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
                     DBOperacao::Insercao,
                     Some(format!("Movimento de estoque {}", movimen.id)),
                 );
-                movimen.clone()
+                movimen
             }
             Err(e) => {
                 if let diesel::result::Error::DatabaseError(_, _) = &e {
@@ -231,7 +231,7 @@ fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUni
     EstoqueUnion {
         id: p.id,
         descricao: p.descricao.clone(),
-        unidsaida: p.unidsaida.clone(),
+        unidsaida: p.unidsaida,
         quantidade: e.quantidade.clone(),
         preco_unitario: e.precounitario.clone(),
     }
