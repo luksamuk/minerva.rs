@@ -279,7 +279,8 @@ token JWT seja adulterado, caso o  mesmo não conste como registrado no
 Redis para  o mesmo usuário ao  qual se refere, a  requisição não será
 autorizada.
 
-Todos os tokens JWT emitidos têm um tempo de vida de sete dias.
+Todos os tokens JWT emitidos têm um  tempo de vida de *cinco minutos e
+trinta segundos*.
 
 ** Estrutura de cadastro de cliente
 

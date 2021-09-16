@@ -17,7 +17,8 @@
 use jsonwebtoken::{ Algorithm, Header, EncodingKey, DecodingKey, Validation };
 use serde::{ Serialize, Deserialize };
 
-pub const JWT_MAX_DAYS: usize = 7;
+// 5m30s por padrão
+pub const JWT_MAX_SECONDS: usize = 330;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct JwtClaims {
@@ -43,7 +44,7 @@ const JWT_SECRET: &[u8] = b"89d302d91e93b2b13f8284eb389ef15d";
 // pois ele poderia ser adulterado.
 pub fn cria_jwt(login: &str) -> Result<String, String> {
     let expiration = chrono::Utc::now()
-        .checked_add_signed(chrono::Duration::days(JWT_MAX_DAYS as i64))
+        .checked_add_signed(chrono::Duration::seconds(JWT_MAX_SECONDS as i64))
         .expect("Timestamp inválido")
         .timestamp();
 

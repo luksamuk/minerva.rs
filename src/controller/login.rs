@@ -44,9 +44,9 @@ pub fn loga_usuario(conexao: &PgConnection, redis: &mut RedisConnection, dados: 
         Ok(tok) => tok,
     };
     
-    // 4. Salva token no Redis com expiração de uma semana.
+    // 4. Salva token no Redis com expiração de 5m30s
     match redis.set_ex::<&str, &str, String>(
-        &token, dados.login, 60 * 60 * 24 * jwt::JWT_MAX_DAYS)
+        &token, dados.login, jwt::JWT_MAX_SECONDS)
     {
         Err(_) => return Resposta::ErroInterno(String::from(
             "{ \"mensagem\": \"Erro ao registrar token JWT\" }")),
