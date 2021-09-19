@@ -161,7 +161,7 @@ impl From<EnderecoRecv> for NovoEndereco {
             complemento: recv.complemento.clone(),
             bairro: recv.bairro.clone(),
             uf: recv.uf.clone(),
-            cidade: recv.cidade.clone(),
+            cidade: recv.cidade,
         }
     }
 }

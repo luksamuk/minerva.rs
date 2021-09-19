@@ -225,7 +225,7 @@ impl Into<(NovoCliente, Vec<EnderecoRecv>)> for ClienteRecv {
                 ativo: true,
                 bloqueado: false,
             },
-            self.enderecos.clone(),
+            self.enderecos,
         )
     }
 }
