@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Utilitários para definição de erros de decodificação em `enums`.
+//!
+//! Estes utilitários foram criados para que certos números sejam
+//! automaticamente decodificados, em estruturas que os representam no banco de
+//! dados, como enumerações.
+//! Para exemplos, veja a implementação de
+//! [`DBOperacao`][`super::logdb::DBOperacao`].
+
+/// Representa um erro durante a decodificação de um `Enum`.
 #[derive(Debug)]
 pub struct EnumError {
     mensagem: String,
@@ -21,6 +30,8 @@ pub struct EnumError {
 }
 
 impl EnumError {
+    /// Cria um erro de decodificação de um `Enum` tal que o mesmo retorne
+    /// uma mensagem de status HTTP de "não encontrado".
     pub fn nao_encontrado(mensagem: String) -> Self {
         Self {
             mensagem,
