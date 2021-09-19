@@ -14,31 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#![warn(clippy::all)]
-#![allow(clippy::from_over_into)]
-#![warn(missing_docs)]
+#[macro_use] extern crate rocket;
 
-#[macro_use]
-extern crate rocket;
-#[macro_use]
-extern crate diesel;
-extern crate bigdecimal;
-extern crate dotenv;
-extern crate serde;
-extern crate serde_json;
-#[macro_use]
-extern crate num_derive;
-extern crate chrono;
-extern crate comfy_table;
-extern crate diesel_enum;
-extern crate num_traits;
-extern crate r2d2_redis;
-
-pub mod auth;
-pub mod controller;
-pub mod db;
-pub mod model;
-pub mod routes;
+use minerva::*;
 
 #[launch]
 fn launch() -> _ {
