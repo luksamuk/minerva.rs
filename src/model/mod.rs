@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Utilitários de modelagem de estruturas do banco de dados e outras entidades.
+//!
+//! Este módulo define estruturas para tráfego de dados entre as rotas,
+//! controllers e o banco de dados. Os schemas são automaticamente gerados pelas
+//! migrations da biblioteca [Diesel].
+//!
+//! [Diesel]: https://diesel.rs
+
 #[allow(missing_docs)] pub mod schema;
 pub mod cliente;
 pub mod endereco;

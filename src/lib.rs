@@ -21,6 +21,7 @@
 //! # Lista rápida de afazeres
 //! - [ ] Documentar crate
 //! - [ ] Implementar _logout_
+//! - [ ] Mudar `AuthKey` para `AuthInfo` com payload da sessão
 
 #[macro_use]
 extern crate rocket;
