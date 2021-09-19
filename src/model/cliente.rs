@@ -24,7 +24,7 @@ use crate::model::schema::cliente;
 use serde::{Deserialize, Serialize};
 
 /// Representa a estrutura de um elemento da tabela `cliente` do banco de dados.
-#[derive(Queryable, Serialize)]
+#[derive(Queryable)]
 pub struct Cliente {
     /// Id do cliente no banco.
     pub id: i32,
