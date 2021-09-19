@@ -46,8 +46,8 @@ pub struct UsuarioRecv {
     pub senha: String,
 }
 
-impl NovoUsuario {
-    pub fn from(usr: &UsuarioRecv) -> Self {
+impl From<&UsuarioRecv> for NovoUsuario {
+    fn from(usr: &UsuarioRecv) -> Self {
         sodiumoxide::init().unwrap();
         let hash = argon2id13::pwhash(
             usr.senha.trim().as_bytes(),
