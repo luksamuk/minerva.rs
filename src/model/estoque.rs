@@ -72,8 +72,8 @@ pub struct EstoqueUnion {
     pub preco_unitario: BigDecimal,
 }
 
-impl NovoMovEstoque {
-    pub fn from(recv: MovEstoqueRecv) -> Self {
+impl From<MovEstoqueRecv> for NovoMovEstoque {
+    fn from(recv: MovEstoqueRecv) -> Self {
         Self {
             produto_id: recv.produto_id,
             docto: recv.docto.clone(),
