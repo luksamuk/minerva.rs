@@ -141,6 +141,17 @@ impl NovoEndereco {
 }
 
 impl From<EnderecoRecv> for NovoEndereco {
+    /// Gera uma estrutura de cadastro de um novo endereço a partir de uma
+    /// estrutura de dados de endereço, recebidos via requisição. A estrutura
+    /// não possuirá id válido para um cliente associado.
+    ///
+    /// Esta função é particularmente útil para converter os dados de um
+    /// endereço, quando recebidos via requisição web, em dados que possam ser
+    /// utilizados em cadastro no banco de dados.
+    ///
+    /// A estrutura resultante não possuirá um campo `cliente_id` válido, e
+    /// portanto o mesmo deverá ser preenchido após o cadastro do cliente
+    /// referido, de onde recuperar-se-á o id associado.
     fn from(recv: EnderecoRecv) -> Self {
         NovoEndereco {
             cliente_id: -1,
