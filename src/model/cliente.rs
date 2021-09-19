@@ -102,7 +102,7 @@ pub struct ClienteRepr {
     /// Id do cliente no banco de dados.
     pub id: i32,
     /// Tipo do cliente. Ver [`Cliente::id`].
-    /// Desativado na visualização, por enquanto.
+    /// Este campo não será mostrado na resposta a uma requisição, por enquanto.
     #[serde(skip_serializing)]
     pub tipo: i16,
     /// Nome do cliente. Ver [`Cliente::nome`].
