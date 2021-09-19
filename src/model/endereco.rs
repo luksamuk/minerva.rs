@@ -140,17 +140,17 @@ impl NovoEndereco {
     }
 }
 
-impl EnderecoRecv {
-    pub fn into_new(&self) -> NovoEndereco {
+impl From<EnderecoRecv> for NovoEndereco {
+    fn from(recv: EnderecoRecv) -> Self {
         NovoEndereco {
             cliente_id: -1,
             tipo: 0,
-            logradouro: self.logradouro.clone(),
-            numero: self.numero.clone(),
-            complemento: self.complemento.clone(),
-            bairro: self.bairro.clone(),
-            uf: self.uf.clone(),
-            cidade: self.cidade.clone(),
+            logradouro: recv.logradouro.clone(),
+            numero: recv.numero.clone(),
+            complemento: recv.complemento.clone(),
+            bairro: recv.bairro.clone(),
+            uf: recv.uf.clone(),
+            cidade: recv.cidade.clone(),
         }
     }
 }

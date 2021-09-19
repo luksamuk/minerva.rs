@@ -185,7 +185,7 @@ impl NovoCliente {
     }
 }
 
-impl ClienteRepr {
+impl From<(&Cliente, Vec<Endereco>)> for ClienteRepr {
     /// Gera uma representação de um cliente a partir de uma referência a uma
     /// estrutura de [`Cliente`] e um vetor de estruturas de
     /// [`Endereco`][`super::endereco::Endereco`].
@@ -194,7 +194,7 @@ impl ClienteRepr {
     /// associados forem requisitados a partir de uma query, e for necessário
     /// reunir estas informações sob uma mesma estrutura (por exemplo, para
     /// serialização e subsequente retorno em formato JSON a uma requisição.
-    pub fn from(cl: &Cliente, enderec: Vec<Endereco>) -> Self {
+    fn from((cl, enderec): (&Cliente, Vec<Endereco>)) -> Self {
         Self {
             id: cl.id,
             tipo: cl.tipo,
@@ -208,14 +208,14 @@ impl ClienteRepr {
     }
 }
 
-impl ClienteRecv {
+impl Into<(NovoCliente, Vec<EnderecoRecv>)> for ClienteRecv {
     /// Divide uma representação de dados recebidos para um cadastro de um
     /// cliente em uma tuple contendo suas respectivas partes separadas.
     ///
     /// Esta função é particularmente útil para separar os dados recebidos
     /// via requisição em estruturas prontas ou quase prontas para realização
     /// de cadastro e validações.
-    pub fn into_parts(&self) -> (NovoCliente, Vec<EnderecoRecv>) {
+    fn into(self) -> (NovoCliente, Vec<EnderecoRecv>) {
         (
             NovoCliente {
                 tipo: 0,

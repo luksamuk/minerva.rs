@@ -28,7 +28,7 @@ pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
     let mut clientes = Vec::new();
     for c in cli_req {
         let enderecos = carrega_enderecos_cliente(conexao, c.id);
-        let repr = ClienteRepr::from(&c, enderecos);
+        let repr = ClienteRepr::from((&c, enderecos));
         clientes.push(repr);
     }
     clientes
@@ -44,13 +44,13 @@ pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
         None => None,
         Some(cl) => {
             let enderecos = carrega_enderecos_cliente(conexao, cl.id);
-            Some(ClienteRepr::from(cl, enderecos))
+            Some(ClienteRepr::from((cl, enderecos)))
         }
     }
 }
 
 pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
-    let (cl_recv, end_recv) = dados.into_parts();
+    let (cl_recv, end_recv) = dados.into();
     let c: Cliente = diesel::insert_into(cliente::table)
         .values(&cl_recv)
         .get_result(conexao)
@@ -104,7 +104,7 @@ fn registra_enderecos_cliente(
     enderecos: Vec<EnderecoRecv>,
 ) {
     for e_recv in enderecos {
-        let mut e = e_recv.into_new();
+        let mut e: NovoEndereco = e_recv.into();
         e.cliente_id = cliente_id;
         let e_ins: Endereco = diesel::insert_into(endereco::table)
             .values(&e)
