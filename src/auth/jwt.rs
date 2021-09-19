@@ -31,16 +31,14 @@ pub const JWT_MAX_SECONDS: usize = 330;
 /// Representa os claims do payload de um JSON Web Token.
 ///
 /// JWTs possuem informações inerentes a si, que podem ser opcionalmente
-/// informadas em seu payload. Por padrão, os claims desta API carregam
-/// as seguintes informações:
-///
-/// - `sub`: _Sujeito_ da informação (login do usuário emissor);
-/// - `exp`: Data exata de expiração do JWT (em timestamp Unix);
-/// - `iat`: Data exata de emissão do JWT (em timestamp Unix).
+/// informadas em seu payload.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct JwtClaims {
+    /// Sujeito da informação. Carrega o login do usuário que emitiu o token.
     pub sub: String,
+    /// Data exata de expiração do token, em timestamp Unix.
     pub exp: usize,
+    /// Data exata de emissão do token, em timestamp Unix.
     pub iat: usize,
 }
 
