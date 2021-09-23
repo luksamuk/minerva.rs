@@ -154,9 +154,18 @@ impl<'r> FromRequest<'r> for AuthKey<'r> {
 
             let claims = claims.unwrap();
 
-            let usuario_associado = redis.get::<String, String>(payload);
+            let usuario_associado = redis.get::<String, String>(payload.clone());
             match usuario_associado {
-                Ok(login) => login == claims.sub,
+                Ok(login) => {
+                    if login == claims.sub {
+                        let _ = redis.expire::<String, String>(
+                            payload,
+                            jwt::JWT_SESSION_EXPIRATION
+                        );
+                        return true;
+                    }
+                    false
+                },
                 Err(_) => false,
             }
         }

@@ -22,11 +22,17 @@
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
+/// Número padrão de segundos de validade de uma sessão usanod JSON Web Token.
+/// 
+/// O sistema determina um tempo de expiração para JSON Web Tokens, de forma
+/// independente da validade dos mesmos. Este tempo de expiração de sessão é
+/// redefinido a cada requisição autorizada.
+pub const JWT_SESSION_EXPIRATION: usize = 330;
+
 /// Número padrão de segundos de validade de um JSON Web Token emitido.
 ///
-/// JSON Web Tokens possuem, por padrão, um tempo de vida de 330 segundos (cinco
-/// minutos e trinta segundos).
-pub const JWT_MAX_SECONDS: usize = 330;
+/// JSON Web Tokens possuem, por padrão, um tempo de vida de sete dias.
+pub const JWT_MAX_SECONDS: usize = 3604800;
 
 /// Representa os claims do payload de um JSON Web Token.
 ///

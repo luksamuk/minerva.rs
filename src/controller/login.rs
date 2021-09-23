@@ -55,7 +55,7 @@ pub fn loga_usuario(
 
     // 4. Salva token no Redis com expiração de 5m30s
     if redis
-        .set_ex::<&str, &str, String>(&token, dados.login, jwt::JWT_MAX_SECONDS)
+        .set_ex::<&str, &str, String>(&token, dados.login, jwt::JWT_SESSION_EXPIRATION)
         .is_err()
     {
         return Resposta::ErroInterno(String::from(
