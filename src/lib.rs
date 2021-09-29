@@ -44,5 +44,6 @@ pub mod controller;
 pub mod db;
 pub mod model;
 pub mod routes;
+pub mod bo;
 
 #[allow(missing_docs)] pub mod inpututils;

@@ -19,6 +19,7 @@ use crate::auth::AuthKey;
 use crate::controller::clientes;
 use crate::db::ConexaoPool;
 use crate::model::cliente::ClienteRecv;
+use crate::bo;
 use rocket::serde::json::Json;
 use rocket::Route;
 use rocket::State;
@@ -46,8 +47,12 @@ fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) ->
 #[post("/", data = "<dados>")]
 fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
-    let id = clientes::registra_cliente(&conexao, dados.clone());
-    Resposta::Ok(format!("{{ \"id\": {} }}", id))
+    if let Err(s) = bo::clientes::valida_dados(&dados) {
+        Resposta::ErroSemantico(s)
+    } else {
+        let id = clientes::registra_cliente(&conexao, dados.clone());
+        Resposta::Ok(format!("{{ \"id\": {} }}", id))
+    }
 }
 
 #[delete("/<ident>")]
