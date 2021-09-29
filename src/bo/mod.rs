@@ -14,4 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Este módulo contém estruturas e ferramentas (_Business Objects_) para
+//! manutenção e validação de regras de negócio específicas para o sistema.
+
 pub mod clientes;

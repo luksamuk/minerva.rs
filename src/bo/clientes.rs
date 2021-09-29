@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Este módulo contém ferramentas para reforçar regras de negócio relacionadas
+//! a validação de transações envolvendo dados de clientes.
+
 use regex::Regex;
 use crate::model::cliente::ClienteRecv;
 
@@ -33,7 +36,7 @@ const CNPJ_REGEX: &str =
     r"^(\d)(\d).(\d)(\d)(\d).(\d)(\d)(\d)/(\d)(\d)(\d)(\d)-(\d)(\d)$";
 
 /// Informa se um CNPJ é válido. O CNPJ deve ser repassado como um string slice,
-/// sem espaços extras, e com formato adequado. Veja [CNPJ_REGEX].
+/// sem espaços extras, e com formato adequado. Veja [`CNPJ_REGEX`].
 fn valida_cnpj(cnpj: &str) -> bool {
     let re = Regex::new(CNPJ_REGEX).unwrap();
     let captures = match re.captures(cnpj) {
@@ -125,7 +128,7 @@ fn validacao_de_cnpj() {
 }
 
 /// Informa se um CPF é válido. O CPF deve ser repassado como um string slice,
-/// sem espaços extras, e com formato adequado. Veja [CPF_REGEX].
+/// sem espaços extras, e com formato adequado. Veja [`CPF_REGEX`].
 fn valida_cpf(cpf: &str) -> bool {
     let re = Regex::new(CPF_REGEX).unwrap();
     let captures = match re.captures(cpf) {
@@ -210,6 +213,10 @@ fn validacao_de_cpf() {
     assert!(!valida_cpf("88.216.800/0001-95"));
 }
 
+/// Realiza validação dos dados recebidos para cadastro de um cliente.
+/// 
+/// As validações compreendem os dados de CPF ou CNPJ e a existência da Unidade
+/// Federativa informada.
 pub fn valida_dados(dados: &ClienteRecv) -> Result<(), String> {
     // Validação de CPF e CNPJ
     if (!dados.pj) && (!valida_cpf(&dados.docto)) {
