@@ -96,7 +96,7 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
     // 2. Verifica se foi feito início de estoque.
     let estoque_atual = get_estoque(conexao, recv.produto_id);
     if estoque_atual.is_none() {
-        return Resposta::ErroSemantico(format!(
+        return Resposta::NaoEncontrado(format!(
             "{{ \"mensagem\": \
              \"Necessário efetuar início de estoque para o produto {}\" \
              }}",
