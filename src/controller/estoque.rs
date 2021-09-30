@@ -14,12 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Ferramentas para tráfego de dados entre as rotas de estoque/movimentação de
+//! estoque e o banco de dados.
+//! 
+//! As ferramentas deste módulo realizam o tráfego de dados entre as respectivas
+//! rotas de posição e movimentação de estoque e as tabelas relacionadas a estas
+//! operações.
+
 use super::log::*;
 use crate::model::estoque::*;
 use crate::routes::respostas::Resposta;
 use comfy_table::Table;
 use diesel::prelude::*;
 
+/// Realiza início de estoque.
+/// 
+/// Esta função realiza um início de estoque, caso já não tenha sido feito. A
+/// função realizará verificações para avaliar se o produto está cadastrado no
+/// sistema, se o estoque já não foi iniciado, e se os dados iniciais recebidos
+/// são válidos.
+/// 
+/// Caso o produto não exista, será retornado um erro 404. Do contrário, caso a
+/// posição inicial de estoque possua um erro em sua validação, será retornado
+/// um erro 412, dada a invalidade semântica dos dados.
 pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
     use super::produtos;
     use crate::model::schema::estoque;
@@ -82,6 +99,18 @@ pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
     }
 }
 
+/// Realiza uma movimentação de estoque de um produto.
+/// 
+/// Esta função realiza uma movimentação de estoque do referido produto. A
+/// função também efetua validações para garantir que o produto exista, e que
+/// sua posição de estoque também exista, do contrário, será retornado um erro
+/// 404.
+/// 
+/// Além disso, a função verificará se o preço unitário foi informado como
+/// negativo ou zero, se o preço do frete, caso informado, tenha sido informado
+/// como negativo, e se a movimentação a ser registrada colocará o estoque como
+/// negativo. Qualquer uma dessas situações classifica-se como erro semântico,
+/// retornando um erro 412.
 pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Resposta {
     use super::produtos;
     use bigdecimal::{Signed, Zero};
@@ -216,6 +245,11 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
     }
 }
 
+/// Retorna a posição de estoque de um produto.
+/// 
+/// Esta função retorna um Option que poderá conter a posição de estoque de um
+/// produto com o id informado. Esta função verifica apenas se houve início de
+/// estoque do produto, mas não verifica se o produto existe.
 pub fn get_estoque(conexao: &PgConnection, prod_id: i32) -> Option<Estoque> {
     use crate::model::schema::estoque::dsl::*;
     let estoque_req = estoque
@@ -225,6 +259,8 @@ pub fn get_estoque(conexao: &PgConnection, prod_id: i32) -> Option<Estoque> {
     estoque_req.first().cloned()
 }
 
+/// Une as informações de uma posição de estoque de um produto com os dados do
+/// produto referenciado.
 fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUnion {
     use super::produtos;
     let p = produtos::get_produto(conexao, e.produto_id).unwrap();
@@ -237,6 +273,11 @@ fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUni
     }
 }
 
+/// Lista uma quantidade limitada de posições de estoque com dados de produto.
+/// 
+/// Retorna um Vec com estruturas que representam a união entre dados de um
+/// produto e de sua posição de estoque. A quantidade de estruturas retornadas
+/// não será superior a `limite`.
 pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueUnion> {
     use crate::model::schema::estoque;
     estoque::table
@@ -248,12 +289,24 @@ pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueUnion> {
         .collect()
 }
 
+/// Mostra a posição de estoque de um produto com seus respectivos dados.
+/// 
+/// Retorna um Option que poderá conter os dados de posição de estoque de um
+/// produto, junto com seus dados de cadastro. Os dados só serão retornados se
+/// o sistema encontrar a posição de estoque do produto e seus dados
+/// correspondentes, respectivamente.
 pub fn mostra_estoque(conexao: &PgConnection, prod_id: i32) -> Option<EstoqueUnion> {
     get_estoque(conexao, prod_id)
         .as_ref()
         .map(|e| transforma_estoque_retorno(conexao, e))
 }
 
+/// Lista uma quantidade limitada de posições de estoque com dados de produto,
+/// em uma tabela escrita como texto-plano.
+/// 
+/// O retorno será uma string em texto-plano, formatada para assemelhar-se a uma
+/// tabela. A tabela não terá mais linhas do que a quantidade descrita pelo
+/// parâmetro `limite`.
 pub fn lista_movimentos_texto(conexao: &PgConnection, limite: i64) -> String {
     let movimentos = recupera_movimentos(conexao, limite);
     let mut table = Table::new();
@@ -262,6 +315,7 @@ pub fn lista_movimentos_texto(conexao: &PgConnection, limite: i64) -> String {
     format!("{}\n", table)
 }
 
+/// Prepara o cabeçalho da tabela de movimentações de estoque.
 fn prepara_tabela(table: &mut Table) {
     use comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED;
     table
@@ -277,6 +331,8 @@ fn prepara_tabela(table: &mut Table) {
         ]);
 }
 
+/// Adiciona dados de um vetor de movimentações de estoque a uma estrutura de
+/// tabela em texto-plano.
 fn processa_tabela(conexao: &PgConnection, movimentos: &[MovEstoque], table: &mut Table) {
     use super::produtos;
     use bigdecimal::Signed;
@@ -304,6 +360,9 @@ fn processa_tabela(conexao: &PgConnection, movimentos: &[MovEstoque], table: &mu
     }
 }
 
+/// Recupera movimentações de estoque a partir do banco de dados, em ordem
+/// decrescente de data. A quantidade de movimentos retornada não será superior
+/// à quantidade informada através de `limite`.
 pub fn recupera_movimentos(conexao: &PgConnection, limite: i64) -> Vec<MovEstoque> {
     use crate::model::schema::mov_estoque::dsl::*;
     mov_estoque
@@ -313,6 +372,14 @@ pub fn recupera_movimentos(conexao: &PgConnection, limite: i64) -> Vec<MovEstoqu
         .expect("Erro ao recuperar movimentações de estoque")
 }
 
+/// Recupera movimentações de estoque a partir do banco de dados, em ordem
+/// decrescente de data, impressas em texto-plano formatado para parecer uma
+/// tabela.
+/// 
+/// As movimentações recuperadas deverão obedecer a um filtro `is_entrada`, que
+/// determinará se serão retornadas como movimentações de entrada ou saída de
+/// produtos. A quantidade de movimentos retornada não será superior à
+/// quantidade informada através de `limite`.
 pub fn lista_movimentos_texto_filtrado(
     conexao: &PgConnection,
     limite: i64,
@@ -325,6 +392,13 @@ pub fn lista_movimentos_texto_filtrado(
     format!("{}\n", table)
 }
 
+/// Recupera movimentações de estoque a partir do banco de dados, em ordem
+/// decrescente de data.
+/// 
+/// As movimentações recuperadas deverão obedecer a um filtro `is_entrada`, que
+/// determinará se serão retornadas como movimentações de entrada ou saída de
+/// produtos. A quantidade de movimentos retornada não será superior à
+/// quantidade informada através de `limite`.
 pub fn recupera_movimentos_filtrado(
     conexao: &PgConnection,
     limite: i64,

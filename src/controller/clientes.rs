@@ -14,12 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Ferramentas para tráfego de dados entre as rotas de clientes e o banco de
+//! dados.
+//! 
+//! As ferramentas deste módulo realizam o tráfego entre os dados recebidos
+//! através das rotas de clientes e a tabela `cliente` e relacionadas. Para as
+//! regras de negócio da aplicação, veja [`bo::clientes`][`crate::bo::clientes`].
+
 use super::log::*;
 use crate::model::cliente::*;
 use crate::model::endereco::*;
 use crate::model::schema::{cliente, endereco};
 use diesel::prelude::*;
 
+/// Lista uma quantidade limitada de clientes cadastrados no sistema.
+/// 
+/// Retorna um Vec com estruturas que representam os dados de um cliente,
+/// incluindo os endereços cadastrados para o mesmo. A quantidade de clientes
+/// retornados não será superior à informada no argumento `limite`.
 pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
     let cli_req = cliente::table
         .limit(limite)
@@ -34,6 +46,12 @@ pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
     clientes
 }
 
+/// Retorna os dados de um cliente cadastrado no sistema.
+/// 
+/// Será retornado um `Option` que poderá conter uma estrutura que representa
+/// os dados de um único cliente, incluindo os endereços cadastrados para o
+/// mesmo. O cliente será procurado de acordo com o seu id repassado no
+/// argumento `userid`.
 pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
     use crate::model::schema::cliente::dsl::*;
     let cli_req = cliente
@@ -49,6 +67,12 @@ pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
     }
 }
 
+/// Registra um novo cliente no banco de dados.
+/// 
+/// Esta função toma os dados do cliente recebidos através de uma requisição
+/// POST, e cadastra-os no banco de dados. Os dados recebidos não são avaliados
+/// quanto à sua validade, sendo inseridos diretamente no banco de dados.
+/// Será retornado o id do cliente após ser cadastrado no banco de dados.
 pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
     let (cl_recv, end_recv) = dados.into();
     let c: Cliente = diesel::insert_into(cliente::table)
@@ -66,6 +90,12 @@ pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
     c.id
 }
 
+/// Deleta um cliente em específico no banco de dados.
+/// 
+/// O cliente a ser deletado deverá ser informado através de uma estrutura
+/// completa de representação do mesmo, posto que sua remoção também envolverá
+/// remoção de todos os endereços associados ao mesmo. A função assume que os
+/// dados de cliente passados sejam válidos.
 pub fn deleta_cliente(conexao: &PgConnection, cl: ClienteRepr) {
     use crate::model::schema::cliente::dsl::*;
     deleta_enderecos(conexao, cl.enderecos);
@@ -74,6 +104,12 @@ pub fn deleta_cliente(conexao: &PgConnection, cl: ClienteRepr) {
         .expect("Erro ao deletar cliente");
 }
 
+/// Deleta todos os clientes do banco de dados.
+/// 
+/// Esta função varre todos os dados de clientes e endereços do banco de dados,
+/// retornando uma tuple contendo, respectivamente, as quantidades de registros
+/// de usuários e de endereços deletados neste processo.
+/// Utilize esta função com cuidado.
 pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
     let num_end = diesel::delete(endereco::table)
         .execute(conexao)
@@ -98,6 +134,11 @@ pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
     (num_end, num_cl)
 }
 
+/// Registra os dados de endereços para um cliente em específico.
+/// 
+/// Esta função assume que os dados de endereços recebidos estejam corretos,
+/// e também assume que o cliente, cujo id tenha sido informado via parâmetro,
+/// já tenha sido inserido no banco de dados.
 fn registra_enderecos_cliente(
     conexao: &PgConnection,
     cliente_id: i32,
@@ -120,6 +161,10 @@ fn registra_enderecos_cliente(
     }
 }
 
+/// Recupera uma coleção de endereços para um cliente em específico.
+/// 
+/// Esta função procurará pelos endereços que apontem para o cliente cujo id
+/// foi informado via parâmetro.
 fn carrega_enderecos_cliente(conexao: &PgConnection, userid: i32) -> Vec<Endereco> {
     use crate::model::schema::endereco::dsl::*;
     endereco
@@ -128,6 +173,10 @@ fn carrega_enderecos_cliente(conexao: &PgConnection, userid: i32) -> Vec<Enderec
         .expect("Erro ao carregar endereços")
 }
 
+/// Deleta todos os endereços referenciados.
+/// 
+/// Esta função requisita os dados completos de endereço de um cliente, que
+/// deverão ser repassados integralmente.
 fn deleta_enderecos(conexao: &PgConnection, enderecos: Vec<Endereco>) {
     use crate::model::schema::endereco::dsl::*;
     for end in enderecos {

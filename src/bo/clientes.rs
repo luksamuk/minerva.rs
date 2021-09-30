@@ -36,8 +36,8 @@ const CNPJ_REGEX: &str =
     r"^(\d)(\d).(\d)(\d)(\d).(\d)(\d)(\d)/(\d)(\d)(\d)(\d)-(\d)(\d)$";
 
 /// Informa se um CNPJ é válido. O CNPJ deve ser repassado como um string slice,
-/// sem espaços extras, e com formato adequado. Veja [`CNPJ_REGEX`].
-fn valida_cnpj(cnpj: &str) -> bool {
+/// sem espaços extras, e com formato adequado.
+pub fn valida_cnpj(cnpj: &str) -> bool {
     let re = Regex::new(CNPJ_REGEX).unwrap();
     let captures = match re.captures(cnpj) {
         Some(c) => c,
@@ -128,8 +128,8 @@ fn validacao_de_cnpj() {
 }
 
 /// Informa se um CPF é válido. O CPF deve ser repassado como um string slice,
-/// sem espaços extras, e com formato adequado. Veja [`CPF_REGEX`].
-fn valida_cpf(cpf: &str) -> bool {
+/// sem espaços extras, e com formato adequado.
+pub fn valida_cpf(cpf: &str) -> bool {
     let re = Regex::new(CPF_REGEX).unwrap();
     let captures = match re.captures(cpf) {
         Some(c) => c,

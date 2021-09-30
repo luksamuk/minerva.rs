@@ -14,11 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Ferramentas para escrita de log no banco de dados, envolvendo rotas e os
+//! demais controllers.
+//! 
+//! Este módulo descreve funções de registro de log no banco de dados e de
+//! listagem de log para o restante do sistema.
+
 pub use crate::model::logdb::DBOperacao;
 use crate::model::logdb::{LogDB, NovoLogDB};
 use crate::model::schema::logdb;
 use diesel::prelude::*;
 
+/// Registra uma movimentação no banco de dados do sistema, usando a tabela de
+/// log.
+/// 
+/// Esta função auxilia no processo de escrita de log na tabela `logdb`,
+/// armazenando o nome da tabela modificada, o usuário a realizar a operação,
+/// a operação descrita (alteração, remoção ou inserção) e uma descrição
+/// opcional da transação realizada.
+/// 
+/// A função retornará o id da linha de log registrada pela função.
 pub fn registra_log(
     conexao: &PgConnection,
     tabela: String,
@@ -39,6 +54,11 @@ pub fn registra_log(
         .id
 }
 
+/// Retorna as últimas cem operações registradas no log, em formato de tabela
+/// em texto-plano.
+/// 
+/// As operações serão retornadas em ordem decrescente de data de registro, já
+/// formatadas como uma tabela que pode ser escrita em texto-plano.
 pub fn lista_log_texto(conexao: &PgConnection) -> String {
     use comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED;
     use comfy_table::Table;
@@ -69,6 +89,11 @@ pub fn lista_log_texto(conexao: &PgConnection) -> String {
     format!("{}\n", table)
 }
 
+/// Retorna as últimas operações registradas no log.
+/// 
+/// Esta função retorna um Vec contendo estruturas que representam as operações
+/// registradas no log, em ordem decrescente de data. A quantidade de registros
+/// não excederá o valor imposto através do parâmetro `limite`.
 pub fn recupera_log(conexao: &PgConnection, limite: i64) -> Vec<LogDB> {
     use crate::model::schema::logdb::dsl::*;
     logdb

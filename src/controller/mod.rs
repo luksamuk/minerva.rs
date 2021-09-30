@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Este módulo contém estruturas e ferramentas para tráfego de dados e
+//! comunicação entre as rotas e o banco de dados.
+//! 
+//! Quando relacionadas à comunicação direta com banco de dados, as regras de
+//! negócios poderão ser encontradas no módulo [`bo`][`super::bo`].
+//! 
+//! Operações de inserção, alteração e inclusão no banco de dados gerarão uma
+//! gravação na tabela de log do mesmo.
+
 pub mod clientes;
 pub mod estoque;
 pub mod log;
