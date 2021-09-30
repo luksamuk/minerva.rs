@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Estruturas relacionadas à conexão com o banco de dados PostgreSQL.
+//! 
+//! As estruturas aqui descritas dizem respeito à conexão com o banco de dados,
+//! bem como com as estruturas de pool de conexões e de garantia mínima de
+//! usuário inicial do sistema.
+
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::PgConnection;
 use dotenv::dotenv;

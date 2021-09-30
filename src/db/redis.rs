@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Estruturas relacionadas à conexão com o serviço Redis.
+//! 
+//! As estruturas aqui descritas dizem respeito à conexão com o serviço Redis,
+//! bem como o pool de conexões para tal serviço.
+
 use dotenv::dotenv;
 use r2d2_redis::{r2d2, RedisConnectionManager};
 use std::env;
