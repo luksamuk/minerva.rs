@@ -18,3 +18,4 @@
 //! manutenção e validação de regras de negócio específicas para o sistema.
 
 pub mod clientes;
+pub mod usuarios;

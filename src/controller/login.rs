@@ -20,6 +20,7 @@
 //! _logout_ para cada usuário, realizando portanto a ponte entre as rotas para
 //! este propósito e os processos de autenticação do sistema.
 
+use crate::bo;
 use super::usuarios;
 use crate::auth::jwt;
 use crate::db::redis::RedisConnection;
@@ -58,7 +59,7 @@ pub fn loga_usuario(
     };
 
     // 2. Testa a senha do usuário.
-    if !usuario.verifica_senha(dados.senha) {
+    if !bo::usuarios::verifica_senha(dados.senha, &usuario.senha_hash) {
         return Resposta::NaoAutorizado(String::from("{ \"mensagem\": \"Senha incorreta\" }"));
     }
 
