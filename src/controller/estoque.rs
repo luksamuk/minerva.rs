@@ -261,10 +261,10 @@ pub fn get_estoque(conexao: &PgConnection, prod_id: i32) -> Option<Estoque> {
 
 /// Une as informações de uma posição de estoque de um produto com os dados do
 /// produto referenciado.
-fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUnion {
+fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueRepr {
     use super::produtos;
     let p = produtos::get_produto(conexao, e.produto_id).unwrap();
-    EstoqueUnion {
+    EstoqueRepr {
         id: p.id,
         descricao: p.descricao.clone(),
         unidsaida: p.unidsaida,
@@ -278,7 +278,7 @@ fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueUni
 /// Retorna um Vec com estruturas que representam a união entre dados de um
 /// produto e de sua posição de estoque. A quantidade de estruturas retornadas
 /// não será superior a `limite`.
-pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueUnion> {
+pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueRepr> {
     use crate::model::schema::estoque;
     estoque::table
         .limit(limite)
@@ -295,7 +295,7 @@ pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueUnion> {
 /// produto, junto com seus dados de cadastro. Os dados só serão retornados se
 /// o sistema encontrar a posição de estoque do produto e seus dados
 /// correspondentes, respectivamente.
-pub fn mostra_estoque(conexao: &PgConnection, prod_id: i32) -> Option<EstoqueUnion> {
+pub fn mostra_estoque(conexao: &PgConnection, prod_id: i32) -> Option<EstoqueRepr> {
     get_estoque(conexao, prod_id)
         .as_ref()
         .map(|e| transforma_estoque_retorno(conexao, e))

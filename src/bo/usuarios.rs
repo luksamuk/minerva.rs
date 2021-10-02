@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Este módulo contém ferramentas para reforçar regras de negócio relacionadas
-//! a validação de transações envolvendo dados de usuários do sistema.
+//! à validação de transações envolvendo dados de usuários do sistema.
 
 use sodiumoxide::crypto::pwhash::argon2id13;
 
