@@ -52,7 +52,7 @@ fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) ->
 }
 
 #[get("/<usr_login>", rank = 2)]
-fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: String, _auth: AuthKey<'_>) -> Resposta {
+fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => {
@@ -66,7 +66,7 @@ fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: String, _auth: AuthKe
 fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
 
-    if usuarios::encontra_usuario(&conexao, dados.login.clone()).is_some() {
+    if usuarios::encontra_usuario(&conexao, dados.login).is_some() {
         return Resposta::ErroSemantico(format!(
             "{{ \"mensagem\": \"O nome de usuário \\\"{}\\\" já existe\" }}",
             dados.login
@@ -98,7 +98,7 @@ fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> 
 }
 
 #[delete("/<usr_login>", rank = 2)]
-fn deleta_por_login(pool: &State<ConexaoPool>, usr_login: String, _auth: AuthKey<'_>) -> Resposta {
+fn deleta_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => {

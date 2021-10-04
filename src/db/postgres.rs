@@ -100,10 +100,10 @@ pub fn garante_usuario_inicial(pool: &ConexaoPool) {
     let conexao = pool.get().unwrap();
     if usuarios::lista_usuarios(&conexao, 1).is_empty() {
         let novo_admin = NovoUsuario::from(&UsuarioRecv {
-            login: String::from("admin"),
-            nome: String::from("Admin"),
+            login: "admin",
+            nome: "Admin",
             email: None,
-            senha: String::from("admin"),
+            senha: "admin",
         });
         let _ = diesel::insert_into(usuario::table)
             .values(&novo_admin)

@@ -49,7 +49,7 @@ pub fn loga_usuario(
     dados: &LoginData,
 ) -> Resposta {
     // 1. Verifica se o usuário existe.
-    let usuario = match usuarios::encontra_usuario(conexao, dados.login.to_owned()) {
+    let usuario = match usuarios::encontra_usuario(conexao, dados.login) {
         Some(usuario) => usuario,
         None => {
             return Resposta::NaoEncontrado(String::from(

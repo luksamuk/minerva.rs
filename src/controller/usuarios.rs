@@ -56,9 +56,9 @@ pub fn get_usuario(conexao: &PgConnection, usr_id: i32) -> Option<Usuario> {
 /// O valor de retorno é um Option que poderá conter os dados de um usuário cujo
 /// login seja o informado através de `usr_login`, caso um usuário com este login
 /// exista no sistema.
-pub fn encontra_usuario(conexao: &PgConnection, usr_login: String) -> Option<Usuario> {
+pub fn encontra_usuario(conexao: &PgConnection, usr_login: &str) -> Option<Usuario> {
     let usr_req = usuario
-        .filter(login.eq(&usr_login))
+        .filter(login.eq(usr_login))
         .load::<Usuario>(conexao)
         .expect("Erro ao carregar usuário");
     usr_req.first().cloned()
