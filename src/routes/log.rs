@@ -14,14 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Rotas para requisições envolvendo dados de log do sistema.
+
 use super::respostas::Resposta;
 use crate::auth::AuthKey;
 use crate::controller::log;
 use crate::db::ConexaoPool;
 use rocket::{Route, State};
 
+/// Constrói as subrotas da rota `/log`.
+/// 
+/// As rotas construídas estão listadas a seguir:
+/// - `GET /` (requer autenticação);
+/// - `GET /txt` (texto plano -- requer autenticação).
 pub fn constroi_rotas() -> Vec<Route> {
-    routes![mostra_log, mostra_log_texto,]
+    routes![mostra_log, mostra_log_texto]
 }
 
 #[get("/")]

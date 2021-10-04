@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Rotas para requisições envolvendo dados de estoque e movimentação de estoque
+//! de produtos.
+
 use super::respostas::Resposta;
 use crate::auth::AuthKey;
 use crate::controller::estoque;
@@ -23,9 +26,23 @@ use rocket::serde::json::Json;
 use rocket::Route;
 use rocket::State;
 
-// Rotas planejadas:
-// DELETE /estoque/id => Deleta estoque de um produto
-
+/// Constrói as subrotas da rota `/estoque`.
+/// 
+/// As rotas construídas estão listadas a seguir:
+/// 
+/// ## Rotas de posição de estoque
+/// - `GET /` (requer autenticação);
+/// - `GET /<id>` (requer autenticação);
+/// - `POST /` (requer autenticação);
+/// 
+/// ## Rotas de movimentação de estoque
+/// - `GET /mov` (requer autenticação);
+/// - `POST /mov` (requer autenticação);
+/// - `GET /mov/entradas` (requer autenticação);
+/// - `GET /mov/saidas` (requer autenticação);
+/// - `GET /mov/txt` (texto plano -- requer autenticação);
+/// - `GET /mov/entradas/txt` (texto plano -- requer autenticação);
+/// - `GET /mov/saidas/txt` (texto plano -- requer autenticação).
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
         inicia_estoque,

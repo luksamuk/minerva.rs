@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Rotas para requisições envolvendo manipulação de produtos.
+
 use super::respostas::Resposta;
 use crate::auth::AuthKey;
 use crate::controller::produtos;
@@ -23,6 +25,14 @@ use rocket::serde::json::Json;
 use rocket::Route;
 use rocket::State;
 
+/// Constrói as subrotas da rota `/produtos`.
+/// 
+/// As rotas construídas estão listadas a seguir:
+/// - `GET /` (requer autenticação);
+/// - `POST /` (requer autenticação);
+/// - `GET /<id>` (requer autenticação);
+/// - `DELETE /<id>` (requer autenticação);
+/// - `DELETE /all` (requer autenticação).
 pub fn constroi_rotas() -> Vec<Route> {
     routes![index, retorna_produto, deleta_todos, deleta, cadastra]
 }

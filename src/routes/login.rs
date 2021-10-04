@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Rotas para requisições envolvendo login do usuário.
+
 use super::respostas::Resposta;
 use crate::controller::login;
 use crate::db::{ConexaoPool, RedisPool};
@@ -21,6 +23,10 @@ use crate::model::login::LoginData;
 use rocket::serde::json::Json;
 use rocket::{Route, State};
 
+/// Constrói as subrotas da rota `/login`.
+/// 
+/// As rotas construídas estão listadas a seguir:
+/// - `POST /`.
 pub fn constroi_rotas() -> Vec<Route> {
     routes![realiza_login]
 }

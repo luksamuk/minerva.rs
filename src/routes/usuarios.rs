@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Rotas para requisições envolvendo manipulação de usuários do sistema.
+//! 
+//! As rotas de usuários não envolvem [login][`super::login`], apenas cadastro e
+//! visualização de dados de usuários do sistema.
+
 use super::respostas::Resposta;
 use crate::auth::AuthKey;
 use crate::controller::usuarios;
@@ -22,6 +27,15 @@ use crate::model::usuario::UsuarioRecv;
 use rocket::serde::json::Json;
 use rocket::{Route, State};
 
+/// Constrói as subrotas da rota `/estoque`.
+/// 
+/// As rotas construídas estão listadas a seguir:
+/// - `GET /` (requer autenticação);
+/// - `POST /` (requer autenticação);
+/// - `GET /<id>` (requer autenticação);
+/// - `GET /<login>` (requer autenticação);
+/// - `DELETE /<id>` (requer autenticação);
+/// - `DELETE /<login>` (requer autenticação).
 pub fn constroi_rotas() -> Vec<Route> {
     routes![
         index,
