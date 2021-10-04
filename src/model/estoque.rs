@@ -145,23 +145,23 @@ pub struct MovEstoqueRecv {
 /// Representa uma união entre os dados de um produto e os dados de estoque do
 /// produto referido.
 /// 
-/// Para mais informações, ver [`Estoque`] e [`super::produto::Produto`][`Produto`].
+/// Para mais informações, ver [`Estoque`] e [`Produto`][`super::produto::Produto`].
 #[derive(Serialize, Clone)]
 pub struct EstoqueRepr {
     /// Id do produto na tabela `produto` no banco de dados.
-    /// Ver [`super::produto::Produto::id`][`Produto::id`].
+    /// Ver [`Produto::id`][`super::produto::Produto::id`].
     pub id: i32,
     /// Descrição do produto.
-    /// Ver [`super::produto::Produto::descricao`][`Produto::descricao`].
+    /// Ver [`Produto::descricao`][`super::produto::Produto::descricao`].
     pub descricao: String,
     /// Unidade de saída do produto.
-    /// Ver [`super::produto::Produto::unidsaida`][`Produto::unidsaida`].
+    /// Ver [`Produto::unidsaida`][`super::produto::Produto::unidsaida`].
     pub unidsaida: String,
     /// Quantidade em estoque do produto.
     /// Ver [`Estoque::quantidade`].
     pub quantidade: BigDecimal,
     /// Preço unitário do produto.
-    /// Ver [`Estoque::preco_unitario`].
+    /// Ver [`Estoque::precounitario`].
     pub preco_unitario: BigDecimal,
 }
 

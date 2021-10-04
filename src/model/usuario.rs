@@ -102,8 +102,9 @@ pub struct UsuarioRecv<'r> {
     /// E-mail do usuário a ser cadastrado. Opcional.
     /// Veja [`Usuario::email`].
     pub email: Option<&'r str>,
-    /// Senha do usuário a ser cadastrado, em texto-plano.
-    /// Veja [`Usuario::senha`].
+    /// Senha do usuário a ser cadastrado, em texto-plano. Será transformado
+    /// em hash para armazenamento.
+    /// Veja [`Usuario::senha_hash`].
     #[serde(skip_serializing)]
     pub senha: &'r str,
 }
