@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+use crate::bo::usuarios;
 use crate::model::schema::usuario;
 use serde::{Deserialize, Serialize};
-use sodiumoxide::crypto::pwhash::argon2id13;
 
 #[derive(Queryable, Serialize, Clone)]
 pub struct Usuario {
@@ -48,19 +48,11 @@ pub struct UsuarioRecv {
 
 impl From<&UsuarioRecv> for NovoUsuario {
     fn from(usr: &UsuarioRecv) -> Self {
-        sodiumoxide::init().unwrap();
-        let hash = argon2id13::pwhash(
-            usr.senha.trim().as_bytes(),
-            argon2id13::OPSLIMIT_INTERACTIVE,
-            argon2id13::MEMLIMIT_INTERACTIVE,
-        )
-        .unwrap();
-
         NovoUsuario {
             login: usr.login.clone().trim().to_string(),
             nome: usr.nome.clone().trim().to_string(),
             email: usr.email.clone(),
-            senha_hash: Vec::from(hash.0),
+            senha_hash: Vec::from(usuarios::gera_hash_senha(usr.senha.trim().as_bytes()).0),
         }
     }
 }
