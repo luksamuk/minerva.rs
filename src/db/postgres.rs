@@ -22,7 +22,6 @@
 
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::PgConnection;
-use dotenv::dotenv;
 use std::env;
 
 /// Representa um pool de conexões com o RDBMS PostgreSQL.
@@ -59,8 +58,6 @@ pub type ConexaoPool = Pool<ConnectionManager<PgConnection>>;
 /// ```
 /// A conexão será devolvida ao pool ao sair do escopo atual.
 pub fn cria_pool_conexoes() -> ConexaoPool {
-    dotenv().ok();
-
     let database_url =
         env::var("DATABASE_URL").expect("Necessário definir o URL do BD em DATABASE_URL");
 

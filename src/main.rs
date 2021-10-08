@@ -17,17 +17,24 @@
 #[macro_use] extern crate rocket;
 
 use minerva::*;
+use dotenv::dotenv;
 
 #[launch]
 fn launch() -> _ {
+    dotenv().ok();
+    dotenv::from_filename(".env.local").ok();
+
     let pool = db::cria_pool_conexoes();
     db::garante_usuario_inicial(&pool);
 
     let redis_pool = db::cria_pool_redis();
 
+    let twilio = bo::twilio::cria_conexao_twilio();
+
     rocket::build()
         .manage(pool)
         .manage(redis_pool)
+        .manage(twilio)
         .mount("/", routes![routes::index])
         .mount("/login", routes::login::constroi_rotas())
         .mount("/clientes", routes::clientes::constroi_rotas())

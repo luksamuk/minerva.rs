@@ -1,4 +1,4 @@
-// bo/mod.rs -- Uma parte de Minerva.rs
+// bo/twilio.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,12 @@
 //! Este módulo contém estruturas e ferramentas (_Business Objects_) para
 //! manutenção e validação de regras de negócio específicas para o sistema.
 
-pub mod clientes;
-pub mod usuarios;
-pub mod twilio;
+use std::env;
+use twilio_async::Twilio;
+
+pub fn cria_conexao_twilio() -> Twilio {
+    Twilio::new(
+        env::var("TWILIO_SID").unwrap(),
+        env::var("TWILIO_TOKEN").unwrap(),
+    ).unwrap()
+}
