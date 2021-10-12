@@ -14,15 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Este módulo contém estruturas e ferramentas (_Business Objects_) para
-//! manutenção e validação de regras de negócio específicas para o sistema.
+//! Este módulo contém ferramentas relacionadas ao envio e recebimento de
+//! mensagens através de WhatsApp.
 
 use std::env;
+use anyhow::Result;
 use twilio_async::Twilio;
 
-pub fn cria_conexao_twilio() -> Twilio {
-    Twilio::new(
-        env::var("TWILIO_SID").unwrap(),
-        env::var("TWILIO_TOKEN").unwrap(),
-    ).unwrap()
+/// Cria uma conexão com o serviço Twilio.
+/// 
+/// Este procedimento espera que as variáveis de ambiente `TWILIO_SID` e
+/// `TWILIO_TOKEN` estejam apropriadamente definidas.
+pub fn cria_conexao_twilio() -> Result<Twilio> {
+    let sid = env::var("TWILIO_SID")?; 
+    let token = env::var("TWILIO_TOKEN")?;
+    Ok(Twilio::new(sid, token)?)
 }
