@@ -34,7 +34,7 @@ fn launch() -> _ {
     rocket::build()
         .manage(pool)
         .manage(redis_pool)
-        .manage(twilio)
+        .manage(twilio.ok())
         .mount("/", routes![routes::index])
         .mount("/login", routes::login::constroi_rotas())
         .mount("/clientes", routes::clientes::constroi_rotas())

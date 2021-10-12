@@ -19,7 +19,6 @@
 //! As estruturas aqui descritas dizem respeito à conexão com o serviço Redis,
 //! bem como o pool de conexões para tal serviço.
 
-use dotenv::dotenv;
 use r2d2_redis::{r2d2, RedisConnectionManager};
 use std::env;
 
@@ -59,8 +58,6 @@ pub type RedisConnection = diesel::r2d2::PooledConnection<r2d2_redis::RedisConne
 /// ```
 /// A conexão obtida será devolvida ao pool ao sair do escopo atual.
 pub fn cria_pool_redis() -> RedisPool {
-    dotenv().ok();
-
     let redis_url = env::var("REDIS_URL").expect("Necessário definir o URL do Redis em REDIS_URL");
 
     let manager = RedisConnectionManager::new(redis_url)

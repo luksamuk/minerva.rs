@@ -36,7 +36,7 @@ pub fn constroi_rotas() -> Vec<Route> {
 fn realiza_login(
     pool: &State<ConexaoPool>,
     redispool: &State<RedisPool>,
-    twilio: &State<Twilio>,
+    twilio: &State<Option<Twilio>>,
     dados: Json<LoginData>,
 ) -> Resposta {
     let conexao = pool.get().unwrap();
