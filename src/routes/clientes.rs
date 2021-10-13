@@ -17,7 +17,7 @@
 //! Rotas para requisições envolvendo dados de clientes.
 
 use super::respostas::Resposta;
-use crate::auth::AuthKey;
+use crate::bo::auth::AuthKey;
 use crate::controller::clientes;
 use crate::db::ConexaoPool;
 use crate::model::cliente::ClienteRecv;

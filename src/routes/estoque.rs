@@ -18,7 +18,7 @@
 //! de produtos.
 
 use super::respostas::Resposta;
-use crate::auth::AuthKey;
+use crate::bo::auth::AuthKey;
 use crate::controller::estoque;
 use crate::db::ConexaoPool;
 use crate::model::estoque::{Estoque, MovEstoqueRecv};

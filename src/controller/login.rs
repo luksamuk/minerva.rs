@@ -22,7 +22,7 @@
 
 use crate::bo;
 use super::usuarios;
-use crate::auth::jwt;
+use crate::bo::auth::jwt;
 use crate::db::redis::RedisConnection;
 use crate::model::login::{LoginData, LoginResponse};
 use crate::routes::respostas::Resposta;
