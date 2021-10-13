@@ -17,7 +17,7 @@
 //! Rotas para requisições envolvendo manipulação de produtos.
 
 use super::respostas::Resposta;
-use crate::auth::AuthKey;
+use crate::bo::auth::AuthKey;
 use crate::controller::produtos;
 use crate::db::ConexaoPool;
 use crate::model::produto::NovoProduto;
