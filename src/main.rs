@@ -20,8 +20,8 @@ use minerva::*;
 
 #[launch]
 fn launch() -> _ {
-    let pool = db::cria_pool_conexoes();
-    db::garante_usuario_inicial(&pool);
+    let pool = bo::db::cria_pool_conexoes();
+    bo::db::garante_usuario_inicial(&pool);
 
     let redis_pool = bo::redis::cria_pool_redis();
 
