@@ -18,5 +18,6 @@
 //! manutenção e validação de regras de negócio específicas para o sistema.
 
 pub mod auth;
+pub mod redis;
 pub mod clientes;
 pub mod usuarios;

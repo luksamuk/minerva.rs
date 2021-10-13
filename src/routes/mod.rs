@@ -27,7 +27,7 @@ pub mod produtos;
 pub mod respostas;
 pub mod usuarios;
 
-use crate::db::RedisPool;
+use crate::bo::redis::RedisPool;
 use r2d2_redis::redis::Commands;
 use respostas::Resposta;
 use rocket::State;
