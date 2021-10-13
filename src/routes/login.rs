@@ -18,7 +18,8 @@
 
 use super::respostas::Resposta;
 use crate::controller::login;
-use crate::db::{ConexaoPool, RedisPool};
+use crate::db::ConexaoPool;
+use crate::bo::redis::RedisPool;
 use crate::model::login::LoginData;
 use rocket::serde::json::Json;
 use rocket::{Route, State};

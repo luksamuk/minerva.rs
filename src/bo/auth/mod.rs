@@ -95,8 +95,8 @@
 
 pub mod jwt;
 
-use crate::db::redis::RedisConnection;
-use crate::db::RedisPool;
+use super::redis::RedisConnection;
+use super::redis::RedisPool;
 use r2d2_redis::redis::Commands;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};

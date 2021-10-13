@@ -23,7 +23,7 @@
 use crate::bo;
 use super::usuarios;
 use crate::bo::auth::jwt;
-use crate::db::redis::RedisConnection;
+use crate::bo::redis::RedisConnection;
 use crate::model::login::{LoginData, LoginResponse};
 use crate::routes::respostas::Resposta;
 use diesel::PgConnection;

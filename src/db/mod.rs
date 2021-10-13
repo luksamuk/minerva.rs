@@ -17,11 +17,8 @@
 //! Estruturas relacionadas a banco de dados e serviços similares.
 //!
 //! Este módulo contém estruturas para uso de serviços de banco de dados
-//! (via PostgreSQL) e Redis.
+//! (via PostgreSQL).
 
 pub mod postgres;
-pub mod redis;
-
-pub use self::redis::{cria_pool_redis, RedisPool};
 
 pub use self::postgres::{cria_pool_conexoes, garante_usuario_inicial, ConexaoPool};

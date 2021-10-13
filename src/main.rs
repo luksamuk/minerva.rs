@@ -23,7 +23,7 @@ fn launch() -> _ {
     let pool = db::cria_pool_conexoes();
     db::garante_usuario_inicial(&pool);
 
-    let redis_pool = db::cria_pool_redis();
+    let redis_pool = bo::redis::cria_pool_redis();
 
     rocket::build()
         .manage(pool)
