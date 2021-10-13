@@ -40,7 +40,6 @@ extern crate num_traits;
 extern crate r2d2_redis;
 
 pub mod controller;
-pub mod db;
 pub mod model;
 pub mod routes;
 pub mod bo;

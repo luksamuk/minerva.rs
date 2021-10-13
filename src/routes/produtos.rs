@@ -19,7 +19,7 @@
 use super::respostas::Resposta;
 use crate::bo::auth::AuthKey;
 use crate::controller::produtos;
-use crate::db::ConexaoPool;
+use crate::bo::db::ConexaoPool;
 use crate::model::produto::NovoProduto;
 use rocket::serde::json::Json;
 use rocket::Route;
