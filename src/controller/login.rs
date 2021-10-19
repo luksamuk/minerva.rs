@@ -84,6 +84,14 @@ pub fn loga_usuario(
         ));
     }
 
+    // 5. Envia mensagem assíncrona via Twilio
+    use crate::bo::twilio;
+    twilio::envia_mensagem_whatsapp_sandbox(
+        format!("O usuário {} acabou de fazer login (id = {})\n\
+                 Token de autenticação:\n{}",
+                dados.login, usuario.id, token)
+    );
+
     // 5. Retorna o token.
     Resposta::Ok(
         serde_json::to_string(&LoginResponse {

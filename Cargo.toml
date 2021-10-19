@@ -39,6 +39,7 @@ jsonwebtoken = "7.2.0"
 regex = "1.5.4"
 twilio-async = "0.5.0"
 anyhow = ">= 1.0"
+tokio = { version = "1", features = ["rt"] }
 
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.1"
