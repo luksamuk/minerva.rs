@@ -29,12 +29,12 @@ fn launch() -> _ {
 
     let redis_pool = db::cria_pool_redis();
 
-    let twilio = bo::twilio::cria_conexao_twilio();
+    //let twilio = bo::twilio::cria_conexao_twilio();
 
     rocket::build()
         .manage(pool)
         .manage(redis_pool)
-        .manage(twilio.ok())
+        //.manage(twilio.ok())
         .mount("/", routes![routes::index])
         .mount("/login", routes::login::constroi_rotas())
         .mount("/clientes", routes::clientes::constroi_rotas())

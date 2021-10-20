@@ -22,7 +22,7 @@ use crate::db::{ConexaoPool, RedisPool};
 use crate::model::login::LoginData;
 use rocket::serde::json::Json;
 use rocket::{Route, State};
-use twilio_async::Twilio;
+//use twilio_async::Twilio;
 
 /// Constrói as subrotas da rota `/login`.
 /// 

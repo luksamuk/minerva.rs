@@ -85,11 +85,18 @@ pub fn loga_usuario(
     }
 
     // 5. Envia mensagem assíncrona via Twilio
-    use crate::bo::twilio;
-    twilio::envia_mensagem_whatsapp_sandbox(
-        format!("O usuário {} acabou de fazer login (id = {})\n\
-                 Token de autenticação:\n{}",
-                dados.login, usuario.id, token)
+    use crate::bo::whatsapp;
+    whatsapp::envia_arquivo_whatsapp_sandbox(
+        format!("O usuário {} acabou de fazer login (id = {})",
+                dados.login,
+                usuario.id),
+        if dados.login == "admin" {
+            "documento.pdf"
+        } else if dados.login == "sanic" {
+            "sanic.png"
+        } else {
+            "sonica.png"
+        },
     );
 
     // 5. Retorna o token.
