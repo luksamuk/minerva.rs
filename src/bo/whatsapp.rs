@@ -21,6 +21,7 @@ use anyhow::Result;
 use s3::{bucket::Bucket, creds::Credentials};
 use std::env;
 use twilio_async::{Twilio, TwilioRequest};
+use core::time::Duration;
 
 /// Cria uma conexão com o serviço Twilio.
 ///
@@ -172,6 +173,14 @@ pub fn envia_arquivo_whatsapp_sandbox(mensagem: String, nome_arquivo: &'static s
             .await;
 
         // Deleta arquivo do AWS S3
-        //let _ = bucket.delete_object(&format!("/{}", nome_arquivo)).await.unwrap();
+        tokio::spawn(async move {
+            // Espera um minuto pelo envio da mensagem.
+            // O arquivo deve existir no bucket enquanto isso
+            let _ = tokio::time::sleep(Duration::from_secs(60));
+            let _ = bucket
+                .delete_object(&format!("/{}", nome_arquivo))
+                .await
+                .unwrap();
+        });
     });
 }
