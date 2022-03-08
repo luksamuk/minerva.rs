@@ -15,11 +15,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Utilitários de modelagem de realização de login de um usuário.
-//! 
+//!
 //! Os utilitários deste módulo compreendem estruturas utilizadas para realizar
 //! o login de um usuário no sistema, sendo especialmente utilizadas para
 //! tráfego de dados de login no mesmo.
-//! 
+//!
 //! Para informações sobre dados de um usuário, veja [`usuario`][`super::usuario`].
 
 use serde::{Deserialize, Serialize};
@@ -27,12 +27,12 @@ use serde::{Deserialize, Serialize};
 /// Representa dados de login recebidos através de uma requisição `POST` na rota
 /// de login. Os dados textuais desta requisição deverão ser referências diretas
 /// aos dados recebidos, para evitar cópias, já que estes dados são sensíveis.
-/// 
+///
 /// É essencial que os dados sejam repassados através de uma conexão encriptada
 /// com SSL, para maior segurança.
-/// 
+///
 /// Os dados de login são esperados no seguinte formato, em JSON:
-/// 
+///
 /// ```json
 /// {
 ///   "login": "admin",
@@ -49,13 +49,13 @@ pub struct LoginData<'r> {
 
 /// Representa dados de login a serem respondidos, em caso de um login
 /// bem-sucedido.
-/// 
+///
 /// Estes dados compreendem alguns dados do usuário logado e um JWT como token
 /// de acesso, que será retornado para uso como Bearer Token em requisições
 /// subsequentes do usuário.
-/// 
+///
 /// A resposta será em formato JSON, como mostrado no exemplo:
-/// 
+///
 /// ```json
 /// {
 ///   "id": 1,
@@ -63,7 +63,7 @@ pub struct LoginData<'r> {
 ///   "token": "..."
 /// }
 /// ```
-/// 
+///
 /// Note que o campo `token` será um JSON Web Token apropriadamente gerado, no
 /// lugar das reticências. Para maiores informações sobre a geração deste token,
 /// veja o módulo [`auth`][`crate::auth`].

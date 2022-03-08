@@ -24,9 +24,10 @@ use crate::model::produto::NovoProduto;
 use rocket::serde::json::Json;
 use rocket::Route;
 use rocket::State;
+use serde_json::json;
 
 /// Constrói as subrotas da rota `/produtos`.
-/// 
+///
 /// As rotas construídas estão listadas a seguir:
 /// - `GET /` (requer autenticação);
 /// - `POST /` (requer autenticação);
@@ -48,9 +49,12 @@ fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
 fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
-        None => {
-            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
-        }
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Produto não encontrado"
+            })
+            .to_string(),
+        ),
         Some(p) => Resposta::Ok(serde_json::to_string(&p).unwrap()),
     }
 }
@@ -59,12 +63,15 @@ fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) 
 fn deleta(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
-        None => {
-            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
-        }
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Produto não encontrado"
+            })
+            .to_string(),
+        ),
         Some(_) => {
             produtos::deleta_produto(&conexao, prod_id);
-            Resposta::Ok(format!("{{ \"id\": {} }}", prod_id))
+            Resposta::Ok(json!({ "id": prod_id }).to_string())
         }
     }
 }
@@ -73,7 +80,7 @@ fn deleta(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Respos
 fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let num_del = produtos::deleta_todos(&conexao);
-    Resposta::Ok(format!("{{ \"produtos\": {} }}", num_del))
+    Resposta::Ok(json!({ "produtos": num_del }).to_string())
 }
 
 #[post("/", data = "<dados>")]
@@ -81,7 +88,7 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>, _auth: AuthKey<
     let conexao = pool.get().unwrap();
     let result = produtos::registra_produto(&conexao, dados.clone());
     match result {
-        Ok(id) => Resposta::Ok(format!("{{ \"id\": {} }}", id)),
-        Err(msg) => Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", msg)),
+        Ok(id) => Resposta::Ok(json!({ "id": id }).to_string()),
+        Err(msg) => Resposta::ErroSemantico(json!({ "mensagem": msg }).to_string()),
     }
 }

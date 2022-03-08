@@ -158,14 +158,12 @@ impl<'r> FromRequest<'r> for AuthKey<'r> {
             match usuario_associado {
                 Ok(login) => {
                     if login == claims.sub {
-                        let _ = redis.expire::<String, String>(
-                            payload,
-                            jwt::JWT_SESSION_EXPIRATION
-                        );
+                        let _ =
+                            redis.expire::<String, String>(payload, jwt::JWT_SESSION_EXPIRATION);
                         return true;
                     }
                     false
-                },
+                }
                 Err(_) => false,
             }
         }

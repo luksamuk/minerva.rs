@@ -16,10 +16,10 @@
 
 //! Ferramentas para tráfego de dados entre as rotas de usuários e o banco de
 //! dados.
-//! 
+//!
 //! As ferramentas deste módulo realizam o tráfego entre os dados das recebidos
 //! através das rotas para gerenciamento de usuários e a tabela `usuario` do
-//! banco de dados e relacionadas. 
+//! banco de dados e relacionadas.
 
 use super::log::*;
 use crate::model::schema::usuario;
@@ -28,7 +28,7 @@ use crate::model::usuario::{NovoUsuario, Usuario, UsuarioRecv};
 use diesel::prelude::*;
 
 /// Lista uma quantidade limitada de usuários cadastrados no sistema.
-/// 
+///
 /// Retorna um Vec contendo estruturas que representam os dados de um usuário.
 /// A quantidade de usuários retornada não deverá exceder a quantidade informada
 /// no parâmetro `limite`.
@@ -40,7 +40,7 @@ pub fn lista_usuarios(conexao: &PgConnection, limite: i64) -> Vec<Usuario> {
 }
 
 /// Retorna os dados de um único usuário cadastrado no sistema, através do id.
-/// 
+///
 /// O valor de retorno é um Option que poderá conter os dados de um usuário de
 /// id `usr_id`, caso exista um usuário com este id cadastrado no sistema.
 pub fn get_usuario(conexao: &PgConnection, usr_id: i32) -> Option<Usuario> {
@@ -52,7 +52,7 @@ pub fn get_usuario(conexao: &PgConnection, usr_id: i32) -> Option<Usuario> {
 }
 
 /// Retorna os dados de um único usuário cadastrado no sistema, através do login.
-/// 
+///
 /// O valor de retorno é um Option que poderá conter os dados de um usuário cujo
 /// login seja o informado através de `usr_login`, caso um usuário com este login
 /// exista no sistema.
@@ -65,10 +65,10 @@ pub fn encontra_usuario(conexao: &PgConnection, usr_login: &str) -> Option<Usuar
 }
 
 /// Registra um novo usuário no sistema.
-/// 
+///
 /// Assume-se que os dados informados para cadastro do usuário no sistema
 /// sejam válidos. Usuários não poderão ter um login já cadastrado.
-/// 
+///
 /// Em caso de sucesso, será retornada uma tuple contendo o id e o login do
 /// usuário cadastrado, respectivamente. Caso contrário, será retornada uma
 /// String contendo uma mensagem de erro.
@@ -97,7 +97,7 @@ pub fn registra_usuario(
             } else {
                 Err(String::from(
                     "Erro interno ao cadastrar usuário. \
-                                  Contate o suporte para mais informações.",
+                     Contate o suporte para mais informações.",
                 ))
             }
         }
@@ -105,7 +105,7 @@ pub fn registra_usuario(
 }
 
 /// Remove um único usuário do banco de dados, através do seu id.
-/// 
+///
 /// O usuário a ser removido deverá ter um id igual ao informado através de
 /// `usr_id`. A função assume que um usuário com o id informado exista no banco
 /// de dados.

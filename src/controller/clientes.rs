@@ -16,7 +16,7 @@
 
 //! Ferramentas para tráfego de dados entre as rotas de clientes e o banco de
 //! dados.
-//! 
+//!
 //! As ferramentas deste módulo realizam o tráfego entre os dados recebidos
 //! através das rotas de clientes e a tabela `cliente` e relacionadas. Para as
 //! regras de negócio da aplicação, veja [`bo::clientes`][`crate::bo::clientes`].
@@ -28,7 +28,7 @@ use crate::model::schema::{cliente, endereco};
 use diesel::prelude::*;
 
 /// Lista uma quantidade limitada de clientes cadastrados no sistema.
-/// 
+///
 /// Retorna um Vec com estruturas que representam os dados de um cliente,
 /// incluindo os endereços cadastrados para o mesmo. A quantidade de clientes
 /// retornados não será superior à informada no argumento `limite`.
@@ -47,7 +47,7 @@ pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
 }
 
 /// Retorna os dados de um cliente cadastrado no sistema.
-/// 
+///
 /// Será retornado um `Option` que poderá conter uma estrutura que representa
 /// os dados de um único cliente, incluindo os endereços cadastrados para o
 /// mesmo. O cliente será procurado de acordo com o seu id repassado no
@@ -68,7 +68,7 @@ pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
 }
 
 /// Registra um novo cliente no banco de dados.
-/// 
+///
 /// Esta função toma os dados do cliente recebidos através de uma requisição
 /// POST, e cadastra-os no banco de dados. Os dados recebidos não são avaliados
 /// quanto à sua validade, sendo inseridos diretamente no banco de dados.
@@ -91,7 +91,7 @@ pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
 }
 
 /// Deleta um cliente em específico no banco de dados.
-/// 
+///
 /// O cliente a ser deletado deverá ser informado através de uma estrutura
 /// completa de representação do mesmo, posto que sua remoção também envolverá
 /// remoção de todos os endereços associados ao mesmo. A função assume que os
@@ -105,7 +105,7 @@ pub fn deleta_cliente(conexao: &PgConnection, cl: ClienteRepr) {
 }
 
 /// Deleta todos os clientes do banco de dados.
-/// 
+///
 /// Esta função varre todos os dados de clientes e endereços do banco de dados,
 /// retornando uma tuple contendo, respectivamente, as quantidades de registros
 /// de usuários e de endereços deletados neste processo.
@@ -135,7 +135,7 @@ pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
 }
 
 /// Registra os dados de endereços para um cliente em específico.
-/// 
+///
 /// Esta função assume que os dados de endereços recebidos estejam corretos,
 /// e também assume que o cliente, cujo id tenha sido informado via parâmetro,
 /// já tenha sido inserido no banco de dados.
@@ -162,7 +162,7 @@ fn registra_enderecos_cliente(
 }
 
 /// Recupera uma coleção de endereços para um cliente em específico.
-/// 
+///
 /// Esta função procurará pelos endereços que apontem para o cliente cujo id
 /// foi informado via parâmetro.
 fn carrega_enderecos_cliente(conexao: &PgConnection, userid: i32) -> Vec<Endereco> {
@@ -174,7 +174,7 @@ fn carrega_enderecos_cliente(conexao: &PgConnection, userid: i32) -> Vec<Enderec
 }
 
 /// Deleta todos os endereços referenciados.
-/// 
+///
 /// Esta função requisita os dados completos de endereço de um cliente, que
 /// deverão ser repassados integralmente.
 fn deleta_enderecos(conexao: &PgConnection, enderecos: Vec<Endereco>) {

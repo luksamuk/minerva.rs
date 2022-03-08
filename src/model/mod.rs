@@ -22,7 +22,6 @@
 //!
 //! [Diesel]: https://diesel.rs
 
-#[allow(missing_docs)] pub mod schema;
 pub mod cliente;
 pub mod endereco;
 pub mod enum_error;
@@ -30,4 +29,6 @@ pub mod estoque;
 pub mod logdb;
 pub mod login;
 pub mod produto;
+#[allow(missing_docs)]
+pub mod schema;
 pub mod usuario;

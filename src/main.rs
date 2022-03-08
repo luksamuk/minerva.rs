@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
-use minerva::*;
 use dotenv::dotenv;
+use minerva::*;
 
 #[launch]
 fn launch() -> _ {

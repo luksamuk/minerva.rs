@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Estruturas relacionadas à conexão com o serviço Redis.
-//! 
+//!
 //! As estruturas aqui descritas dizem respeito à conexão com o serviço Redis,
 //! bem como o pool de conexões para tal serviço.
 
