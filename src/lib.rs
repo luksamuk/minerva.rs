@@ -39,10 +39,8 @@ extern crate diesel_enum;
 extern crate num_traits;
 extern crate r2d2_redis;
 
-pub mod auth;
 pub mod bo;
 pub mod controller;
-pub mod db;
 pub mod model;
 pub mod routes;
 

@@ -1,4 +1,4 @@
-// auth/mod.rs -- Uma parte de Minerva.rs
+// bo/auth/mod.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify
@@ -95,8 +95,8 @@
 
 pub mod jwt;
 
-use crate::db::redis::RedisConnection;
-use crate::db::RedisPool;
+use super::redis::RedisConnection;
+use super::redis::RedisPool;
 use r2d2_redis::redis::Commands;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};

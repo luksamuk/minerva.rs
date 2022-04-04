@@ -17,10 +17,10 @@
 //! Rotas para requisições envolvendo dados de clientes.
 
 use super::respostas::Resposta;
-use crate::auth::AuthKey;
 use crate::bo;
+use crate::bo::auth::AuthKey;
+use crate::bo::db::ConexaoPool;
 use crate::controller::clientes;
-use crate::db::ConexaoPool;
 use crate::model::cliente::ClienteRecv;
 use rocket::serde::json::Json;
 use rocket::Route;

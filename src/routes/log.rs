@@ -17,9 +17,9 @@
 //! Rotas para requisições envolvendo dados de log do sistema.
 
 use super::respostas::Resposta;
-use crate::auth::AuthKey;
+use crate::bo::auth::AuthKey;
 use crate::controller::log;
-use crate::db::ConexaoPool;
+use crate::bo::db::ConexaoPool;
 use rocket::{Route, State};
 
 /// Constrói as subrotas da rota `/log`.

@@ -1,4 +1,4 @@
-// db/postgres.rs -- Uma parte de Minerva.rs
+// bo/db.rs -- Uma parte de Minerva.rs
 // Copyright (C) 2021 Lucas S. Vieira
 //
 // This program is free software: you can redistribute it and/or modify

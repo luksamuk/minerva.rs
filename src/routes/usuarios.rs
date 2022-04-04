@@ -20,9 +20,9 @@
 //! visualização de dados de usuários do sistema.
 
 use super::respostas::Resposta;
-use crate::auth::AuthKey;
+use crate::bo::auth::AuthKey;
 use crate::controller::usuarios;
-use crate::db::ConexaoPool;
+use crate::bo::db::ConexaoPool;
 use crate::model::usuario::UsuarioRecv;
 use rocket::serde::json::Json;
 use rocket::{Route, State};

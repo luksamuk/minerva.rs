@@ -25,10 +25,10 @@ fn launch() -> _ {
     dotenv().ok();
     dotenv::from_filename(".env.local").ok();
 
-    let pool = db::cria_pool_conexoes();
-    db::garante_usuario_inicial(&pool);
+    let pool = bo::db::cria_pool_conexoes();
+    bo::db::garante_usuario_inicial(&pool);
 
-    let redis_pool = db::cria_pool_redis();
+    let redis_pool = bo::redis::cria_pool_redis();
 
     //let twilio = bo::twilio::cria_conexao_twilio();
 

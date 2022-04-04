@@ -21,9 +21,9 @@
 //! este propósito e os processos de autenticação do sistema.
 
 use super::usuarios;
-use crate::auth::jwt;
 use crate::bo;
-use crate::db::redis::RedisConnection;
+use crate::bo::auth::jwt;
+use crate::bo::redis::RedisConnection;
 use crate::model::login::{LoginData, LoginResponse};
 use crate::routes::respostas::Resposta;
 use diesel::PgConnection;
