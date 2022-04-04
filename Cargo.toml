@@ -36,7 +36,7 @@ redis = "0.21.1"
 r2d2 = "*"
 r2d2_redis = "*"
 jsonwebtoken = "7.2.0"
-regex = "1.5.4"
+regex = "1.5.5"
 anyhow = ">= 1.0"
 # twilio-async = "0.5.0"
 # tokio = { version = "1", features = ["rt"] }

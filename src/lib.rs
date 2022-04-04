@@ -19,7 +19,7 @@
 #![warn(missing_docs)]
 
 //! # Lista rápida de afazeres
-//! - [ ] Documentar crate
+//! - [x] Documentar crate
 //! - [ ] Implementar _logout_
 //! - [ ] Mudar `AuthKey` para `AuthInfo` com payload da sessão
 
