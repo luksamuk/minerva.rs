@@ -16,12 +16,17 @@
 
 //! Este módulo contém ferramentas relacionadas ao envio e recebimento de
 //! mensagens através de WhatsApp.
+//!
+//! # ATENÇÃO
+//! Como o uso de WhatsApp para encaminhamento automático de mensagens
+//! requer pagamento de encargos e também _compliance_ com a política
+//! de envios do Facebook, este módulo permanecerá inativo por enquanto.
 
 use anyhow::Result;
+use core::time::Duration;
 use s3::{bucket::Bucket, creds::Credentials};
 use std::env;
 use twilio_async::{Twilio, TwilioRequest};
-use core::time::Duration;
 
 /// Cria uma conexão com o serviço Twilio.
 ///
@@ -161,13 +166,17 @@ pub fn envia_arquivo_whatsapp_sandbox(mensagem: String, nome_arquivo: &'static s
             bucket_name, region_name, nome_arquivo,
         );
 
+        // Envia mensagem com mídia
         let _ = Twilio::new(sid, token)
             .unwrap()
             .send_msg(
+                // Remetente
                 &("whatsapp:".to_owned() + &sandbox_number),
+                // Destinatário
                 &("whatsapp:".to_owned() + &client_number),
                 &mensagem,
             )
+            // Link para a mídia a ser anexada.
             .media(&media_link)
             .run()
             .await;

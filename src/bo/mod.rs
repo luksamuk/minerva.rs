@@ -19,4 +19,4 @@
 
 pub mod clientes;
 pub mod usuarios;
-pub mod whatsapp;
+//pub mod whatsapp;
