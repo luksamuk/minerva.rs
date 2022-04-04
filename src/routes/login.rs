@@ -23,9 +23,10 @@ use crate::bo::redis::RedisPool;
 use crate::model::login::LoginData;
 use rocket::serde::json::Json;
 use rocket::{Route, State};
+//use twilio_async::Twilio;
 
 /// Constrói as subrotas da rota `/login`.
-/// 
+///
 /// As rotas construídas estão listadas a seguir:
 /// - `POST /`.
 pub fn constroi_rotas() -> Vec<Route> {
@@ -36,6 +37,7 @@ pub fn constroi_rotas() -> Vec<Route> {
 fn realiza_login(
     pool: &State<ConexaoPool>,
     redispool: &State<RedisPool>,
+    // twilio: &State<Option<Twilio>>,
     dados: Json<LoginData>,
 ) -> Resposta {
     let conexao = pool.get().unwrap();

@@ -22,6 +22,8 @@
 //! Para exemplos, veja a implementação de
 //! [`DBOperacao`][`super::logdb::DBOperacao`].
 
+#![allow(dead_code)]
+
 /// Representa um erro durante a decodificação de um `Enum`.
 #[derive(Debug)]
 pub struct EnumError {

@@ -19,7 +19,7 @@
 #![warn(missing_docs)]
 
 //! # Lista rápida de afazeres
-//! - [ ] Documentar crate
+//! - [x] Documentar crate
 //! - [ ] Implementar _logout_
 //! - [ ] Mudar `AuthKey` para `AuthInfo` com payload da sessão
 
@@ -39,9 +39,10 @@ extern crate diesel_enum;
 extern crate num_traits;
 extern crate r2d2_redis;
 
+pub mod bo;
 pub mod controller;
 pub mod model;
 pub mod routes;
-pub mod bo;
 
-#[allow(missing_docs)] pub mod inpututils;
+#[allow(missing_docs)]
+pub mod inpututils;

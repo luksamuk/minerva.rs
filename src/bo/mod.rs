@@ -22,3 +22,4 @@ pub mod auth;
 pub mod redis;
 pub mod clientes;
 pub mod usuarios;
+//pub mod whatsapp;

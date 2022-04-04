@@ -23,7 +23,7 @@ use crate::bo::db::ConexaoPool;
 use rocket::{Route, State};
 
 /// Constrói as subrotas da rota `/log`.
-/// 
+///
 /// As rotas construídas estão listadas a seguir:
 /// - `GET /` (requer autenticação);
 /// - `GET /txt` (texto plano -- requer autenticação).

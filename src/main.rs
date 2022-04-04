@@ -14,20 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
+use dotenv::dotenv;
 use minerva::*;
 
 #[launch]
 fn launch() -> _ {
+    dotenv().ok();
+    dotenv::from_filename(".env.local").ok();
+
     let pool = bo::db::cria_pool_conexoes();
     bo::db::garante_usuario_inicial(&pool);
 
     let redis_pool = bo::redis::cria_pool_redis();
 
+    //let twilio = bo::twilio::cria_conexao_twilio();
+
     rocket::build()
         .manage(pool)
         .manage(redis_pool)
+        //.manage(twilio.ok())
         .mount("/", routes![routes::index])
         .mount("/login", routes::login::constroi_rotas())
         .mount("/clientes", routes::clientes::constroi_rotas())

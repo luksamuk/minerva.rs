@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Módulo para descrição das rotas HTTP da aplicação.
-//! 
+//!
 //! Este módulo contém as rotas HTTP para requisições envolvendo todos os
 //! recursos da aplicação que possam ser manipulados por algum usuário.
 
@@ -33,14 +33,14 @@ use respostas::Resposta;
 use rocket::State;
 
 /// Rota padrão com lista de rotas da aplicação.
-/// 
+///
 /// Esta é a "chaleira", a rota que pode ser continuamente reaquecida pelo
 /// usuário quando o mesmo realizar uma requisição na raiz da aplicação.
-/// 
+///
 /// Este rota foi criada como uma pequena piada e um utilitário para mostrar
 /// uma tabela com todas as rotas da aplicação, em formato de texto-plano, de
 /// forma que possa ser consultada via browser.
-/// 
+///
 /// Esta rota sempre retornará um código de erro 418 ("I'm a Teapot"), bem como
 /// a tabela de rotas em texto plano.
 #[get("/")]
@@ -107,7 +107,7 @@ pub fn index(redis_pool: &State<RedisPool>) -> Resposta {
 
     Resposta::Chaleira(format!(
         "Lista de rotas\n{}\
-                 \nNúmero de reaquecimentos da chaleira: {}",
+         \nNúmero de reaquecimentos da chaleira: {}",
         table, n_acessos
     ))
 }

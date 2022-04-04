@@ -17,17 +17,18 @@
 //! Rotas para requisições envolvendo dados de clientes.
 
 use super::respostas::Resposta;
-use crate::bo::auth::AuthKey;
-use crate::controller::clientes;
-use crate::bo::db::ConexaoPool;
-use crate::model::cliente::ClienteRecv;
 use crate::bo;
+use crate::bo::auth::AuthKey;
+use crate::bo::db::ConexaoPool;
+use crate::controller::clientes;
+use crate::model::cliente::ClienteRecv;
 use rocket::serde::json::Json;
 use rocket::Route;
 use rocket::State;
+use serde_json::json;
 
 /// Constrói as subrotas da rota `/clientes`.
-/// 
+///
 /// As rotas construídas estão listadas a seguir:
 /// - `GET /` (requer autenticação);
 /// - `GET /<id>` (requer autenticação);
@@ -49,7 +50,12 @@ fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
 fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
-        None => Resposta::NaoEncontrado("{ \"mensagem\": \"Cliente não encontrado\" }".to_string()),
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Cliente não encontrado"
+            })
+            .to_string(),
+        ),
         Some(c) => Resposta::Ok(serde_json::to_string(&c).unwrap()),
     }
 }
@@ -61,7 +67,7 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>, _auth: AuthKey<
         Resposta::ErroSemantico(s)
     } else {
         let id = clientes::registra_cliente(&conexao, dados.clone());
-        Resposta::Ok(format!("{{ \"id\": {} }}", id))
+        Resposta::Ok(json!({ "id": id }).to_string())
     }
 }
 
@@ -69,11 +75,16 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>, _auth: AuthKey<
 fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
-        None => Resposta::NaoEncontrado("{ \"mensagem\": \"Cliente não encontrado\" }".to_string()),
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Cliente não encontrado"
+            })
+            .to_string(),
+        ),
         Some(c) => {
             let id = c.id;
             clientes::deleta_cliente(&conexao, c);
-            Resposta::Ok(format!("{{ \"id\": {} }}", id))
+            Resposta::Ok(json!({ "id": id }).to_string())
         }
     }
 }
@@ -82,8 +93,11 @@ fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta
 fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let (num_end, num_cl) = clientes::deleta_todos(&conexao);
-    Resposta::Ok(format!(
-        "{{ \"clientes\": {}, \"enderecos\": {} }}",
-        num_cl, num_end
-    ))
+    Resposta::Ok(
+        json!({
+        "clientes": num_cl,
+        "enderecos": num_end
+        })
+        .to_string(),
+    )
 }

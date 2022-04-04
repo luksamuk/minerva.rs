@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Rotas para requisições envolvendo manipulação de usuários do sistema.
-//! 
+//!
 //! As rotas de usuários não envolvem [login][`super::login`], apenas cadastro e
 //! visualização de dados de usuários do sistema.
 
@@ -26,9 +26,10 @@ use crate::bo::db::ConexaoPool;
 use crate::model::usuario::UsuarioRecv;
 use rocket::serde::json::Json;
 use rocket::{Route, State};
+use serde_json::json;
 
 /// Constrói as subrotas da rota `/estoque`.
-/// 
+///
 /// As rotas construídas estão listadas a seguir:
 /// - `GET /` (requer autenticação);
 /// - `POST /` (requer autenticação);
@@ -58,9 +59,12 @@ fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
 fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
-        None => {
-            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Usuário não encontrado\" }"))
-        }
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Usuário não encontrado"
+            })
+            .to_string(),
+        ),
         Some(u) => Resposta::Ok(serde_json::to_string(&u).unwrap()),
     }
 }
@@ -69,9 +73,12 @@ fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) ->
 fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
-        None => {
-            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Usuário não encontrado\" }"))
-        }
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Usuário não encontrado"
+            })
+            .to_string(),
+        ),
         Some(u) => Resposta::Ok(serde_json::to_string(&u).unwrap()),
     }
 }
@@ -81,16 +88,22 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>, _auth: AuthKey<
     let conexao = pool.get().unwrap();
 
     if usuarios::encontra_usuario(&conexao, dados.login).is_some() {
-        return Resposta::ErroSemantico(format!(
-            "{{ \"mensagem\": \"O nome de usuário \\\"{}\\\" já existe\" }}",
-            dados.login
-        ));
+        return Resposta::ErroSemantico(
+            json!({ "mensagem": format!("O nome de usuário \"{}\" já existe", dados.login) })
+                .to_string(),
+        );
     }
 
     let result = usuarios::registra_usuario(&conexao, &dados);
     match result {
-        Ok((id, login)) => Resposta::Ok(format!("{{ \"id\": {}, \"login\": \"{}\" }}", id, login)),
-        Err(msg) => Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", msg)),
+        Ok((id, login)) => Resposta::Ok(
+            json!({
+                "id": id,
+                "login": login
+            })
+            .to_string(),
+        ),
+        Err(msg) => Resposta::ErroSemantico(json!({ "mensagem": msg }).to_string()),
     }
 }
 
@@ -98,15 +111,21 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>, _auth: AuthKey<
 fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
-        None => {
-            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Usuário não encontrado\" }"))
-        }
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Usuário não encontrado"
+            })
+            .to_string(),
+        ),
         Some(u) => {
             usuarios::deleta_usuario_por_id(&conexao, usr_id);
-            Resposta::Ok(format!(
-                "{{ \"id\": {}, \"login\": \"{}\" }}",
-                usr_id, u.login
-            ))
+            Resposta::Ok(
+                json!({
+                "id": usr_id,
+                "login": u.login
+                })
+                .to_string(),
+            )
         }
     }
 }
@@ -115,15 +134,21 @@ fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> 
 fn deleta_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
-        None => {
-            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Usuário não encontrado\" }"))
-        }
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Usuário não encontrado"
+            })
+            .to_string(),
+        ),
         Some(u) => {
             usuarios::deleta_usuario_por_id(&conexao, u.id);
-            Resposta::Ok(format!(
-                "{{ \"id\": {}, \"login\": \"{}\" }}",
-                u.id, u.login
-            ))
+            Resposta::Ok(
+                json!({
+                "id": u.id,
+                "login": u.login
+                })
+                .to_string(),
+            )
         }
     }
 }

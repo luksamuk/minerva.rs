@@ -17,13 +17,13 @@
 //! Este módulo contém ferramentas para reforçar regras de negócio relacionadas
 //! a validação de transações envolvendo dados de clientes.
 
-use regex::Regex;
 use crate::model::cliente::ClienteRecv;
+use regex::Regex;
+use serde_json::json;
 
 const ESTADOS: [&str; 27] = [
-    "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS",
-    "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC",
-    "SE", "SP", "TO"
+    "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE",
+    "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",
 ];
 
 /// Expressão regular representando um CPF no formato 999.999.999-99.
@@ -32,8 +32,7 @@ const CPF_REGEX: &str = r"^(\d)(\d)(\d).(\d)(\d)(\d).(\d)(\d)(\d)-(\d)(\d)$";
 
 /// Expressão regular representando um CNPJ no formato 99.999.999/9999-99.
 /// Os dígitos foram discriminados separadamente para facilitar na captura.
-const CNPJ_REGEX: &str =
-    r"^(\d)(\d).(\d)(\d)(\d).(\d)(\d)(\d)/(\d)(\d)(\d)(\d)-(\d)(\d)$";
+const CNPJ_REGEX: &str = r"^(\d)(\d).(\d)(\d)(\d).(\d)(\d)(\d)/(\d)(\d)(\d)(\d)-(\d)(\d)$";
 
 /// Informa se um CNPJ é válido. O CNPJ deve ser repassado como um string slice,
 /// sem espaços extras, e com formato adequado.
@@ -54,15 +53,15 @@ pub fn valida_cnpj(cnpj: &str) -> bool {
     };
 
     let primeiro_digito = calcula_digito_cnpj(vec![
-        captures[1].parse::<i32>().unwrap()  * 5,
-        captures[2].parse::<i32>().unwrap()  * 4,
-        captures[3].parse::<i32>().unwrap()  * 3,
-        captures[4].parse::<i32>().unwrap()  * 2,
-        captures[5].parse::<i32>().unwrap()  * 9,
-        captures[6].parse::<i32>().unwrap()  * 8,
-        captures[7].parse::<i32>().unwrap()  * 7,
-        captures[8].parse::<i32>().unwrap()  * 6,
-        captures[9].parse::<i32>().unwrap()  * 5,
+        captures[1].parse::<i32>().unwrap() * 5,
+        captures[2].parse::<i32>().unwrap() * 4,
+        captures[3].parse::<i32>().unwrap() * 3,
+        captures[4].parse::<i32>().unwrap() * 2,
+        captures[5].parse::<i32>().unwrap() * 9,
+        captures[6].parse::<i32>().unwrap() * 8,
+        captures[7].parse::<i32>().unwrap() * 7,
+        captures[8].parse::<i32>().unwrap() * 6,
+        captures[9].parse::<i32>().unwrap() * 5,
         captures[10].parse::<i32>().unwrap() * 4,
         captures[11].parse::<i32>().unwrap() * 3,
         captures[12].parse::<i32>().unwrap() * 2,
@@ -73,15 +72,15 @@ pub fn valida_cnpj(cnpj: &str) -> bool {
     }
 
     let segundo_digito = calcula_digito_cnpj(vec![
-        captures[1].parse::<i32>().unwrap()  * 6,
-        captures[2].parse::<i32>().unwrap()  * 5,
-        captures[3].parse::<i32>().unwrap()  * 4,
-        captures[4].parse::<i32>().unwrap()  * 3,
-        captures[5].parse::<i32>().unwrap()  * 2,
-        captures[6].parse::<i32>().unwrap()  * 9,
-        captures[7].parse::<i32>().unwrap()  * 8,
-        captures[8].parse::<i32>().unwrap()  * 7,
-        captures[9].parse::<i32>().unwrap()  * 6,
+        captures[1].parse::<i32>().unwrap() * 6,
+        captures[2].parse::<i32>().unwrap() * 5,
+        captures[3].parse::<i32>().unwrap() * 4,
+        captures[4].parse::<i32>().unwrap() * 3,
+        captures[5].parse::<i32>().unwrap() * 2,
+        captures[6].parse::<i32>().unwrap() * 9,
+        captures[7].parse::<i32>().unwrap() * 8,
+        captures[8].parse::<i32>().unwrap() * 7,
+        captures[9].parse::<i32>().unwrap() * 6,
         captures[10].parse::<i32>().unwrap() * 5,
         captures[11].parse::<i32>().unwrap() * 4,
         captures[12].parse::<i32>().unwrap() * 3,
@@ -142,7 +141,7 @@ pub fn valida_cpf(cpf: &str) -> bool {
             0
         } else {
             digito
-        }     
+        }
     };
 
     let primeiro_digito = calcula_digito_cpf(vec![
@@ -214,27 +213,30 @@ fn validacao_de_cpf() {
 }
 
 /// Realiza validação dos dados recebidos para cadastro de um cliente.
-/// 
+///
 /// As validações compreendem os dados de CPF ou CNPJ e a existência da Unidade
 /// Federativa informada.
 pub fn valida_dados(dados: &ClienteRecv) -> Result<(), String> {
     // Validação de CPF e CNPJ
     if (!dados.pj) && (!valida_cpf(&dados.docto)) {
-            return Err(String::from(
-                "{ \"mensagem\": \"CPF inválido\" }"
-            ));
+        return Err(json!({
+            "mensagem": "CPF inválido"
+        })
+        .to_string());
     } else if dados.pj && (!valida_cnpj(&dados.docto)) {
-            return Err(String::from(
-                "{ \"mensagem\": \"CNPJ inválido\" }"
-            ));
+        return Err(json!({
+            "mensagem": "CNPJ inválido"
+        })
+        .to_string());
     }
 
     for e in &dados.enderecos {
         // Validação de unidades federativas conhecidas
         if !ESTADOS.contains(&e.uf.as_str()) {
-            return Err(format!(
-                "{{ \"mensagem\": \"UF desconhecido: {}\" }}", e.uf
-            ))
+            return Err(json!({
+            "mensagem": format!("UF desconhecido: {}", e.uf),
+            })
+            .to_string());
         }
     }
 

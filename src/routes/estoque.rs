@@ -25,16 +25,17 @@ use crate::model::estoque::{Estoque, MovEstoqueRecv};
 use rocket::serde::json::Json;
 use rocket::Route;
 use rocket::State;
+use serde_json::json;
 
 /// Constrói as subrotas da rota `/estoque`.
-/// 
+///
 /// As rotas construídas estão listadas a seguir:
-/// 
+///
 /// ## Rotas de posição de estoque
 /// - `GET /` (requer autenticação);
 /// - `GET /<id>` (requer autenticação);
 /// - `POST /` (requer autenticação);
-/// 
+///
 /// ## Rotas de movimentação de estoque
 /// - `GET /mov` (requer autenticação);
 /// - `POST /mov` (requer autenticação);
@@ -62,9 +63,12 @@ pub fn constroi_rotas() -> Vec<Route> {
 fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match estoque::mostra_estoque(&conexao, prod_id) {
-        None => {
-            Resposta::NaoEncontrado(String::from("{ \"mensagem\": \"Produto não encontrado\" }"))
-        }
+        None => Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Produto não encontrado"
+            })
+            .to_string(),
+        ),
         Some(e) => Resposta::Ok(serde_json::to_string(&e).unwrap()),
     }
 }

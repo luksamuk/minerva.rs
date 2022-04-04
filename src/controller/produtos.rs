@@ -16,7 +16,7 @@
 
 //! Ferramentas para tráfego de dados entre as rotas de produtos e o banco de
 //! dados.
-//! 
+//!
 //! As ferramentas deste módulo realizam o tráfego entre os dados recebidos
 //! através das rotas para gerenciamento de produto e a tabela `produto` do
 //! banco de dados e relacionadas.
@@ -28,7 +28,7 @@ use crate::model::schema::produto::dsl::*;
 use diesel::prelude::*;
 
 /// Lista uma quantidade limitada de produtos cadastrados no sistema.
-/// 
+///
 /// Retorna um Vec com estruturas que representam os dados de um produto. A
 /// quantidade de produtos retornada não deverá exceder a informada no
 /// parâmetro `limite`.
@@ -40,7 +40,7 @@ pub fn lista_produtos(conexao: &PgConnection, limite: i64) -> Vec<Produto> {
 }
 
 /// Mostra os dados de um único produto, caso existente.
-/// 
+///
 /// Retorna um Option que poderá conter os dados de um produto. Caso o produto
 /// com o id informado exista, uma estrutura que representa seus dados será
 /// retornada.
@@ -53,7 +53,7 @@ pub fn get_produto(conexao: &PgConnection, prod_id: i32) -> Option<Produto> {
 }
 
 /// Deleta um produto em específico do banco de dados.
-/// 
+///
 /// O produto a ser deletado deverá ter seu id informado através do parâmetro
 /// `prodid`. Esta função assume que o produto de id informada exista no banco
 /// de dados.
@@ -71,7 +71,7 @@ pub fn deleta_produto(conexao: &PgConnection, prodid: i32) {
 }
 
 /// Deleta todos os produtos cadastrados no banco de dados.
-/// 
+///
 /// Será retornada a quantidade de registros removidos no processo. Utilize
 /// esta função com cuidado.
 pub fn deleta_todos(conexao: &PgConnection) -> usize {
@@ -89,7 +89,7 @@ pub fn deleta_todos(conexao: &PgConnection) -> usize {
 }
 
 /// Registra um novo produto no banco de dados.
-/// 
+///
 /// Esta função assume que os dados de registro de novo produto sejam válidos.
 /// Caso o produto seja cadastrado, será retornado seu id no banco de dados.
 /// Caso contrário, será retornada uma mensagem de erro em String.
@@ -115,7 +115,7 @@ pub fn registra_produto(conexao: &PgConnection, mut dados: NovoProduto) -> Resul
             } else {
                 Err(String::from(
                     "Erro interno ao cadastrar produto. \
-                                  Contate o suporte para mais informações.",
+                     Contate o suporte para mais informações.",
                 ))
             }
         }

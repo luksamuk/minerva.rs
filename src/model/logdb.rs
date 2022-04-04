@@ -16,7 +16,7 @@
 
 //! Utilitários de modelagem de entradas de log para banco de dados e regras de
 //! negócio.
-//! 
+//!
 //! Este módulo define estruturas para criação e recuperação de logs no sistema.
 //! Os logs serão sempre armazenados na tabela `logdb`.
 
@@ -31,7 +31,7 @@ use serde_repr::Serialize_repr;
 
 /// Representa um tipo de operação de modificação de estado nas tabelas do banco
 /// de dados.
-/// 
+///
 /// Este tipo de operação deverá ser armazenado para descrever a natureza da
 /// operação realizada na tabela a ela relacionada.
 #[derive(
@@ -61,7 +61,7 @@ pub enum DBOperacao {
 }
 
 /// Representa um único registro de log para uma operação no banco de dados.
-/// 
+///
 /// O registro armazena dados relacionados a uma única operação de natureza
 /// específica, realizada por um usuário específico e em uma tabela específica
 /// do banco de dados.

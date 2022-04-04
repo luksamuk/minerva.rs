@@ -23,7 +23,7 @@ use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
 /// Número padrão de segundos de validade de uma sessão usanod JSON Web Token.
-/// 
+///
 /// O sistema determina um tempo de expiração para JSON Web Tokens, de forma
 /// independente da validade dos mesmos. Este tempo de expiração de sessão é
 /// redefinido a cada requisição autorizada.

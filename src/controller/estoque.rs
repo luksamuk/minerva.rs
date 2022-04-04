@@ -16,7 +16,7 @@
 
 //! Ferramentas para tráfego de dados entre as rotas de estoque/movimentação de
 //! estoque e o banco de dados.
-//! 
+//!
 //! As ferramentas deste módulo realizam o tráfego de dados entre as respectivas
 //! rotas de posição e movimentação de estoque e as tabelas relacionadas a estas
 //! operações.
@@ -26,14 +26,15 @@ use crate::model::estoque::*;
 use crate::routes::respostas::Resposta;
 use comfy_table::Table;
 use diesel::prelude::*;
+use serde_json::json;
 
 /// Realiza início de estoque.
-/// 
+///
 /// Esta função realiza um início de estoque, caso já não tenha sido feito. A
 /// função realizará verificações para avaliar se o produto está cadastrado no
 /// sistema, se o estoque já não foi iniciado, e se os dados iniciais recebidos
 /// são válidos.
-/// 
+///
 /// Caso o produto não exista, será retornado um erro 404. Do contrário, caso a
 /// posição inicial de estoque possua um erro em sua validação, será retornado
 /// um erro 412, dada a invalidade semântica dos dados.
@@ -44,31 +45,45 @@ pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
 
     // 1. Verifica se o produto existe.
     if produtos::get_produto(conexao, recv.produto_id).is_none() {
-        return Resposta::NaoEncontrado(String::from(
-            "{ \"mensagem\": \"Produto não encontrado\" }",
-        ));
+        return Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Produto não encontrado."
+            })
+            .to_string(),
+        );
     }
 
     // 2. Verifica se já não houve início de estoque.
     if get_estoque(conexao, recv.produto_id).is_some() {
-        return Resposta::ErroSemantico(format!(
-            "{{ \"mensagem\": \
-             \"Já foi realizado início de estoque para o produto {}\" }}",
-            recv.produto_id
-        ));
+        return Resposta::ErroSemantico(
+            json!({
+                "mensagem":
+                    format!(
+                        "Já foi realizado início de estoque para o produto {}.",
+                        recv.produto_id
+                    )
+            })
+            .to_string(),
+        );
     }
 
     // 3. Verifica se quantidade e preço unitário são válidos.
     if recv.precounitario.is_zero() || recv.precounitario.is_negative() {
-        return Resposta::ErroSemantico(String::from(
-            "{ \"mensagem\": \"O preço unitário deve ser maior que zero.\" }",
-        ));
+        return Resposta::ErroSemantico(
+            json!({
+                "mensagem": "O preço unitário deve ser maior que zero."
+            })
+            .to_string(),
+        );
     }
 
     if recv.quantidade.is_negative() {
-        return Resposta::ErroSemantico(String::from(
-            "{ \"mensagem\": \"A quantidade não pode ser negativa.\" }",
-        ));
+        return Resposta::ErroSemantico(
+            json!({
+                "mensagem": "A quantidade não pode ser negativa."
+            })
+            .to_string(),
+        );
     }
 
     // 4. Realiza início de estoque.
@@ -88,24 +103,33 @@ pub fn inicia_estoque(conexao: &PgConnection, recv: Estoque) -> Resposta {
         }
         Err(e) => {
             if let diesel::result::Error::DatabaseError(_, _) = &e {
-                Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e))
+                Resposta::ErroSemantico(
+                    json!({
+                        "mensagem": e.to_string()
+                    })
+                    .to_string(),
+                )
             } else {
-                Resposta::ErroSemantico(String::from(
-                    "Erro interno ao realizar início de estoque. \
-                     Contate o suporte para mais informações.",
-                ))
+                Resposta::ErroSemantico(
+                    json!({
+                        "mensagem":
+                        "Erro intero ao realizar início de estoque. \
+                         Contate o suporte para mais informações."
+                    })
+                    .to_string(),
+                )
             }
         }
     }
 }
 
 /// Realiza uma movimentação de estoque de um produto.
-/// 
+///
 /// Esta função realiza uma movimentação de estoque do referido produto. A
 /// função também efetua validações para garantir que o produto exista, e que
 /// sua posição de estoque também exista, do contrário, será retornado um erro
 /// 404.
-/// 
+///
 /// Além disso, a função verificará se o preço unitário foi informado como
 /// negativo ou zero, se o preço do frete, caso informado, tenha sido informado
 /// como negativo, e se a movimentação a ser registrada colocará o estoque como
@@ -117,36 +141,49 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
 
     // 1. Verifica se o produto existe.
     if produtos::get_produto(conexao, recv.produto_id).is_none() {
-        return Resposta::NaoEncontrado(String::from(
-            "{ \"mensagem\": \"Produto não encontrado\" }",
-        ));
+        return Resposta::NaoEncontrado(
+            json!({
+                "mensagem": "Produto não encontrado"
+            })
+            .to_string(),
+        );
     }
 
     // 2. Verifica se foi feito início de estoque.
     let estoque_atual = get_estoque(conexao, recv.produto_id);
     if estoque_atual.is_none() {
-        return Resposta::NaoEncontrado(format!(
-            "{{ \"mensagem\": \
-             \"Necessário efetuar início de estoque para o produto {}\" \
-             }}",
-            recv.produto_id
-        ));
+        return Resposta::NaoEncontrado(
+            json!({
+                "mensagem":
+                    format!(
+                        "Necessário efetuar início de estoque para o produto {}",
+                        recv.produto_id
+                    )
+            })
+            .to_string(),
+        );
     }
 
     // 3.1. Verifica se o preço unitário é negativo ou se foi zerado.
     if recv.preco_unitario.is_negative() || recv.preco_unitario.is_zero() {
-        return Resposta::ErroSemantico(String::from(
-            "{ \"mensagem\": \"Preço unitário deve ser maior que zero\" }",
-        ));
+        return Resposta::ErroSemantico(
+            json!({
+                "mensagem": "Preço unitário deve ser maior que zero"
+            })
+            .to_string(),
+        );
     }
 
     // 3.2. Verifica se o preço do frete, quando informado, é negativo.
     if recv.preco_frete.is_some() {
         let frete = recv.preco_frete.clone().unwrap();
         if frete.is_negative() {
-            return Resposta::ErroSemantico(String::from(
-                "{ \"mensagem\": \"Preço de frete não pode ser negativo\" }",
-            ));
+            return Resposta::ErroSemantico(
+                json!({
+                "mensagem": "Preço do frete não pode ser negativo"
+                })
+                .to_string(),
+            );
         }
     }
 
@@ -155,11 +192,17 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
     let estoque_atual = estoque_atual.unwrap();
     let nova_qtd_estoque = estoque_atual.quantidade.clone() + recv.quantidade.clone();
     if nova_qtd_estoque.is_negative() {
-        return Resposta::ErroSemantico(format!(
-            "{{ \"mensagem\": \"Movimentações de estoque não podem torná-lo \
-             negativo! Estoque atual: {}\" }}",
-            estoque_atual.quantidade
-        ));
+        return Resposta::ErroSemantico(
+            json!({
+                "mensagem":
+                    format!(
+                        "Movimentações de estoque não podem torná-lo \
+		 negativo! Estoque atual: {}",
+                        estoque_atual.quantidade
+                    )
+            })
+            .to_string(),
+        );
     }
 
     // 4.1. Cadastra o movimento.
@@ -182,12 +225,21 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
             }
             Err(e) => {
                 if let diesel::result::Error::DatabaseError(_, _) = &e {
-                    return Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e));
+                    return Resposta::ErroSemantico(
+                        json!({
+                        "mensagem": e.to_string()
+                        })
+                        .to_string(),
+                    );
                 } else {
-                    return Resposta::ErroSemantico(String::from(
-                        "Erro interno ao realizar movimentação de estoque. \
-                         Contate o suporte para mais informações.",
-                    ));
+                    return Resposta::ErroSemantico(
+                        json!({
+                        "mensagem":
+                                    "Erro interno ao realizar movimentação de estoque. \
+                                     Contate o suporte para mais informações."
+                        })
+                        .to_string(),
+                    );
                 }
             }
         }
@@ -234,19 +286,28 @@ pub fn movimenta_estoque(conexao: &PgConnection, recv: MovEstoqueRecv) -> Respos
             }
 
             if let diesel::result::Error::DatabaseError(_, _) = &e {
-                Resposta::ErroSemantico(format!("{{ \"mensagem\": \"{}\" }}", e))
+                Resposta::ErroSemantico(
+                    json!({
+                        "mensagem": e.to_string()
+                    })
+                    .to_string(),
+                )
             } else {
-                Resposta::ErroSemantico(String::from(
-                    "Erro interno ao atualizar estoque. \
-                     Contate o suporte para mais informações.",
-                ))
+                Resposta::ErroSemantico(
+                    json!({
+                        "mensagem":
+                                "Erro interno ao atualizar estoque. \
+                                 Contate o suporte para mais informações."
+                    })
+                    .to_string(),
+                )
             }
         }
     }
 }
 
 /// Retorna a posição de estoque de um produto.
-/// 
+///
 /// Esta função retorna um Option que poderá conter a posição de estoque de um
 /// produto com o id informado. Esta função verifica apenas se houve início de
 /// estoque do produto, mas não verifica se o produto existe.
@@ -274,7 +335,7 @@ fn transforma_estoque_retorno(conexao: &PgConnection, e: &Estoque) -> EstoqueRep
 }
 
 /// Lista uma quantidade limitada de posições de estoque com dados de produto.
-/// 
+///
 /// Retorna um Vec com estruturas que representam a união entre dados de um
 /// produto e de sua posição de estoque. A quantidade de estruturas retornadas
 /// não será superior a `limite`.
@@ -290,7 +351,7 @@ pub fn lista_estoque(conexao: &PgConnection, limite: i64) -> Vec<EstoqueRepr> {
 }
 
 /// Mostra a posição de estoque de um produto com seus respectivos dados.
-/// 
+///
 /// Retorna um Option que poderá conter os dados de posição de estoque de um
 /// produto, junto com seus dados de cadastro. Os dados só serão retornados se
 /// o sistema encontrar a posição de estoque do produto e seus dados
@@ -303,7 +364,7 @@ pub fn mostra_estoque(conexao: &PgConnection, prod_id: i32) -> Option<EstoqueRep
 
 /// Lista uma quantidade limitada de posições de estoque com dados de produto,
 /// em uma tabela escrita como texto-plano.
-/// 
+///
 /// O retorno será uma string em texto-plano, formatada para assemelhar-se a uma
 /// tabela. A tabela não terá mais linhas do que a quantidade descrita pelo
 /// parâmetro `limite`.
@@ -375,7 +436,7 @@ pub fn recupera_movimentos(conexao: &PgConnection, limite: i64) -> Vec<MovEstoqu
 /// Recupera movimentações de estoque a partir do banco de dados, em ordem
 /// decrescente de data, impressas em texto-plano formatado para parecer uma
 /// tabela.
-/// 
+///
 /// As movimentações recuperadas deverão obedecer a um filtro `is_entrada`, que
 /// determinará se serão retornadas como movimentações de entrada ou saída de
 /// produtos. A quantidade de movimentos retornada não será superior à
@@ -394,7 +455,7 @@ pub fn lista_movimentos_texto_filtrado(
 
 /// Recupera movimentações de estoque a partir do banco de dados, em ordem
 /// decrescente de data.
-/// 
+///
 /// As movimentações recuperadas deverão obedecer a um filtro `is_entrada`, que
 /// determinará se serão retornadas como movimentações de entrada ou saída de
 /// produtos. A quantidade de movimentos retornada não será superior à

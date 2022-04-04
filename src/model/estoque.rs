@@ -16,7 +16,7 @@
 
 //! Utilitários de modelagem de estoque e movimentações de estoque para banco de
 //! dados e regras de negócio.
-//! 
+//!
 //! Este módulo define estruturas para o tráfego de dados de posição e
 //! movimentação de estoque entre as partes respectivas do sistema.
 
@@ -99,10 +99,10 @@ pub struct NovoMovEstoque {
 
 /// Representa os dados de uma movimentação de estoque a serem recebidos como
 /// corpo de uma requisição.
-/// 
+///
 /// Uma movimentação de estoque a ser realizada deverá ser recebida com uma
 /// estrutura similar à seguir, em JSON:
-/// 
+///
 /// ```json
 /// {
 ///   "produto_id": 8,
@@ -112,16 +112,16 @@ pub struct NovoMovEstoque {
 ///   "preco_unitario": 1.70
 /// }
 /// ```
-/// 
+///
 /// Note que, por mais que esteja presente no exemplo, o preço do frete poderá
 /// ser omitido ou declarado com valor `null`.
-/// 
+///
 /// A data e a hora da movimentação de estoque são registradas no momento em que
 /// estes dados são tratados para a inserção no banco de dados, caso não haja
 /// regras de negócio que impeçam este processo. Por isso, a data e hora
 /// registradas serão aproximadamente as mesmas do momento em que a requisição
 /// de movimentação de estoque é recebida via web.
-/// 
+///
 /// Para mais informações, veja [`MovEstoque`].
 #[derive(Deserialize, Clone)]
 pub struct MovEstoqueRecv {
@@ -144,7 +144,7 @@ pub struct MovEstoqueRecv {
 
 /// Representa uma união entre os dados de um produto e os dados de estoque do
 /// produto referido.
-/// 
+///
 /// Para mais informações, ver [`Estoque`] e [`Produto`][`super::produto::Produto`].
 #[derive(Serialize, Clone)]
 pub struct EstoqueRepr {
@@ -169,7 +169,7 @@ impl From<MovEstoqueRecv> for NovoMovEstoque {
     /// Realiza uma conversão de dados de uma movimentação de estoque, recebidos
     /// via requisição web, para dados prontos para serem inseridos no banco de
     /// dados.
-    /// 
+    ///
     /// Caso nenhum preço de frete tenha sido informado, o valor será definido
     /// como zero. A data e hora do movimento serão atribuídas no momento desse
     /// processo de conversão.
