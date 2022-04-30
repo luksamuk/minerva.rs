@@ -21,8 +21,8 @@
 
 use super::respostas::Resposta;
 use crate::bo::auth::AuthKey;
-use crate::controller::usuarios;
 use crate::bo::db::ConexaoPool;
+use crate::controller::usuarios;
 use crate::model::usuario::UsuarioRecv;
 use rocket::serde::json::Json;
 use rocket::{Route, State};

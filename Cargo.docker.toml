@@ -7,6 +7,10 @@ readme = "README.org"
 version = "0.5.0"
 edition = "2018"
 
+# WARNING: This is used to prepare the Docker image for deployment!
+# When adding new dependencies, don't forget to add them here as well
+# to cache it on the Docker compilation process.
+
 [dependencies]
 diesel = { version = "1.4.4", features = ["postgres", "extras", "numeric", "chrono"] }
 bigdecimal = { version = "0.1.2", features = ["serde"] }
@@ -28,9 +32,7 @@ r2d2_redis = "*"
 jsonwebtoken = "7.2.0"
 regex = "1.5.5"
 anyhow = ">= 1.0"
-# twilio-async = "0.5.0"
-# tokio = { version = "1", features = ["rt"] }
-# rust-s3 = { version = "0.27.0", features = ["blocking"] }
+diesel_migrations = "1.4.0"
 
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.1"

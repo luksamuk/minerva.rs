@@ -17,9 +17,9 @@
 //! Rotas para requisições envolvendo login do usuário.
 
 use super::respostas::Resposta;
-use crate::controller::login;
 use crate::bo::db::ConexaoPool;
 use crate::bo::redis::RedisPool;
+use crate::controller::login;
 use crate::model::login::LoginData;
 use rocket::serde::json::Json;
 use rocket::{Route, State};

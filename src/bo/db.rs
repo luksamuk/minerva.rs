@@ -58,6 +58,7 @@ pub type ConexaoPool = Pool<ConnectionManager<PgConnection>>;
 /// ```
 /// A conexão será devolvida ao pool ao sair do escopo atual.
 pub fn cria_pool_conexoes() -> ConexaoPool {
+    println!("Criando pool de conexões...");
     let database_url =
         env::var("DATABASE_URL").expect("Necessário definir o URL do BD em DATABASE_URL");
 
@@ -66,6 +67,24 @@ pub fn cria_pool_conexoes() -> ConexaoPool {
     Pool::builder()
         .build(manager)
         .expect("Falha ao criar pool de conexões.")
+}
+
+/// Executa migrations que estiverem pendentes no banco de dados.
+/// Isso garante que a aplicação possa ser redistribuída em um único binário
+/// com as migrações contidas. Caso alguma migration falhe, a aplicação entrará
+/// em pânico.
+///
+/// As migrações só serão executadas em produção. Do contrário, use a ferramenta
+/// CLI do Diesel e execute as migrações com `diesel migration run`.
+#[allow(dead_code)]
+pub fn executa_migrations(pool: &ConexaoPool) {
+    if cfg!(debug_assertions) {
+        let _ = println!("Servidor em modo debug; ignorando migrations.");
+    } else {
+        let conexao = pool.get().unwrap();
+        let _ = println!("Executando migrations...");
+        diesel_migrations::run_pending_migrations(&conexao).unwrap();
+    }
 }
 
 /// Garante a existência de um usuário no banco de dados. Caso nenhum usuário
@@ -96,6 +115,7 @@ pub fn garante_usuario_inicial(pool: &ConexaoPool) {
 
     let conexao = pool.get().unwrap();
     if usuarios::lista_usuarios(&conexao, 1).is_empty() {
+        println!("Cadastrando usuário ADMIN...");
         let novo_admin = NovoUsuario::from(&UsuarioRecv {
             login: "admin",
             nome: "Admin",
