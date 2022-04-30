@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  # Serviço REST
+  webservice:
+    build: .
+    environment:
+      - DATABASE_URL=postgres://postgres:123456@postgresql/minervadb
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "8000:8000"
+    restart: on-failure:5
+
+  # Banco de dados - Porta padrão: 5432
+  postgresql:
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=minervadb
+    image: postgres:14
+
+  # Redis - Porta padrão: 6379
+  redis:
+    image: redis:6
+
+
