@@ -35,7 +35,6 @@ RUN groupadd $APP_USER \
 COPY --from=builder /minerva/target/release/minerva-server ${APP}/minerva
 COPY --from=builder /minerva/migrations ${APP}/migrations
 COPY --from=builder /minerva/Rocket.toml ${APP}/Rocket.toml
-COPY --from=builder /minerva/.env ${APP}/.env
 RUN chown -R $APP_USER:$APP_USER ${APP}
 
 # Execute program

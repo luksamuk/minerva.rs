@@ -23,7 +23,7 @@ estruturas e variáveis em Português, esteja desde já avisado(a).
 - Rust  (versão  2018,  canal stable,  preferencialmente  com  ~rustc~
   1.54.0);
 - Cargo (ferramenta do Rust para compilação);
-- PostgreSQL 11 (utilizável via Docker);
+- PostgreSQL 14 (utilizável via Docker);
 - Redis 6 (utilizável via Docker).
 
 As   dependências  de   bibliotecas  propriamente   ditas  podem   ser
@@ -48,14 +48,14 @@ gerenciamento do contêiner para o banco de dados.
 ** Criação do contêiner
 
 O  comando  a  seguir  cria  o contêiner  do  banco  de  dados  usando
-PostgreSQL 11, usando Docker.
+PostgreSQL 14, usando Docker.
 
 #+begin_src bash
 docker run --name minervadb \
        -e POSTGRES_USER=SYSDBA \
        -e POSTGRES_PASSWORD=masterkey \
        -p 5432:5432 \
-       -d postgres:11
+       -d postgres:14
 #+end_src
 
 O comando definirá o banco de dados da forma a seguir:
@@ -435,4 +435,53 @@ Os utilitários  podem ser  executados por um  comando como  ~cargo run
 
 - ~cria_cliente~: Cadastro de clientes interativo, via console.
 - ~cria_produto~: Cadastro de produtos interativo, via console.
+
+* Executando o projeto com Docker
+
+É possível  realizar a  compilação do  projeto usando Docker,  o que  isentará o
+usuário  de instalar  as  ferramentas de  desenvolvimento de  Rust  ou mesmo  de
+compilar  manualmente o  projeto. Para  tanto, o  arquivo ~Dockerfile~  incluído
+neste repositório fará o trabalho pesado.
+
+Caso você esteja no  Linux, os passos a seguir podem  ser executados através dos
+scripts ~build-image.sh~ e ~run-image.sh~, respectivamente.
+
+** Compilação
+
+Para compilar, use o comando:
+
+#+begin_src bash
+docker build -t minerva -f ./Dockerfile .
+#+end_src
+
+Isso  gerará uma  imagem de  nome  ~minerva~, com  a aplicação  pronta para  ser
+executada.
+
+** Execução
+
+A execução da aplicação pode ser feita também via Docker:
+
+#+begin_src bash
+docker run -p 8000:8000 minerva:latest
+#+end_src
+
+Isso ligará a porta ~8000~ da imagem à porta ~8000~ da máquina host.
+
+Todavia, este comando pode não ser interessante caso você queira que a aplicação
+conecte-se a outras  instâncias do Redis e do PostgreSQL  que estejam executando
+na máquina host.
+
+Neste caso, use um comando como o comando a seguir:
+
+#+begin_src bash
+docker run -p 8000:8000 \
+       -e DATABASE_URL=postgres://SYSDBA:masterkey@localhost/minervadb \
+       -e REDIS_URL=redis://localhost:6379 \
+       --net="host" \
+       minerva:latest
+#+end_src
+
+Isso  fará com  que o  ambiente  use as  mesmas variáveis  descritas no  arquivo
+~.env~, bem como considerará as portas da  máquina host para conexão com o Redis
+e o PostgreSQL.
 
