@@ -16,16 +16,23 @@
 
 #[macro_use]
 extern crate rocket;
+#[macro_use]
+extern crate diesel_migrations;
 
+use diesel_migrations::embed_migrations;
 use dotenv::dotenv;
 use minerva::*;
 
+embed_migrations!();
+
 #[launch]
 fn launch() -> _ {
+    println!("Iniciando Minerva REST Server...");
     dotenv().ok();
     dotenv::from_filename(".env.local").ok();
 
     let pool = bo::db::cria_pool_conexoes();
+    bo::db::executa_migrations(&pool);
     bo::db::garante_usuario_inicial(&pool);
 
     let redis_pool = bo::redis::cria_pool_redis();

@@ -19,8 +19,8 @@
 
 use super::respostas::Resposta;
 use crate::bo::auth::AuthKey;
-use crate::controller::estoque;
 use crate::bo::db::ConexaoPool;
+use crate::controller::estoque;
 use crate::model::estoque::{Estoque, MovEstoqueRecv};
 use rocket::serde::json::Json;
 use rocket::Route;

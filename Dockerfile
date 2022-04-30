@@ -6,12 +6,11 @@ WORKDIR ./minerva
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.docker.toml ./Cargo.toml
 RUN cargo build --release
-RUN rm -r src/
+RUN rm -r src/ && rm ./target/release/deps/Minerva*
 
 ADD . ./
 
-# Cleanup and build Minerva
-RUN rm ./target/release/deps/Minerva*
+# Build Minerva
 RUN cargo build --release
 
 # Copy built project and run actual binary
@@ -31,7 +30,7 @@ RUN groupadd $APP_USER \
     && useradd -g $APP_USER $APP_USER \
     && mkdir -p ${APP}
 
-# Copy built application
+# Copy built application and migrations
 COPY --from=builder /minerva/target/release/minerva-server ${APP}/minerva
 COPY --from=builder /minerva/migrations ${APP}/migrations
 COPY --from=builder /minerva/Rocket.toml ${APP}/Rocket.toml

@@ -18,8 +18,8 @@
 
 use super::respostas::Resposta;
 use crate::bo::auth::AuthKey;
-use crate::controller::log;
 use crate::bo::db::ConexaoPool;
+use crate::controller::log;
 use rocket::{Route, State};
 
 /// Constrói as subrotas da rota `/log`.

@@ -17,9 +17,9 @@
 //! Este módulo contém estruturas e ferramentas (_Business Objects_) para
 //! manutenção e validação de regras de negócio específicas para o sistema.
 
-pub mod db;
 pub mod auth;
-pub mod redis;
 pub mod clientes;
+pub mod db;
+pub mod redis;
 pub mod usuarios;
 //pub mod whatsapp;
