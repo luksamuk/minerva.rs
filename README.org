@@ -500,10 +500,29 @@ docker compose up
 #+end_src
 
 Este comando baixará as  imagens do PostgreSQL e do Redis,  e também compilará a
-imagem do webservice Minerva.
+imagem do webservice  Minerva, que estará disponível para acesso  na sua máquina
+sob a porta ~8000~.
 
 Caso você queira remover todos os traços dos contêineres do projeto, use:
 
 #+begin_src bash
 docker compose -v down
 #+end_src
+
+** Acesso ao banco de dados com PgAdmin4
+
+Caso  você queira  acessar e  gerenciar  o banco  de dados  via PgAdmin4,  basta
+executar o serviço via Docker Compose no profile de Debug:
+
+#+begin_src bash
+docker compose --profile debug up
+#+end_src
+
+É bem provável que o PgAdmin4  demore um pouco para inicializar, portanto, fique
+atento ao log do comando.
+
+Após tudo estar pronto, o PgAdmin4  poderá ser acessado em ~localhost:8484~. Use
+o e-mail ~admin@example.com~ e a senha  ~123456~. Para acessar o banco de dados,
+use também a senha ~123456~.
+
+
