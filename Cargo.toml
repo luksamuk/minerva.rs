@@ -5,7 +5,7 @@ authors = ["Lucas Vieira <lucasvieira@protonmail.com>"]
 license = "GPL-3.0-or-later"
 readme = "README.org"
 version = "0.5.0"
-edition = "2018"
+edition = "2021"
 default-run = "minerva-server"
 autobins = false
 
@@ -18,7 +18,7 @@ name = "minerva-server"
 path = "src/main.rs"
 
 [dependencies]
-diesel = { version = "1.4.4", features = ["postgres", "extras", "numeric", "chrono"] }
+diesel = { version = "1.4.8", features = ["postgres", "extras", "numeric", "chrono"] }
 bigdecimal = { version = "0.1.2", features = ["serde"] }
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
 dotenv = "0.15.0"
