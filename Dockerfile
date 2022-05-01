@@ -4,7 +4,7 @@ FROM rust:latest AS builder
 RUN USER=root cargo new --bin minerva
 WORKDIR ./minerva
 COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.docker.toml ./Cargo.toml
+COPY ./docker/minerva/Cargo.docker.toml ./Cargo.toml
 RUN cargo build --release
 RUN rm -r src/ && rm ./target/release/deps/Minerva*
 

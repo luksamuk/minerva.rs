@@ -1,5 +1,6 @@
 [package]
 name = "Minerva"
+version = "0.1.0"
 edition = "2021"
 
 # WARNING: This is used to prepare the Docker image for deployment!
