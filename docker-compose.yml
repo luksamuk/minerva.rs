@@ -9,6 +9,9 @@ services:
     ports:
       - "8000:8000"
     restart: on-failure:5
+    depends_on:
+      - "postgresql"
+      - "redis"
 
   # Banco de dados - Porta padrão: 5432
   postgresql:
@@ -35,6 +38,9 @@ services:
     restart: on-failure:5
     profiles:
       - debug
+    depends_on:
+      - "postgresql"
+
 
 
 
