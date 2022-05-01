@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  # Serviço REST
+  webservice:
+    build: .
+    environment:
+      - DATABASE_URL=postgres://postgres:123456@postgresql/minervadb
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "8000:8000"
+    restart: on-failure:5
+    depends_on:
+      - "postgresql"
+      - "redis"
+
+  # Banco de dados - Porta padrão: 5432
+  postgresql:
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=minervadb
+    image: postgres:14
+
+  # Redis - Porta padrão: 6379
+  redis:
+    image: redis:6
+
+  # Pgadmin4 - Porta padrão: 80 / Porta: 8484
+  pgadmin:
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=123456
+      - GUNICORN_ACCESS_LOGFILE=/dev/null
+    build:
+      dockerfile: Dockerfile
+      context: docker/pgadmin
+    ports:
+      - "8484:80"
+    profiles:
+      - debug
+
+
+
+

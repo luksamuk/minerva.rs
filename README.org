@@ -485,3 +485,44 @@ Isso  fará com  que o  ambiente  use as  mesmas variáveis  descritas no  arqui
 ~.env~, bem como considerará as portas da  máquina host para conexão com o Redis
 e o PostgreSQL.
 
+* Executando o projeto completo com Docker Compose
+
+É possível também  executar o projeto completo (Webservice REST,  banco de dados
+PostgreSQL 14 e Redis 6) através do Docker Compose. Para isso, existe um arquivo
+~docker-compose.yml~  na raiz  deste  projeto, pronto  para  ser utilizado,  que
+vale-se de algumas das configurações usadas  para construção da imagem Docker do
+serviço.
+
+Para executar o projeto, vá até a raiz do repositório e execute:
+
+#+begin_src bash
+docker compose up
+#+end_src
+
+Este comando baixará as  imagens do PostgreSQL e do Redis,  e também compilará a
+imagem do webservice  Minerva, que estará disponível para acesso  na sua máquina
+sob a porta ~8000~.
+
+Caso você queira remover todos os traços dos contêineres do projeto, use:
+
+#+begin_src bash
+docker compose -v down
+#+end_src
+
+** Acesso ao banco de dados com PgAdmin4
+
+Caso  você queira  acessar e  gerenciar  o banco  de dados  via PgAdmin4,  basta
+executar o serviço via Docker Compose no profile de Debug:
+
+#+begin_src bash
+docker compose --profile debug up
+#+end_src
+
+É bem provável que o PgAdmin4  demore um pouco para inicializar, portanto, fique
+atento ao log do comando.
+
+Após tudo estar pronto, o PgAdmin4  poderá ser acessado em ~localhost:8484~. Use
+o e-mail  ~admin@admin.com~ e a senha  ~123456~. Para acessar o  banco de dados,
+use também a senha ~123456~.
+
+
