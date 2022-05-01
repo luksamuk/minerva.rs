@@ -28,18 +28,16 @@ services:
   # Pgadmin4 - Porta padrão: 80 / Porta: 8484
   pgadmin:
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=123456
+      - GUNICORN_ACCESS_LOGFILE=/dev/null
     build:
       dockerfile: Dockerfile
       context: docker/pgadmin
     ports:
       - "8484:80"
-    restart: on-failure:5
     profiles:
       - debug
-    depends_on:
-      - "postgresql"
 
 
 

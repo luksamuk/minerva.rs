@@ -522,7 +522,7 @@ docker compose --profile debug up
 atento ao log do comando.
 
 Após tudo estar pronto, o PgAdmin4  poderá ser acessado em ~localhost:8484~. Use
-o e-mail ~admin@example.com~ e a senha  ~123456~. Para acessar o banco de dados,
+o e-mail  ~admin@admin.com~ e a senha  ~123456~. Para acessar o  banco de dados,
 use também a senha ~123456~.
 
 
