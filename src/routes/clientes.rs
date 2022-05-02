@@ -41,15 +41,13 @@ pub fn constroi_rotas() -> Vec<Route> {
 
 #[get("/")]
 async fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    let vec_clientes = clientes::lista_clientes(&conexao, 100);
+    let vec_clientes = clientes::lista_clientes(pool, 100).await;
     Resposta::Ok(serde_json::to_string(&vec_clientes).unwrap())
 }
 
 #[get("/<ident>")]
 async fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    match clientes::get_cliente(&conexao, ident) {
+    match clientes::get_cliente(pool, ident).await {
         None => Resposta::NaoEncontrado(
             json!({
                 "mensagem": "Cliente não encontrado"
@@ -66,19 +64,17 @@ async fn cadastra(
     dados: Json<ClienteRecv>,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().await.unwrap();
     if let Err(s) = bo::clientes::valida_dados(&dados) {
         Resposta::ErroSemantico(s)
     } else {
-        let id = clientes::registra_cliente(&conexao, dados.clone());
+        let id = clientes::registra_cliente(pool, dados.clone()).await;
         Resposta::Ok(json!({ "id": id }).to_string())
     }
 }
 
 #[delete("/<ident>")]
 async fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    match clientes::get_cliente(&conexao, ident) {
+    match clientes::get_cliente(pool, ident).await {
         None => Resposta::NaoEncontrado(
             json!({
                 "mensagem": "Cliente não encontrado"
@@ -87,7 +83,7 @@ async fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Re
         ),
         Some(c) => {
             let id = c.id;
-            clientes::deleta_cliente(&conexao, c);
+            clientes::deleta_cliente(pool, c).await;
             Resposta::Ok(json!({ "id": id }).to_string())
         }
     }
@@ -95,12 +91,11 @@ async fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Re
 
 #[delete("/all")]
 async fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    let (num_end, num_cl) = clientes::deleta_todos(&conexao);
+    let (num_end, num_cl) = clientes::deleta_todos(pool).await;
     Resposta::Ok(
         json!({
-        "clientes": num_cl,
-        "enderecos": num_end
+            "clientes": num_cl,
+            "enderecos": num_end
         })
         .to_string(),
     )

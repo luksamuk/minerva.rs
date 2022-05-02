@@ -22,6 +22,7 @@
 //! regras de negócio da aplicação, veja [`bo::clientes`][`crate::bo::clientes`].
 
 use super::log::*;
+use crate::bo::db::ConexaoPool;
 use crate::model::cliente::*;
 use crate::model::endereco::*;
 use crate::model::schema::{cliente, endereco};
@@ -32,14 +33,15 @@ use diesel::prelude::*;
 /// Retorna um Vec com estruturas que representam os dados de um cliente,
 /// incluindo os endereços cadastrados para o mesmo. A quantidade de clientes
 /// retornados não será superior à informada no argumento `limite`.
-pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
+pub async fn lista_clientes(pool: &ConexaoPool, limite: i64) -> Vec<ClienteRepr> {
+    let conexao = pool.get().await.unwrap();
     let cli_req = cliente::table
         .limit(limite)
-        .load::<Cliente>(conexao)
+        .load::<Cliente>(&*conexao)
         .expect("Erro ao carregar clientes");
     let mut clientes = Vec::new();
     for c in cli_req {
-        let enderecos = carrega_enderecos_cliente(conexao, c.id);
+        let enderecos = carrega_enderecos_cliente(&*conexao, c.id);
         let repr = ClienteRepr::from((&c, enderecos));
         clientes.push(repr);
     }
@@ -52,16 +54,17 @@ pub fn lista_clientes(conexao: &PgConnection, limite: i64) -> Vec<ClienteRepr> {
 /// os dados de um único cliente, incluindo os endereços cadastrados para o
 /// mesmo. O cliente será procurado de acordo com o seu id repassado no
 /// argumento `userid`.
-pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
+pub async fn get_cliente(pool: &ConexaoPool, userid: i32) -> Option<ClienteRepr> {
+    let conexao = pool.get().await.unwrap();
     use crate::model::schema::cliente::dsl::*;
     let cli_req = cliente
         .filter(id.eq(&userid))
-        .load::<Cliente>(conexao)
+        .load::<Cliente>(&*conexao)
         .expect("Erro ao carregar cliente");
     match cli_req.first() {
         None => None,
         Some(cl) => {
-            let enderecos = carrega_enderecos_cliente(conexao, cl.id);
+            let enderecos = carrega_enderecos_cliente(&*conexao, cl.id);
             Some(ClienteRepr::from((cl, enderecos)))
         }
     }
@@ -73,21 +76,32 @@ pub fn get_cliente(conexao: &PgConnection, userid: i32) -> Option<ClienteRepr> {
 /// POST, e cadastra-os no banco de dados. Os dados recebidos não são avaliados
 /// quanto à sua validade, sendo inseridos diretamente no banco de dados.
 /// Será retornado o id do cliente após ser cadastrado no banco de dados.
-pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
+pub async fn registra_cliente(pool: &ConexaoPool, dados: ClienteRecv) -> i32 {
+    let conexao = pool.get().await.unwrap();
     let (cl_recv, end_recv) = dados.into();
-    let c: Cliente = diesel::insert_into(cliente::table)
-        .values(&cl_recv)
-        .get_result(conexao)
-        .expect("Erro ao inserir novo cliente");
-    let _ = registra_log(
-        conexao,
-        String::from("CLIENTE"),
-        String::from("TO-DO"),
-        DBOperacao::Insercao,
-        Some(format!("Cliente {}", c.id)),
-    );
-    registra_enderecos_cliente(conexao, c.id, end_recv);
-    c.id
+    let mut id = 0;
+
+    let _ = conexao
+        .build_transaction()
+        .read_write()
+        .run::<(), diesel::result::Error, _>(|| {
+            let c: Cliente = diesel::insert_into(cliente::table)
+                .values(&cl_recv)
+                .get_result(&*conexao)
+                .expect("Erro ao inserir novo cliente");
+            let _ = registra_log(
+                &*conexao,
+                String::from("CLIENTE"),
+                String::from("TO-DO"),
+                DBOperacao::Insercao,
+                Some(format!("Cliente {}", c.id)),
+            );
+            registra_enderecos_cliente(&*conexao, c.id, end_recv);
+            id = c.id;
+
+            Ok(())
+        });
+    id
 }
 
 /// Deleta um cliente em específico no banco de dados.
@@ -96,12 +110,20 @@ pub fn registra_cliente(conexao: &PgConnection, dados: ClienteRecv) -> i32 {
 /// completa de representação do mesmo, posto que sua remoção também envolverá
 /// remoção de todos os endereços associados ao mesmo. A função assume que os
 /// dados de cliente passados sejam válidos.
-pub fn deleta_cliente(conexao: &PgConnection, cl: ClienteRepr) {
+pub async fn deleta_cliente(pool: &ConexaoPool, cl: ClienteRepr) {
     use crate::model::schema::cliente::dsl::*;
-    deleta_enderecos(conexao, cl.enderecos);
-    diesel::delete(cliente.filter(id.eq(&cl.id)))
-        .execute(conexao)
-        .expect("Erro ao deletar cliente");
+    let conexao = pool.get().await.unwrap();
+
+    let _ = conexao
+        .build_transaction()
+        .read_write()
+        .run::<(), diesel::result::Error, _>(|| {
+            deleta_enderecos(&*conexao, cl.enderecos);
+            diesel::delete(cliente.filter(id.eq(&cl.id)))
+                .execute(&*conexao)
+                .expect("Erro ao deletar cliente");
+            Ok(())
+        });
 }
 
 /// Deleta todos os clientes do banco de dados.
@@ -110,28 +132,38 @@ pub fn deleta_cliente(conexao: &PgConnection, cl: ClienteRepr) {
 /// retornando uma tuple contendo, respectivamente, as quantidades de registros
 /// de usuários e de endereços deletados neste processo.
 /// Utilize esta função com cuidado.
-pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
-    let num_end = diesel::delete(endereco::table)
-        .execute(conexao)
-        .expect("Erro ao deletar endereços");
-    let _ = registra_log(
-        conexao,
-        String::from("ENDERECO"),
-        String::from("TO-DO"),
-        DBOperacao::Remocao,
-        Some(String::from("Removendo todos os endereços")),
-    );
-    let num_cl = diesel::delete(cliente::table)
-        .execute(conexao)
-        .expect("Erro ao deletar clientes");
-    let _ = registra_log(
-        conexao,
-        String::from("CLIENTE"),
-        String::from("TO-DO"),
-        DBOperacao::Remocao,
-        Some(String::from("Removendo todos os clientes")),
-    );
-    (num_end, num_cl)
+pub async fn deleta_todos(pool: &ConexaoPool) -> (usize, usize) {
+    let conexao = pool.get().await.unwrap();
+    let mut result = (0, 0);
+
+    let _ = conexao
+        .build_transaction()
+        .read_write()
+        .run::<(), diesel::result::Error, _>(|| {
+            let num_end = diesel::delete(endereco::table)
+                .execute(&*conexao)
+                .expect("Erro ao deletar endereços");
+            let _ = registra_log(
+                &*conexao,
+                String::from("ENDERECO"),
+                String::from("TO-DO"),
+                DBOperacao::Remocao,
+                Some(String::from("Removendo todos os endereços")),
+            );
+            let num_cl = diesel::delete(cliente::table)
+                .execute(&*conexao)
+                .expect("Erro ao deletar clientes");
+            let _ = registra_log(
+                &*conexao,
+                String::from("CLIENTE"),
+                String::from("TO-DO"),
+                DBOperacao::Remocao,
+                Some(String::from("Removendo todos os clientes")),
+            );
+            result = (num_end, num_cl);
+            Ok(())
+        });
+    result
 }
 
 /// Registra os dados de endereços para um cliente em específico.
@@ -139,6 +171,8 @@ pub fn deleta_todos(conexao: &PgConnection) -> (usize, usize) {
 /// Esta função assume que os dados de endereços recebidos estejam corretos,
 /// e também assume que o cliente, cujo id tenha sido informado via parâmetro,
 /// já tenha sido inserido no banco de dados.
+///
+/// A função também assume que esteja sendo chamada em uma transação.
 fn registra_enderecos_cliente(
     conexao: &PgConnection,
     cliente_id: i32,
@@ -177,6 +211,8 @@ fn carrega_enderecos_cliente(conexao: &PgConnection, userid: i32) -> Vec<Enderec
 ///
 /// Esta função requisita os dados completos de endereço de um cliente, que
 /// deverão ser repassados integralmente.
+///
+/// A função também assume que esteja sendo chamada em uma transação.
 fn deleta_enderecos(conexao: &PgConnection, enderecos: Vec<Endereco>) {
     use crate::model::schema::endereco::dsl::*;
     for end in enderecos {
