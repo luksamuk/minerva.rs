@@ -51,18 +51,14 @@ pub fn constroi_rotas() -> Vec<Route> {
         mostra_estoque,
         movimenta_estoque,
         mostra_movimentos,
-        mostra_movimentos_txt,
         mostra_entradas,
-        mostra_entradas_txt,
         mostra_saidas,
-        mostra_saidas_txt,
     ]
 }
 
 #[get("/<prod_id>")]
 async fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    match estoque::mostra_estoque(&conexao, prod_id) {
+    match estoque::mostra_estoque(pool, prod_id).await {
         None => Resposta::NaoEncontrado(
             json!({
                 "mensagem": "Produto não encontrado"
@@ -75,8 +71,7 @@ async fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<
 
 #[get("/")]
 async fn lista_estoque(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    let lista = estoque::lista_estoque(&conexao, 100);
+    let lista = estoque::lista_estoque(pool, 100).await;
     Resposta::Ok(serde_json::to_string(&lista).unwrap())
 }
 
@@ -86,8 +81,7 @@ async fn inicia_estoque(
     dados: Json<Estoque>,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    estoque::inicia_estoque(&conexao, dados.clone())
+    estoque::inicia_estoque(pool, dados.clone()).await
 }
 
 #[post("/mov", data = "<dados>")]
@@ -96,51 +90,26 @@ async fn movimenta_estoque(
     dados: Json<MovEstoqueRecv>,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    estoque::movimenta_estoque(&conexao, dados.clone())
+    estoque::movimenta_estoque(pool, dados.clone()).await
 }
 
 #[get("/mov")]
 async fn mostra_movimentos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    Resposta::Ok(serde_json::to_string(&estoque::recupera_movimentos(&conexao, 100)).unwrap())
+    Resposta::Ok(serde_json::to_string(&estoque::recupera_movimentos(pool, 100).await).unwrap())
 }
 
 #[get("/mov/entradas")]
 async fn mostra_entradas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
     Resposta::Ok(
-        serde_json::to_string(&estoque::recupera_movimentos_filtrado(&conexao, 100, true)).unwrap(),
+        serde_json::to_string(&estoque::recupera_movimentos_filtrado(pool, 100, true).await)
+            .unwrap(),
     )
 }
 
 #[get("/mov/saidas")]
 async fn mostra_saidas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
     Resposta::Ok(
-        serde_json::to_string(&estoque::recupera_movimentos_filtrado(&conexao, 100, false))
+        serde_json::to_string(&estoque::recupera_movimentos_filtrado(pool, 100, false).await)
             .unwrap(),
     )
-}
-
-#[get("/mov/entradas/txt")]
-async fn mostra_entradas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    Resposta::OkTexto(estoque::lista_movimentos_texto_filtrado(
-        &conexao, 100, true,
-    ))
-}
-
-#[get("/mov/saidas/txt")]
-async fn mostra_saidas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    Resposta::OkTexto(estoque::lista_movimentos_texto_filtrado(
-        &conexao, 100, false,
-    ))
-}
-
-#[get("/mov/txt")]
-async fn mostra_movimentos_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().await.unwrap();
-    Resposta::OkTexto(estoque::lista_movimentos_texto(&conexao, 100))
 }
