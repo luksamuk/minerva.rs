@@ -50,14 +50,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 
 #[get("/")]
 async fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     let vec_usuarios = usuarios::lista_usuarios(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_usuarios).unwrap())
 }
 
 #[get("/<usr_id>")]
 async fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
         None => Resposta::NaoEncontrado(
             json!({
@@ -75,7 +75,7 @@ async fn retorna_por_login(
     usr_login: &str,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => Resposta::NaoEncontrado(
             json!({
@@ -93,7 +93,7 @@ async fn cadastra(
     dados: Json<UsuarioRecv>,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
 
     if usuarios::encontra_usuario(&conexao, &dados.login).is_some() {
         return Resposta::ErroSemantico(
@@ -117,7 +117,7 @@ async fn cadastra(
 
 #[delete("/<usr_id>")]
 async fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
         None => Resposta::NaoEncontrado(
             json!({
@@ -144,7 +144,7 @@ async fn deleta_por_login(
     usr_login: &str,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => Resposta::NaoEncontrado(
             json!({

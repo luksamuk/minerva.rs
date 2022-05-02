@@ -23,11 +23,12 @@
 use super::usuarios;
 use crate::bo;
 use crate::bo::auth::jwt;
-use crate::bo::redis::RedisConnection;
+use crate::bo::db::ConexaoPool;
+//use crate::bo::redis::RedisConnection;
+use crate::bo::redis::RedisPool;
 use crate::model::login::{LoginData, LoginResponse};
 use crate::routes::respostas::Resposta;
-use diesel::PgConnection;
-use r2d2_redis::redis::Commands;
+use bb8_redis::redis::AsyncCommands;
 use serde_json::json;
 
 /// Realiza login para um usuário.
@@ -44,13 +45,15 @@ use serde_json::json;
 /// Falhas ao encontrar o usuário retornarão um erro 404. Falhas na autenticação
 /// retornarão um erro 401. Caso haja alguma falha ao gerar o token JWT ou ao
 /// registrá-lo no Redis, será retornado um erro 500.
-pub fn loga_usuario(
-    conexao: &PgConnection,
-    redis: &mut RedisConnection,
+pub async fn loga_usuario(
+    conexao_pool: &ConexaoPool,
+    // redis: &mut RedisConnection<'_>,
+    redis_pool: &RedisPool,
     dados: &LoginData,
 ) -> Resposta {
+    let conexao = conexao_pool.get().await.unwrap();
     // 1. Verifica se o usuário existe.
-    let usuario = match usuarios::encontra_usuario(conexao, &dados.login) {
+    let usuario = match usuarios::encontra_usuario(&conexao, &dados.login) {
         Some(usuario) => usuario,
         None => {
             return Resposta::NaoEncontrado(
@@ -83,8 +86,10 @@ pub fn loga_usuario(
     };
 
     // 4. Salva token no Redis com expiração de 5m30s
+    let mut redis = redis_pool.get().await.unwrap();
     if redis
         .set_ex::<&str, &str, String>(&token, &dados.login, jwt::JWT_SESSION_EXPIRATION)
+        .await
         .is_err()
     {
         return Resposta::ErroInterno(

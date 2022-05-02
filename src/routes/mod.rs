@@ -28,7 +28,7 @@ pub mod respostas;
 pub mod usuarios;
 
 use crate::bo::redis::RedisPool;
-use r2d2_redis::redis::Commands;
+use bb8_redis::redis::AsyncCommands;
 use respostas::Resposta;
 use rocket::State;
 
@@ -47,7 +47,7 @@ use rocket::State;
 pub async fn index(redis_pool: &State<RedisPool>) -> Resposta {
     use comfy_table::{presets::ASCII_BORDERS_ONLY_CONDENSED, Table};
 
-    let mut redis = redis_pool.get().unwrap();
+    let mut redis = redis_pool.get().await.unwrap();
 
     let mut table = Table::new();
     table
@@ -102,8 +102,11 @@ pub async fn index(redis_pool: &State<RedisPool>) -> Resposta {
     table.add_row(vec!["GET", "/log", "Tabela de log"]);
     table.add_row(vec!["GET", "/log/txt", "Tabela de log (texto plano)"]);
 
-    let n_acessos: u64 = redis.incr("chaleira", 1).unwrap();
-    let _ = redis.expire::<&'static str, u64>("chaleira", 20 * 60);
+    let n_acessos: u64 = redis
+        .incr::<&'static str, u64, u64>("chaleira", 1)
+        .await
+        .unwrap();
+    let _ = redis.expire::<&'static str, u64>("chaleira", 20 * 60).await;
 
     Resposta::Chaleira(format!(
         "Lista de rotas\n{}\

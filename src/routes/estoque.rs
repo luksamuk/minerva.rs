@@ -61,7 +61,7 @@ pub fn constroi_rotas() -> Vec<Route> {
 
 #[get("/<prod_id>")]
 async fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     match estoque::mostra_estoque(&conexao, prod_id) {
         None => Resposta::NaoEncontrado(
             json!({
@@ -75,7 +75,7 @@ async fn mostra_estoque(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<
 
 #[get("/")]
 async fn lista_estoque(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     let lista = estoque::lista_estoque(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&lista).unwrap())
 }
@@ -86,7 +86,7 @@ async fn inicia_estoque(
     dados: Json<Estoque>,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     estoque::inicia_estoque(&conexao, dados.clone())
 }
 
@@ -96,19 +96,19 @@ async fn movimenta_estoque(
     dados: Json<MovEstoqueRecv>,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     estoque::movimenta_estoque(&conexao, dados.clone())
 }
 
 #[get("/mov")]
 async fn mostra_movimentos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::Ok(serde_json::to_string(&estoque::recupera_movimentos(&conexao, 100)).unwrap())
 }
 
 #[get("/mov/entradas")]
 async fn mostra_entradas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::Ok(
         serde_json::to_string(&estoque::recupera_movimentos_filtrado(&conexao, 100, true)).unwrap(),
     )
@@ -116,7 +116,7 @@ async fn mostra_entradas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Respo
 
 #[get("/mov/saidas")]
 async fn mostra_saidas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::Ok(
         serde_json::to_string(&estoque::recupera_movimentos_filtrado(&conexao, 100, false))
             .unwrap(),
@@ -125,7 +125,7 @@ async fn mostra_saidas(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Respost
 
 #[get("/mov/entradas/txt")]
 async fn mostra_entradas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::OkTexto(estoque::lista_movimentos_texto_filtrado(
         &conexao, 100, true,
     ))
@@ -133,7 +133,7 @@ async fn mostra_entradas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> R
 
 #[get("/mov/saidas/txt")]
 async fn mostra_saidas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::OkTexto(estoque::lista_movimentos_texto_filtrado(
         &conexao, 100, false,
     ))
@@ -141,6 +141,6 @@ async fn mostra_saidas_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Res
 
 #[get("/mov/txt")]
 async fn mostra_movimentos_txt(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::OkTexto(estoque::lista_movimentos_texto(&conexao, 100))
 }

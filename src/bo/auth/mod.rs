@@ -95,9 +95,8 @@
 
 pub mod jwt;
 
-use super::redis::RedisConnection;
 use super::redis::RedisPool;
-use r2d2_redis::redis::Commands;
+use bb8_redis::redis::AsyncCommands;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 
@@ -143,35 +142,41 @@ impl<'r> FromRequest<'r> for AuthKey<'r> {
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let redis_pool = req.rocket().state::<RedisPool>().unwrap();
-        let mut redis = redis_pool.get().unwrap();
-
-        fn is_valid(chave: &str, redis: &mut RedisConnection) -> bool {
-            let payload = extrai_payload(chave);
-            let claims = jwt::decodifica_jwt(&payload);
-            if claims.is_err() {
-                return false;
-            }
-
-            let claims = claims.unwrap();
-
-            let usuario_associado = redis.get::<String, String>(payload.clone());
-            match usuario_associado {
-                Ok(login) => {
-                    if login == claims.sub {
-                        let _ =
-                            redis.expire::<String, String>(payload, jwt::JWT_SESSION_EXPIRATION);
-                        return true;
-                    }
-                    false
-                }
-                Err(_) => false,
-            }
-        }
+        let mut redis = redis_pool.get().await.unwrap();
 
         match req.headers().get_one("Authorization") {
             None => Outcome::Failure((Status::BadRequest, AuthError::KeyMissing)),
-            Some(chave) if is_valid(chave, &mut redis) => Outcome::Success(AuthKey(chave)),
-            Some(_) => Outcome::Failure((Status::Unauthorized, AuthError::NotLoggedIn)),
+            Some(chave) => {
+                let is_valid = {
+                    let payload = extrai_payload(chave);
+                    let claims = jwt::decodifica_jwt(&payload);
+                    if let Ok(claims) = claims {
+                        let usuario_associado = redis.get::<String, String>(payload.clone()).await;
+                        match usuario_associado {
+                            Ok(login) => {
+                                if login == claims.sub {
+                                    let _ = redis.expire::<String, String>(
+                                        payload,
+                                        jwt::JWT_SESSION_EXPIRATION,
+                                    );
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            Err(_) => false,
+                        }
+                    } else {
+                        false
+                    }
+                };
+
+                if is_valid {
+                    Outcome::Success(AuthKey(chave))
+                } else {
+                    Outcome::Failure((Status::Unauthorized, AuthError::NotLoggedIn))
+                }
+            }
         }
     }
 }

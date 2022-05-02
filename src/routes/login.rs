@@ -36,11 +36,9 @@ pub fn constroi_rotas() -> Vec<Route> {
 #[post("/", data = "<dados>")]
 async fn realiza_login(
     pool: &State<ConexaoPool>,
-    redispool: &State<RedisPool>,
+    redis_pool: &'_ State<RedisPool>,
     // twilio: &State<Option<Twilio>>,
     dados: Json<LoginData>,
 ) -> Resposta {
-    let conexao = pool.get().unwrap();
-    let mut redis = redispool.get().unwrap();
-    login::loga_usuario(&conexao, &mut redis, &dados)
+    login::loga_usuario(pool, redis_pool, &dados).await
 }

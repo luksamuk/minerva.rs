@@ -20,12 +20,21 @@
 //! bem como com as estruturas de pool de conexões e de garantia mínima de
 //! usuário inicial do sistema.
 
-use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::PgConnection;
+use bb8::Pool;
+use bb8_diesel::DieselConnection;
+use bb8_diesel::DieselConnectionManager;
+use diesel::{Connection, PgConnection};
 use std::env;
 
+/// Representa uma conexão com o banco de dados.
+pub type Conexao = DieselConnection<PgConnection>;
+
 /// Representa um pool de conexões com o RDBMS PostgreSQL.
-pub type ConexaoPool = Pool<ConnectionManager<PgConnection>>;
+pub type ConexaoPool = Pool<DieselConnectionManager<PgConnection>>;
+
+/// Quantidade máxima de conexões com o banco de dados abertas para
+/// uso na pool assíncrona de conexões.
+pub const MAX_DATABASE_CONNECTIONS: u32 = 15;
 
 /// Cria um pool de conexões com o RDBMS PostgreSQL.
 /// Deve ser chamada uma vez ao início da aplicação.
@@ -57,16 +66,27 @@ pub type ConexaoPool = Pool<ConnectionManager<PgConnection>>;
 ///     .expect("Erro ao consultar a tabela de clientes");
 /// ```
 /// A conexão será devolvida ao pool ao sair do escopo atual.
-pub fn cria_pool_conexoes() -> ConexaoPool {
+pub async fn cria_pool_conexoes() -> ConexaoPool {
     println!("Criando pool de conexões...");
     let database_url =
         env::var("DATABASE_URL").expect("Necessário definir o URL do BD em DATABASE_URL");
 
-    let manager = ConnectionManager::<PgConnection>::new(&database_url);
+    let manager = DieselConnectionManager::<PgConnection>::new(&database_url);
 
     Pool::builder()
+        .max_size(MAX_DATABASE_CONNECTIONS)
         .build(manager)
+        .await
         .expect("Falha ao criar pool de conexões.")
+}
+
+/// Cria uma conexão avulsa com o banco de dados.
+/// Só utilize esta função quando for necessário realizar uma configuração
+/// específica. Do contrário, use uma conexão das pools.
+fn cria_conexao() -> PgConnection {
+    let database_url =
+        env::var("DATABASE_URL").expect("Necessário definir o URL do BD em DATABASE_URL");
+    PgConnection::establish(&database_url).expect("Impossível conectar ao banco de dados")
 }
 
 /// Executa migrations que estiverem pendentes no banco de dados.
@@ -76,12 +96,11 @@ pub fn cria_pool_conexoes() -> ConexaoPool {
 ///
 /// As migrações só serão executadas em produção. Do contrário, use a ferramenta
 /// CLI do Diesel e execute as migrações com `diesel migration run`.
-#[allow(dead_code)]
-pub fn executa_migrations(pool: &ConexaoPool) {
+pub fn executa_migrations() {
     if cfg!(debug_assertions) {
         let _ = println!("Servidor em modo debug; ignorando migrations.");
     } else {
-        let conexao = pool.get().unwrap();
+        let conexao = cria_conexao();
         let _ = println!("Executando migrations...");
         diesel_migrations::run_pending_migrations(&conexao).unwrap();
     }
@@ -107,13 +126,13 @@ pub fn executa_migrations(pool: &ConexaoPool) {
 /// # Panics
 /// A função entrará em pânico caso a inserção do usuário no banco de dados
 /// falhe.
-pub fn garante_usuario_inicial(pool: &ConexaoPool) {
+pub fn garante_usuario_inicial() {
     use crate::controller::usuarios;
     use crate::model::schema::usuario;
     use crate::model::usuario::{NovoUsuario, UsuarioRecv};
     use diesel::prelude::*;
 
-    let conexao = pool.get().unwrap();
+    let conexao = cria_conexao();
     if usuarios::lista_usuarios(&conexao, 1).is_empty() {
         println!("Cadastrando usuário ADMIN...");
         let novo_admin = NovoUsuario::from(&UsuarioRecv {

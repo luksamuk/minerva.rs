@@ -27,17 +27,8 @@
 extern crate rocket;
 #[macro_use]
 extern crate diesel;
-extern crate bigdecimal;
-extern crate dotenv;
-extern crate serde;
-extern crate serde_json;
 #[macro_use]
 extern crate num_derive;
-extern crate chrono;
-extern crate comfy_table;
-extern crate diesel_enum;
-extern crate num_traits;
-extern crate r2d2_redis;
 
 pub mod bo;
 pub mod controller;

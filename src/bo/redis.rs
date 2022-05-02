@@ -19,14 +19,16 @@
 //! As estruturas aqui descritas dizem respeito à conexão com o serviço Redis,
 //! bem como o pool de conexões para tal serviço.
 
-use r2d2_redis::{r2d2, RedisConnectionManager};
+use bb8_redis::bb8::Pool;
+use bb8_redis::RedisConnectionManager;
 use std::env;
 
 /// Representa uma pool de conexões para o Redis.
-pub type RedisPool = r2d2::Pool<RedisConnectionManager>;
+pub type RedisPool = Pool<RedisConnectionManager>;
 
-/// Representa uma conexão com o serviço Redis.
-pub type RedisConnection = diesel::r2d2::PooledConnection<r2d2_redis::RedisConnectionManager>;
+/// Quantidade máxima de conexões com o Redis abertas para uso na pool
+/// assíncrona de conexões.
+pub const MAX_REDIS_CONNECTIONS: u32 = 15;
 
 /// Cria um pool de conexões com o serviço Redis.
 /// Deve ser chamada uma vez ao início da aplicação.
@@ -57,13 +59,15 @@ pub type RedisConnection = diesel::r2d2::PooledConnection<r2d2_redis::RedisConne
 /// let texto: String = redis.get("variavel").unwrap();
 /// ```
 /// A conexão obtida será devolvida ao pool ao sair do escopo atual.
-pub fn cria_pool_redis() -> RedisPool {
+pub async fn cria_pool_redis() -> RedisPool {
     let redis_url = env::var("REDIS_URL").expect("Necessário definir o URL do Redis em REDIS_URL");
 
     let manager = RedisConnectionManager::new(redis_url)
         .expect("Falha ao criar gerente de conexões do Redis.");
 
-    r2d2::Pool::builder()
+    Pool::builder()
+        .max_size(MAX_REDIS_CONNECTIONS)
         .build(manager)
+        .await
         .expect("Falha ao criar pool do Redis.")
 }

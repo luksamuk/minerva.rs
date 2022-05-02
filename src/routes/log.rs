@@ -33,12 +33,12 @@ pub fn constroi_rotas() -> Vec<Route> {
 
 #[get("/")]
 async fn mostra_log(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::Ok(serde_json::to_string(&log::recupera_log(&conexao, 100)).unwrap())
 }
 
 #[get("/txt")]
 async fn mostra_log_texto(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     Resposta::OkTexto(log::lista_log_texto(&conexao))
 }

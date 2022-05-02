@@ -26,16 +26,16 @@ use minerva::*;
 embed_migrations!();
 
 #[launch]
-fn launch() -> _ {
+async fn launch() -> _ {
     println!("Iniciando Minerva REST Server...");
     dotenv().ok();
     dotenv::from_filename(".env.local").ok();
 
-    let pool = bo::db::cria_pool_conexoes();
-    bo::db::executa_migrations(&pool);
-    bo::db::garante_usuario_inicial(&pool);
+    let pool = bo::db::cria_pool_conexoes().await;
+    bo::db::executa_migrations();
+    bo::db::garante_usuario_inicial();
 
-    let redis_pool = bo::redis::cria_pool_redis();
+    let redis_pool = bo::redis::cria_pool_redis().await;
 
     //let twilio = bo::twilio::cria_conexao_twilio();
 

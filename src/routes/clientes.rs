@@ -41,14 +41,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 
 #[get("/")]
 async fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     let vec_clientes = clientes::lista_clientes(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_clientes).unwrap())
 }
 
 #[get("/<ident>")]
 async fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     match clientes::get_cliente(&conexao, ident) {
         None => Resposta::NaoEncontrado(
             json!({
@@ -66,7 +66,7 @@ async fn cadastra(
     dados: Json<ClienteRecv>,
     _auth: AuthKey<'_>,
 ) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     if let Err(s) = bo::clientes::valida_dados(&dados) {
         Resposta::ErroSemantico(s)
     } else {
@@ -77,7 +77,7 @@ async fn cadastra(
 
 #[delete("/<ident>")]
 async fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     match clientes::get_cliente(&conexao, ident) {
         None => Resposta::NaoEncontrado(
             json!({
@@ -95,7 +95,7 @@ async fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Re
 
 #[delete("/all")]
 async fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
-    let conexao = pool.get().unwrap();
+    let conexao = pool.get().await.unwrap();
     let (num_end, num_cl) = clientes::deleta_todos(&conexao);
     Resposta::Ok(
         json!({
