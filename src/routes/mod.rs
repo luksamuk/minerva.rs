@@ -44,7 +44,7 @@ use rocket::State;
 /// Esta rota sempre retornará um código de erro 418 ("I'm a Teapot"), bem como
 /// a tabela de rotas em texto plano.
 #[get("/")]
-pub fn index(redis_pool: &State<RedisPool>) -> Resposta {
+pub async fn index(redis_pool: &State<RedisPool>) -> Resposta {
     use comfy_table::{presets::ASCII_BORDERS_ONLY_CONDENSED, Table};
 
     let mut redis = redis_pool.get().unwrap();

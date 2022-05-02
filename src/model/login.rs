@@ -40,11 +40,11 @@ use serde::{Deserialize, Serialize};
 /// }
 /// ```
 #[derive(Deserialize)]
-pub struct LoginData<'r> {
+pub struct LoginData {
     /// Login do usuário tentando realizar login.
-    pub login: &'r str,
+    pub login: String,
     /// Senha do usuário tentando realizar login, repassada em texto plano.
-    pub senha: &'r str,
+    pub senha: String,
 }
 
 /// Representa dados de login a serem respondidos, em caso de um login

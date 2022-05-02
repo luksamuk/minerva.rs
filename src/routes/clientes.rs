@@ -40,14 +40,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[get("/")]
-fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
+async fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let vec_clientes = clientes::lista_clientes(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_clientes).unwrap())
 }
 
 #[get("/<ident>")]
-fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
+async fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
         None => Resposta::NaoEncontrado(
@@ -61,7 +61,11 @@ fn retorna_usuario(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) ->
 }
 
 #[post("/", data = "<dados>")]
-fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>, _auth: AuthKey<'_>) -> Resposta {
+async fn cadastra(
+    pool: &State<ConexaoPool>,
+    dados: Json<ClienteRecv>,
+    _auth: AuthKey<'_>,
+) -> Resposta {
     let conexao = pool.get().unwrap();
     if let Err(s) = bo::clientes::valida_dados(&dados) {
         Resposta::ErroSemantico(s)
@@ -72,7 +76,7 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<ClienteRecv>, _auth: AuthKey<
 }
 
 #[delete("/<ident>")]
-fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
+async fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match clientes::get_cliente(&conexao, ident) {
         None => Resposta::NaoEncontrado(
@@ -90,7 +94,7 @@ fn deleta(pool: &State<ConexaoPool>, ident: i32, _auth: AuthKey<'_>) -> Resposta
 }
 
 #[delete("/all")]
-fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
+async fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let (num_end, num_cl) = clientes::deleta_todos(&conexao);
     Resposta::Ok(

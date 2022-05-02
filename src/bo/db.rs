@@ -117,10 +117,10 @@ pub fn garante_usuario_inicial(pool: &ConexaoPool) {
     if usuarios::lista_usuarios(&conexao, 1).is_empty() {
         println!("Cadastrando usuário ADMIN...");
         let novo_admin = NovoUsuario::from(&UsuarioRecv {
-            login: "admin",
-            nome: "Admin",
+            login: "admin".to_string(),
+            nome: "Admin".to_string(),
             email: None,
-            senha: "admin",
+            senha: "admin".to_string(),
         });
         let _ = diesel::insert_into(usuario::table)
             .values(&novo_admin)

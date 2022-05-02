@@ -50,7 +50,7 @@ pub fn loga_usuario(
     dados: &LoginData,
 ) -> Resposta {
     // 1. Verifica se o usuário existe.
-    let usuario = match usuarios::encontra_usuario(conexao, dados.login) {
+    let usuario = match usuarios::encontra_usuario(conexao, &dados.login) {
         Some(usuario) => usuario,
         None => {
             return Resposta::NaoEncontrado(
@@ -63,7 +63,7 @@ pub fn loga_usuario(
     };
 
     // 2. Testa a senha do usuário.
-    if !bo::usuarios::verifica_senha(dados.senha, &usuario.senha_hash) {
+    if !bo::usuarios::verifica_senha(&dados.senha, &usuario.senha_hash) {
         return Resposta::NaoAutorizado(
             json!({
                 "mensagem": "Senha incorreta"
@@ -73,7 +73,7 @@ pub fn loga_usuario(
     }
 
     // 3. Gera token JWT.
-    let token = match jwt::cria_jwt(dados.login) {
+    let token = match jwt::cria_jwt(&dados.login) {
         Ok(tok) => tok,
         Err(erro) => {
             return Resposta::ErroInterno(
@@ -84,7 +84,7 @@ pub fn loga_usuario(
 
     // 4. Salva token no Redis com expiração de 5m30s
     if redis
-        .set_ex::<&str, &str, String>(&token, dados.login, jwt::JWT_SESSION_EXPIRATION)
+        .set_ex::<&str, &str, String>(&token, &dados.login, jwt::JWT_SESSION_EXPIRATION)
         .is_err()
     {
         return Resposta::ErroInterno(

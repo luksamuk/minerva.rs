@@ -49,14 +49,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[get("/")]
-fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
+async fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let vec_usuarios = usuarios::lista_usuarios(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_usuarios).unwrap())
 }
 
 #[get("/<usr_id>")]
-fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
+async fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
         None => Resposta::NaoEncontrado(
@@ -70,7 +70,11 @@ fn retorna_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) ->
 }
 
 #[get("/<usr_login>", rank = 2)]
-fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<'_>) -> Resposta {
+async fn retorna_por_login(
+    pool: &State<ConexaoPool>,
+    usr_login: &str,
+    _auth: AuthKey<'_>,
+) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => Resposta::NaoEncontrado(
@@ -84,10 +88,14 @@ fn retorna_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<
 }
 
 #[post("/", data = "<dados>")]
-fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>, _auth: AuthKey<'_>) -> Resposta {
+async fn cadastra(
+    pool: &State<ConexaoPool>,
+    dados: Json<UsuarioRecv>,
+    _auth: AuthKey<'_>,
+) -> Resposta {
     let conexao = pool.get().unwrap();
 
-    if usuarios::encontra_usuario(&conexao, dados.login).is_some() {
+    if usuarios::encontra_usuario(&conexao, &dados.login).is_some() {
         return Resposta::ErroSemantico(
             json!({ "mensagem": format!("O nome de usuário \"{}\" já existe", dados.login) })
                 .to_string(),
@@ -108,7 +116,7 @@ fn cadastra(pool: &State<ConexaoPool>, dados: Json<UsuarioRecv>, _auth: AuthKey<
 }
 
 #[delete("/<usr_id>")]
-fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
+async fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::get_usuario(&conexao, usr_id) {
         None => Resposta::NaoEncontrado(
@@ -121,8 +129,8 @@ fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> 
             usuarios::deleta_usuario_por_id(&conexao, usr_id);
             Resposta::Ok(
                 json!({
-                "id": usr_id,
-                "login": u.login
+                    "id": usr_id,
+                    "login": u.login
                 })
                 .to_string(),
             )
@@ -131,7 +139,11 @@ fn deleta_por_id(pool: &State<ConexaoPool>, usr_id: i32, _auth: AuthKey<'_>) -> 
 }
 
 #[delete("/<usr_login>", rank = 2)]
-fn deleta_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<'_>) -> Resposta {
+async fn deleta_por_login(
+    pool: &State<ConexaoPool>,
+    usr_login: &str,
+    _auth: AuthKey<'_>,
+) -> Resposta {
     let conexao = pool.get().unwrap();
     match usuarios::encontra_usuario(&conexao, usr_login) {
         None => Resposta::NaoEncontrado(
@@ -144,8 +156,8 @@ fn deleta_por_login(pool: &State<ConexaoPool>, usr_login: &str, _auth: AuthKey<'
             usuarios::deleta_usuario_por_id(&conexao, u.id);
             Resposta::Ok(
                 json!({
-                "id": u.id,
-                "login": u.login
+                    "id": u.id,
+                    "login": u.login
                 })
                 .to_string(),
             )

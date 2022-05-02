@@ -39,14 +39,14 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[get("/")]
-fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
+async fn index(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let vec_produtos = produtos::lista_produtos(&conexao, 100);
     Resposta::Ok(serde_json::to_string(&vec_produtos).unwrap())
 }
 
 #[get("/<prod_id>")]
-fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
+async fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
         None => Resposta::NaoEncontrado(
@@ -60,7 +60,7 @@ fn retorna_produto(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) 
 }
 
 #[delete("/<prod_id>")]
-fn deleta(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
+async fn deleta(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     match produtos::get_produto(&conexao, prod_id) {
         None => Resposta::NaoEncontrado(
@@ -77,14 +77,18 @@ fn deleta(pool: &State<ConexaoPool>, prod_id: i32, _auth: AuthKey<'_>) -> Respos
 }
 
 #[delete("/all")]
-fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
+async fn deleta_todos(pool: &State<ConexaoPool>, _auth: AuthKey<'_>) -> Resposta {
     let conexao = pool.get().unwrap();
     let num_del = produtos::deleta_todos(&conexao);
     Resposta::Ok(json!({ "produtos": num_del }).to_string())
 }
 
 #[post("/", data = "<dados>")]
-fn cadastra(pool: &State<ConexaoPool>, dados: Json<NovoProduto>, _auth: AuthKey<'_>) -> Resposta {
+async fn cadastra(
+    pool: &State<ConexaoPool>,
+    dados: Json<NovoProduto>,
+    _auth: AuthKey<'_>,
+) -> Resposta {
     let conexao = pool.get().unwrap();
     let result = produtos::registra_produto(&conexao, dados.clone());
     match result {

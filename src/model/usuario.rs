@@ -92,24 +92,24 @@ pub struct NovoUsuario {
 /// Veja que o e-mail do usuário sendo cadastrado é opcional, podendo ser
 /// omitido ou definido como `null`.
 #[derive(Deserialize, Clone)]
-pub struct UsuarioRecv<'r> {
+pub struct UsuarioRecv {
     /// Login do usuário a ser cadastrado.
     /// Veja [`Usuario::login`].
-    pub login: &'r str,
+    pub login: String,
     /// Nome do usuário a ser cadastrado.
     /// Veja [`Usuario::nome`].
-    pub nome: &'r str,
+    pub nome: String,
     /// E-mail do usuário a ser cadastrado. Opcional.
     /// Veja [`Usuario::email`].
-    pub email: Option<&'r str>,
+    pub email: Option<String>,
     /// Senha do usuário a ser cadastrado, em texto-plano. Será transformado
     /// em hash para armazenamento.
     /// Veja [`Usuario::senha_hash`].
     #[serde(skip_serializing)]
-    pub senha: &'r str,
+    pub senha: String,
 }
 
-impl<'r> From<&UsuarioRecv<'r>> for NovoUsuario {
+impl<'r> From<&UsuarioRecv> for NovoUsuario {
     /// Realiza conversão e tratamento dos dados de um novo usuário, quando
     /// recebidos via requisição POST, para dados prontos para serem inseridos
     /// no banco de dados.

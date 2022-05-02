@@ -34,7 +34,7 @@ pub fn constroi_rotas() -> Vec<Route> {
 }
 
 #[post("/", data = "<dados>")]
-fn realiza_login(
+async fn realiza_login(
     pool: &State<ConexaoPool>,
     redispool: &State<RedisPool>,
     // twilio: &State<Option<Twilio>>,
